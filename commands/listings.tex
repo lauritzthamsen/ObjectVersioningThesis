@@ -1,0 +1,38 @@
+\usepackage{color}
+\definecolor{listingbackground}{rgb}{1,1,1} % white
+\definecolor{longListingBackground}{rgb}{0.95, 0.95, 0.95} % very light grey
+\definecolor{attributecolor}{rgb}{0.65, 0.01, 0.01} % red
+\definecolor{commentcolor}{rgb}{0, 0.6, 0} % green
+\definecolor{keywordcolor}{rgb}{0, 0.2, 1}  % blue
+\usepackage{listings}
+\usepackage{wrapfig}
+\usepackage{graphicx}
+\usepackage[font=small,labelfont=bf]{caption}
+\usepackage{ifthen}
+%%--- listings configuration
+\newcommand{\coderem}{\sffamily\tiny[\ldots]}
+\usepackage{listings}
+\lstdefinestyle{none}{
+	backgroundcolor=\color{longListingBackground}, frame=none, framerule=0pt,
+	numberfirstline=false, numbers=left, numberstyle=\tiny, stepnumber=1,
+	breaklines=true, tabsize=2
+}
+\lstdefinelanguage{JavaScript}{
+	keywords={typeof, new, true, false, catch, function, return, null, catch, switch, var, if, in, while, do, else, case, break},
+	ndkeywords={class, export, boolean, throw, implements, import, this},
+	sensitive=true,
+	comment=[l]{//},
+	morecomment=[s]{/*}{*/},
+	morestring=[b]',
+	morestring=[b]"
+}
+\lstdefinestyle{JavaScriptStyle}{
+  backgroundcolor=\color{longListingBackground}
+}
+\lstnewenvironment{javaScript}[1][]{%
+\lstset{language=JavaScript,columns=[c]fixed,#1}%
+}{}
+\newcommand{\code}[2]{{\small\colorbox{listingbackground}{\lstinline[style=#2,basicstyle=\ttfamily\small]{#1}}}}
+\newcommand{\codeinput}[4][\empty]{\ifthenelse{\equal{#1}{\empty}}{\lstinputlisting[style=#3,label=code:#2,float=#4,basicstyle=\ttfamily\scriptsize]{listings/#2}}{\lstinputlisting[style=#3,label=code:#2,caption=#1,captionpos=b,float=#4,basicstyle=\ttfamily\scriptsize]{listings/#2}}}
+\renewcommand{\baselinestretch}{1.1}
+%%--- end of listings configuration
