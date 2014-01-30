@@ -1,0 +1,5 @@
+# swth config file
+MODE=master
+LATEX=pdflatex
+BIBTEX=biber
+MAIN=Thamsen_2014_Thesis
