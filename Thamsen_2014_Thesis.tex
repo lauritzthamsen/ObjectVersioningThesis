@@ -1,0 +1,93 @@
+% Options.
+%
+% Language
+%  en  -  english (default)
+%  de  -  german
+%
+% Modes
+%  draft - drafting mode, esp for todos
+%  final - final mode
+%
+%
+% Fonts
+%  lmodern - Latin Modern, like TeX default (default)
+%  palatino -  Heavier, slightly more readable
+%                      Palatino Linotype, Palatino or TeX Gyre Pagella  (xetex)
+%                      TeX Gyre Pagella (luatex)
+%                      Palladio+Pazo (pdflatex)
+%  garamond - Lighter than palatino, heavier than latin modern, 
+%                         more readable.
+%                      needs EB Garamond:
+%                       http://www.georgduffner.at/ebgaramond/
+%                          download:
+%            https://github.com/downloads/georgd/EB-Garamond/EBGaramond-0.013.zip
+%                         unzip and install (xetex) or set
+%                         \garamondpath (luatex)
+%
+% Other
+%  print - do not color links
+%
+\documentclass[draft,master]{swathesis}
+
+\addbibresource{thesis.bib}
+
+\usepackage{titlepage}
+\TitlePageStyle[
+subject=master,degree={Master of Science},
+]{hpi-swa}
+
+\supervisors{%
+Prof.\,Dr.\,Robert Hirschfeld\and %
+Bastian Steinert%
+}
+
+% ABGABEDATUM
+% \setdate{2012}{04}{05}
+% \date{\datedate}
+
+\author{Lauritz Thamsen}
+\location{Potsdam}
+\extratitle{\raggedleft Thamsen, \\ Object Versioning for the Lively Kernel\par}
+\title{Object Versioning for the Lively Kernel}
+% \subtitle{Ein Untertitel ist Optional}
+
+\begin{document}
+\frontmatter
+\maketitle
+\input{content/0_1_abstract}
+\input{content/0_2_acknowledgment}
+\tableofcontents
+\listoffigures
+\listoftables
+\lstlistoflistings
+\listofacronyms
+\mainmatter
+
+\input{content/1_introduction}
+\input{content/2_background}
+\input{content/3_approach}
+\input{content/4_implementation}
+\input{content/5_evaluation}
+\input{content/6_related_work}
+\input{content/7_future_work}
+\input{content/8_conclusion}
+
+% \chapter{Introduction}
+
+% Here goes the foo.\todo{cite here}
+% I will talk about what an \ac{api} is in this section.
+% Normally, there are different \acp{api}. Not to forget,
+% anything can be an \ac{api}. And full: \acf{api}.
+
+\printbibliography
+\clearpage
+\appendix
+\input{content/9_appendix}
+\backmatter
+\markboth{}\relax
+\defaultstatement
+\end{document}
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
