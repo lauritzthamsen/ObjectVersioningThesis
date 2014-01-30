@@ -1,4 +1,39 @@
 \section{Related Work} \label{sec:RELATED_WORK}
 
+\subsection{CoExist}
+
+continuous versioning, tool support for Squeak/Smalltalk that provides a fine-grained history of changes made to code and tools to find the relevant version, including a timeline of versions that shows test results for each version and a version browser that also shows screen shots for each version… but only code changes are recognized, not state of objects or classes. and implemented for Squeak/Smalltalk, not JavaScript..
+
+
 \subsection{Worlds}
 Worlds~\cite{Warth2011Wor}
+
+(language construct to capture side-effects of statements into worlds. worlds are first-class values. new worlds can be created from existing worlds, which also establishes a parent relationship, so that worlds can be commited to their parents again. both sprouting new worlds and commiting the side effects of inheriting worlds back to their parent worlds is explicit. as is the management of world values. a programming tool to support explicit experimentation and a basis for multiple application, including undo/redo for particular application. but explicit capturing of side-effects instead continuous capturing of versions. 
+worlds could be a basis for implementing continuous versioning… but implementation of Worlds/JS is not quite practical for our goals: no garbage collection with global worlds tables, relies on OMeta (interferes with debugging / exception listening, doesn’t provide source maps, proxies have advantages..)
+
+
+\subsection{Back-in-Time Debugging}
+
+back-in-time debugging
+
+Practical Back-in-Time Debugging, Aliases (Lienhard Diss): the idea of using objects for references that hold more information on objects, including information on the objects past, which are called object aliases in this work, is very similar to our version-aware references. including the idea to rely on the usual garbage collection to take care of versions for an unreachable object
+
+different intent: only debugging vs. undo/redo during usage
+
+different approach to when to create these references… not at object creation, but more appropriate for following a single execution flow (without preparing the rest of the system)
+
+
+\subsection{Martin Czuchra}
+Master Thesis of Martin Czuchra, Automatic Versioning of Lively Worlds
+
+
+\subsection{Context-oriented Programming}
+Context-oriented Programming, ContextJS
+
+
+\subsection{Bergel's Boxes}
+Class-boxes, Changes Boxes (Alexandre Bergel..)
+
+
+\subsection{Software Transactional Memory}
+Software Transactional Memory
