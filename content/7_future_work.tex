@@ -1,1 +1,20 @@
 \section{Future Work} \label{sec:FUTURE_WORK}
+
+\subsection{improving the implementation / a faster implementation}
+
+\begin{itemize}
+    \item lookup-indirection-microbenchmark… proxy-akin indirection vs. direct reference...
+\end{itemize}
+
+source-rewrite-approach.. source code transformations instead of proxies
+
+anObject.aProperty() -> apply(anObject, get(anObject, aProperty))
+
+\subsection{recovery support / versioning tool support}
+
+\begin{itemize}
+    \item continuous versioning: versions whenever a user (might) trigger side effects, with each trigger that (might) effects some state: direct manipulation of morphs with halo buttons, evaluation of do-it code snippets, saving scripts or methods, mouse events that fire up code execution.
+on a granularity meaningful to the user, so he knows he can take back his actions on the system.
+    \item finding relevant versions: see what triggered a version (do-it, halo button, save button, application button)?, when the version was created (screenshot, screencast)?, how it is related to other versions (time line of versions)?, what has changed? which object(s) (morph names, structural context a la morph composition or related named morphs)? how can these objects be identified? how where objects changed (state diff, code diff)?, what is the impact of the changes (test results, benchmark results)?
+    \item ability to revisit the or one of the previous versions,fine-grained version control to be able to recover versions of particular objects from previous versions of the runtime (cherry-picking), branching from a previous version, merging branches… diffing versions of objects… high-level summary of the differences between versions of the runtime
+\end{itemize}
