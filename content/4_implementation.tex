@@ -3,13 +3,13 @@
 
 \subsection{details of the proxies (3.2)}
 
-\begin{itemize}
-    \item ECMAScript 6 Direct Proxies: proxy handler object, traps; ES 6 in DRAFT, deprecated Harmony Proxy proposal implemented in current chromes, but 
-    \item proxies for mutable JavaScript objects: objects, arrays, functions
-    \item the proxy handlers really hold references to copies of the same object in a dictionary (version name -> object version)
-    \item delegation to a particular version at runtime using a version of the target object according to some global version of the runtime..
-    \item identity of proxyFor(obj) === proxyFor(obj), ProxyTable (weak-key map, objects -> to their proxies)
-\end{itemize}
+% \begin{itemize}
+%     \item ECMAScript 6 Direct Proxies\footnote{\url{http://wiki.ecmascript.org/doku.php?id=harmony:direct_proxies},\goodbreak accessed February 3rd, 2014}: proxy handler object, traps; ES 6 in DRAFT ~\cite{ECMA2014ES6}, deprecated Harmony Proxy proposal implemented in current chromes, but 
+%     \item proxies for mutable JavaScript objects: objects, arrays, functions
+%     \item the proxy handlers really hold references to copies of the same object in a dictionary (version name -> object version)
+%     \item delegation to a particular version at runtime using a version of the target object according to some global version of the runtime..
+%     \item identity of proxyFor(obj) === proxyFor(obj), ProxyTable (weak-key map, objects -> to their proxies)
+% \end{itemize}
 
 
 
@@ -80,7 +80,7 @@ single-threaded and cooperative scheduling, but setTimeout / setInterval… stop
 \subsection{Implementation limitations}
 
 \begin{itemize}
-    \item only works in recent Chromes, with experimental JavaScript… ECMAScript 6 Direct Proxies not yet fully implemented, not yet stable.. 
+    \item only works in recent Chromes, with experimental JavaScript… ECMAScript 6 Direct Proxies not yet fully implemented, not yet stable.. shim library\footnote{\url{http://github.com/tvcutsem/harmony-reflect},\goodbreak accessed February 3, 2014, at version 0.0.11}..
 .. own adaptions to the shim library, to bridge the gap between the current version of the shim and information from the Spec draft (pass null for the target of a proxy)… fully virtual objects vs. consistency checks.. adapted library to fit spec draft (pass null as target of a fully virtual object, then no trap-return-value-consistency-with-target checks)
 \end{itemize}
     

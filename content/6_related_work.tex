@@ -2,11 +2,11 @@
 
 \subsection{CoExist}
 
+\cite{Steinert2012COE}
 continuous versioning, tool support for Squeak/Smalltalk that provides a fine-grained history of changes made to code and tools to find the relevant version, including a timeline of versions that shows test results for each version and a version browser that also shows screen shots for each version… but only code changes are recognized, not state of objects or classes. and implemented for Squeak/Smalltalk, not JavaScript..
 
 
 \subsection{Worlds}
-Worlds~\cite{Warth2011Wor}
 
 (language construct to capture side-effects of statements into worlds. worlds are first-class values. new worlds can be created from existing worlds, which also establishes a parent relationship, so that worlds can be commited to their parents again. both sprouting new worlds and commiting the side effects of inheriting worlds back to their parent worlds is explicit. as is the management of world values. a programming tool to support explicit experimentation and a basis for multiple application, including undo/redo for particular application. but explicit capturing of side-effects instead continuous capturing of versions. 
 worlds could be a basis for implementing continuous versioning… but implementation of Worlds/JS is not quite practical for our goals: no garbage collection with global worlds tables, relies on OMeta (interferes with debugging / exception listening, doesn’t provide source maps, proxies have advantages..)
@@ -14,9 +14,10 @@ worlds could be a basis for implementing continuous versioning… but implementa
 
 \subsection{Back-in-Time Debugging}
 
-back-in-time debugging
+back-in-time debugging~\cite{Lewis2003BIT}
+Logging-based approaches, Replay-based approaches \todo{see Lienhard2008POB}.. both to recreate a particular state of the runtime... but purpose is debugging and not necessarily recovering.. 
 
-Practical Back-in-Time Debugging, Aliases (Lienhard Diss): the idea of using objects for references that hold more information on objects, including information on the objects past, which are called object aliases in this work, is very similar to our version-aware references. including the idea to rely on the usual garbage collection to take care of versions for an unreachable object
+Practical Back-in-Time Debugging~\cite{Lienhard2008POB}, Aliases (Lienhard Diss): the idea of using objects for references that hold more information on objects, including information on the objects past, which are called object aliases in this work, is very similar to our version-aware references. including the idea to rely on the usual garbage collection to take care of versions for an unreachable object
 
 different intent: only debugging vs. undo/redo during usage
 
@@ -24,24 +25,39 @@ different approach to when to create these references… not at object creation,
 
 
 \subsection{Offline Worlds: Automated Client–Side Persistence in Lively Kernel}
-Master Thesis of Martin Czuchra, automatically saving worlds in a fixed interval
+Offline Worlds~\cite{Czuchra2012OfW}, automatically saving worlds in a fixed interval
 
-intend: Browser- oder Betriebssystem–Abstuerzen, Netzwerk- oder Server–Ausfaellen, so- wie gleichzeitigen Aenderungen durch andere Nutzer fuehrt
+intend: Browser- oder Betriebssystem-Abstuerzen, Netzwerk- oder Server-Ausfaellen, so- wie gleichzeitigen Aenderungen durch andere Nutzer fuehrt
 vs. recover from changes that turn out to be inappropriate (single user, single session..)
 
-interval of Martin: Offline Worlds store progress automatically based on an interval that is set to 10 seconds...
-
+in an interval: Offline Worlds store progress automatically based on an interval that is set to 10 seconds...
 
 implementation differences: serializing worlds vs. copy-on-write versions of objects of the runtime: creating new versions (serialization and diffing to gain world version deltas) and revisiting older versions (loading older worlds from scratch) should be considerable slower, interruptive / stop-the-world, whereas with our approach the overhead for new versions or revisting is less and also more incremental than stop-the-world (new versions of the runtime with essentially no cost at that point in time, but new versions of objects only when we write to them, reusing older versions on an object granularity, and not resetting all objects to a previous version, but dynamically resolving to the correct version whenever references are followed..), but Martins approach has no basic execution overhead, just way more costly and interruptive commit/undo operations... in comparsion, our approach might be more suited for very fine-grained object versioning, while Martins might be more suited for the occasional snapshot of the world..
 
 
+\subsection{ChangeBoxes}
+ChangeBoxes~\cite{Denker2007EEC}
+
+Class-boxes? \todo{what about Alexandre Bergel's Class-boxes.. and other boxes by the SCG?}
+
+
+\subsection{Subject-oriented Programming / Us}
+maybe something about David Ungar's Us~\cite{}
+
+
 \subsection{Context-oriented Programming}
-Context-oriented Programming, ContextJS
-
-
-\subsection{Bergel's Boxes}
-Class-boxes, Changes Boxes (Alexandre Bergel..)
+Context-oriented Programming~\cite{Hirschfeld2008COP}, ContextJS~\cite{Lincke2011OIC}, scoping changes in a self-supporting system~\cite{Lincke2012SCS}
 
 
 \subsection{Software Transactional Memory}
-Software Transactional Memory
+Software Transactional Memory~\cite{Shavit1995STM}
+
+
+
+\subsection{TODO: might be related..}
+
+Johnson and Duggan’s GL programming language \todo{gl? (related to Worlds..)}
+Morrisett sub-stores 
+
+Tanter's scoped assignment construct  that enables programmers to control the scope of side effects \todo{scoped assignments? (related to Worlds..)}
+
