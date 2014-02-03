@@ -1,7 +1,7 @@
-\section{Implementation} \label{sec:IMPLEMENTATION}
+\chapter{Implementation} \label{sec:IMPLEMENTATION}
 
 
-\subsection{details of the proxies (3.2)}
+\section{details of the proxies (3.2)}
 
 % \begin{itemize}
 %     \item ECMAScript 6 Direct Proxies\footnote{\url{http://wiki.ecmascript.org/doku.php?id=harmony:direct_proxies},\goodbreak accessed February 3rd, 2014}: proxy handler object, traps; ES 6 in DRAFT ~\cite{ECMA2014ES6}, deprecated Harmony Proxy proposal implemented in current chromes, but 
@@ -29,7 +29,7 @@ part 2: patches: Object.isRegExp, ‘some string’.match (done by patching Stri
 
 
 
-\subsection{"details of ‘using the version-aware references consistently’” ( / details for 3.3)}
+\section{"details of ‘using the version-aware references consistently’” ( / details for 3.3)}
 
 goal: all references to newly created objects need to be version-aware references, i.e. references to proxies instead of references to the (initial version of the) target. 
 
@@ -47,7 +47,7 @@ goal: all references to newly created objects need to be version-aware reference
 
 
 
-\subsection{details for the versions of the runtime (details for 3.4)}
+\section{details for the versions of the runtime (details for 3.4)}
 
 JS execution: single-threaded, cooperative scheduling 
 
@@ -70,18 +70,18 @@ JS execution: single-threaded, cooperative scheduling
 
 
 
-\subsection{asynchronous scripts / concurrency in JavaScript}
+\section{asynchronous scripts / concurrency in JavaScript}
 
-single-threaded and cooperative scheduling, but setTimeout / setInterval… stop asynchronous actions from following versions when undoing… source transformations, which scripts belongs to which version
-
-
+single-threaded and cooperative scheduling, but setTimeout / setInterval... stop asynchronous actions from following versions when undoing... source transformations, which scripts belongs to which version
 
 
-\subsection{Implementation limitations}
+
+
+\section{Implementation limitations}
 
 \begin{itemize}
-    \item only works in recent Chromes, with experimental JavaScript… ECMAScript 6 Direct Proxies not yet fully implemented, not yet stable.. shim library\footnote{\url{http://github.com/tvcutsem/harmony-reflect},\goodbreak accessed February 3, 2014, at version 0.0.11}..
-.. own adaptions to the shim library, to bridge the gap between the current version of the shim and information from the Spec draft (pass null for the target of a proxy)… fully virtual objects vs. consistency checks.. adapted library to fit spec draft (pass null as target of a fully virtual object, then no trap-return-value-consistency-with-target checks)
+    \item only works in recent Chromes, with experimental JavaScript... ECMAScript 6 Direct Proxies not yet fully implemented, not yet stable.. shim library\footnote{\url{http://github.com/tvcutsem/harmony-reflect},\goodbreak accessed February 3, 2014, at version 0.0.11}..
+.. own adaptions to the shim library, to bridge the gap between the current version of the shim and information from the Spec draft (pass null for the target of a proxy)... fully virtual objects vs. consistency checks.. adapted library to fit spec draft (pass null as target of a fully virtual object, then no trap-return-value-consistency-with-target checks)
 \end{itemize}
     
 

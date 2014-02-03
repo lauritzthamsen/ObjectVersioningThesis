@@ -1,10 +1,10 @@
-\section{Background} \label{sec:BACKGROUND}
+\chapter{Background} \label{sec:BACKGROUND}
 
 \todo{better title}
 
 
 
-\subsection{developing objects / developing parts in Lively}
+\section{developing objects / developing parts in Lively}
 
 interactive programming systems like Self, Fabrik~\cite{Ingalls1988FVP}, Etoys~\cite{Kay2005Etoys}, the Lively Kernel, allow to develop at runtime and to manipulate particular objects, may those be instances of classes or just objects in case of object-oriented programming systems that rely on prototypical inheritance… in lively there are classes, COP layers, traits, but also object-specific manipulation:
 direct manipulation of objects, halo buttons, style editor, script editor: style and composition (state), scripts (object-specific behavior, which is also state..)
@@ -20,7 +20,7 @@ describe the perceived benefits: no edit-save-load/instantiate cycle / fast feed
 \cite{Taivalsaari1996CVP}, \cite{Tailvalsaari1992Kevo}, \cite{Borning1986CVP}, \cite{Taivalsaari97CVP}
 
 
-\subsection{problem description / motivation: recovery needs when manipulating objects}
+\section{problem description / motivation: recovery needs when manipulating objects}
 
 [some description of situations with recovery needs]
 undo a direct manipulation of style or behavior, either accidental changes–up to accidentally removing some morphs–or changes that later on turn out inappropriate, even partly inappropriate
@@ -33,7 +33,7 @@ want to be able to go back to a previous version, undo inappropriate changes, re
 
 
 
-\subsection{continuous versioning with coexist}
+\section{continuous versioning with coexist}
 
 motivation for CoExist: explicit precautionary actions like saving versions is laborious and/or error-prone. saving each intermediate version is not practical (writing up some version comment, running all necessary tests, in the case of lively saving all objects takes a moment, often also no distinction between a private temporary snapshot and a meaningful increment that’s to be published and shared), while saving particular important versions is error-prone (not clear which version to save, risk assessment very difficult… reasons for recovery needs mostly unanticipated… recovery often necessary because of a mistake, because something wasn’t considered or anticipated… this risk assessment whether a change will be an actual increment is difficult… sometimes easier to make the changes and experience the results than to anticipate the changes beforehand...)… 
 
@@ -43,7 +43,7 @@ allows to concentrate on implementing ideas… while a fine-grained versioning h
 
 
 
-\subsection{Goal: continuous object versioning for lively}
+\section{Goal: continuous object versioning for lively}
 
 for the same reasons as in 2.3, we don’t want to rely on explicitly save particular versions of the parts and/or the worlds and/or the system code in Lively…
 
