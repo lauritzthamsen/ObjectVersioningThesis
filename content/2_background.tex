@@ -1,3 +1,54 @@
 \section{Background} \label{sec:BACKGROUND}
 
 \todo{better title}
+
+
+
+\subsection{developing objects / developing parts in Lively}
+
+interactive programming systems like Self, Fabrik, Etoys, the Lively Kernel, allow to develop at runtime and to manipulate particular objects, may those be instances of classes or just objects in case of object-oriented programming systems that rely on prototypical inheritance… in lively there are classes, COP layers, traits, but also object-specific manipulation:
+direct manipulation of objects, halo buttons, style editor, script editor: style and composition (state), scripts (object-specific behavior, which is also state..)
+
+resulting artifact is not necessarily code, but often a particular object / object state, object repository / PartsBin...
+
+exploration: change styles, composition directly, see result immediately. see changing appearance, but also changing values. change behavior at runtime. trigger behavior / evaluate scripts/snippets to see their effects, maybe just to understand behavior/code… or script-up some changes to objects, when it’s easier to express desired changes with code than with direct manipulation tools as, for example, halos
+
+magnifier example: development of particular objects, with screenshots…
+
+describe the perceived benefits: no edit-save-load/instantiate cycle / fast feedback, example values visible while editing code, expression of relations between objects and other visible attributes like color through mouse expressions not code… 
+[cite some benefits described in the Self and prototypical inheritance / concrete objects research, by David Ungar, Alan Borning, Antero Taivalsaari]
+
+
+
+\subsection{problem description / motivation: recovery needs when manipulating objects}
+
+[some description of situations with recovery needs]
+undo a direct manipulation of style or behavior, either accidental changes–up to accidentally removing some morphs–or changes that later on turn out inappropriate, even partly inappropriate
+
+up to: try changes/scripts with the sole intent of trying them, to explore and understand, without any permanent effect
+
+magnifier example continued: … multiple different not too obviously anticipatable recovery needs, again with some screenshots
+
+want to be able to go back to a previous version, undo inappropriate changes, recover some of the state or behavior of some particular previous version
+
+
+
+\subsection{continuous versioning with coexist}
+
+motivation for CoExist: explicit precautionary actions like saving versions is laborious and/or error-prone. saving each intermediate version is not practical (writing up some version comment, running all necessary tests, in the case of lively saving all objects takes a moment, often also no distinction between a private temporary snapshot and a meaningful increment that’s to be published and shared), while saving particular important versions is error-prone (not clear which version to save, risk assessment very difficult… reasons for recovery needs mostly unanticipated… recovery often necessary because of a mistake, because something wasn’t considered or anticipated… this risk assessment whether a change will be an actual increment is difficult… sometimes easier to make the changes and experience the results than to anticipate the changes beforehand...)… 
+
+
+automatic and continuous versioning of the system code whenever code changes, whenever a user interacts/saves/changes code.
+allows to concentrate on implementing ideas… while a fine-grained versioning history, which can also be enriched with test results and screenshots to support finding relevant versions, is there for every change that turns out inappropriate.. programmers can always just make changes and concentrate fully on implementing them without too much thought and effort going into precautionary actions… because the coexist tool / tool support records all changes and their effect on test case outcomes… 
+
+
+
+\subsection{Goal: continuous object versioning for lively}
+
+for the same reasons as in 2.3, we don’t want to rely on explicitly save particular versions of the parts and/or the worlds and/or the system code in Lively…
+
+coexist-like continuous versioning, but with state, complete runtime as some changes also affect state of the runtime that is not persisted (global variables.. config..), state that doesn’t even get saved with a world and/or parts
+
+fine-grained object versioning as foundation for continuous object versioning, that is versions of the runtime for each potentially manipulating user interaction..
+
+goal: full recovery support for lively/javascript similar to the one Coexist provides for Squeak/Smalltalk: fine-grained versioning of state and behavior, on each manipulating user interaction, to be able to recover previous development states when necessary, without explicitly preparing versions that might or might not be useful later-on, allows to concentrate on implementing ideas and supports an explorative approach to programming, changing things just to see/experience the outcome immediately..

@@ -23,8 +23,16 @@ different intent: only debugging vs. undo/redo during usage
 different approach to when to create these references… not at object creation, but more appropriate for following a single execution flow (without preparing the rest of the system)
 
 
-\subsection{Martin Czuchra}
-Master Thesis of Martin Czuchra, Automatic Versioning of Lively Worlds
+\subsection{Offline Worlds: Automated Client–Side Persistence in Lively Kernel}
+Master Thesis of Martin Czuchra, automatically saving worlds in a fixed interval
+
+intend: Browser- oder Betriebssystem–Abstuerzen, Netzwerk- oder Server–Ausfaellen, so- wie gleichzeitigen Aenderungen durch andere Nutzer fuehrt
+vs. recover from changes that turn out to be inappropriate (single user, single session..)
+
+interval of Martin: Offline Worlds store progress automatically based on an interval that is set to 10 seconds...
+
+
+implementation differences: serializing worlds vs. copy-on-write versions of objects of the runtime: creating new versions (serialization and diffing to gain world version deltas) and revisiting older versions (loading older worlds from scratch) should be considerable slower, interruptive / stop-the-world, whereas with our approach the overhead for new versions or revisting is less and also more incremental than stop-the-world (new versions of the runtime with essentially no cost at that point in time, but new versions of objects only when we write to them, reusing older versions on an object granularity, and not resetting all objects to a previous version, but dynamically resolving to the correct version whenever references are followed..), but Martins approach has no basic execution overhead, just way more costly and interruptive commit/undo operations... in comparsion, our approach might be more suited for very fine-grained object versioning, while Martins might be more suited for the occasional snapshot of the world..
 
 
 \subsection{Context-oriented Programming}

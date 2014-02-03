@@ -1,1 +1,27 @@
 \section{Evaluation} \label{sec:EVALUATION}
+
+\subsection{correctness / completeness}
+
+\begin{itemize}
+    \item common JavaScript language benchmark suites
+    \item starting and running the Lively Kernel with version-aware references, simple global undo / redo for lively
+\end{itemize}
+
+
+
+\subsection{feasibility}
+
+memory overhead:
+\begin{itemize}
+    \item for the version-aware references for lively, measured (and explained… per proxy now...)
+    \item something about how each new global version requires memory, but each depending on how big the changes are / or how much needs to be copied..
+\end{itemize}
+
+
+execution time overhead:
+\begin{itemize}
+    \item common JavaScript language benchmark suites – with vs. without proxies
+    \item user interaction benchmarks – with vs. without proxies
+\end{itemize}
+
+maybe some discussion of the execution overhead and numbers on the different layers of the layered implementation cost how much performance: versioning proxy handler > default ES 6 shim proxies > harmony proxies in Chrome..

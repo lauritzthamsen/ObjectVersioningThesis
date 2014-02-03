@@ -1,3 +1,62 @@
 \section{Approach} \label{sec:APPROACH}
 
-\todo{better title}
+\todo{better title?}
+
+
+
+\subsection{Idea: Object Versioning}
+
+version-aware references: references that know multiple versions of the same object and choose a particular version of it at runtime when accessed 
+
+versions of the object corresponding to versions of the runtime, which may get created explicitly by the programmer, but also could be created with manipulating user interactions (saving source code, evaluating do-its, directly manipulating graphical attributes and composition, other events). so, for a given version of the runtime, there are versions of the object. setting a version of the runtime then determines which version of an object is used when the reference to that object gets resolved.
+
+versioning the programming runtime, while side effects to state of other programs, or server processes, or databases cannot be reversed with this approach 
+
+
+
+
+
+
+% \subsection{3.X why an implementation solely in javascript}
+% 
+% implementation in the JavaScript language, without changing the virtual machine: use objects as references, make sure those objects are used everywhere..
+% 
+% * proxies to implement version-aware references
+% * source transformations and proxy behavior to use version-aware references consistently
+% * global versions and proxy behavior to have particular versions of the runtime
+
+
+
+
+
+\subsection{Proxies as Version-aware References}
+
+implementation in javascript, so there are only actual references in JavaScript, but we can use objects that represent references that know multiple versions of objects.
+
+but as resolving a version-aware reference should transparently result in a particular version of the object, these objects need to delegate transparently to that particular version.
+therefore, we use proxy objects for version-aware references, in particular the ECMAScript 6 Direct Proxies.
+
+also we let the proxy objects hold all versions of an object instead of, for example, using object tables, so that when no object holds the version-aware reference any longer, the reference object with all versions of the actual object get garbage collected.
+
+
+
+\subsection{Version-aware References Instead of References}
+
+use version-aware references consistently:
+for all references between two objects use version-aware references instead. that is, all usual references need to become references to a proxy objects, which then reference one or multiple versions of the actual object.
+
+given that proxy references are returned as such when reading object properties and variables, it is only necessary to immediately wrap objects when they are created to use proxy references consistently for the system. so, we return version-aware references / proxies instead of the usual references for all new objects that are created.
+
+ways to create new objects in javascript: literals, constructor, specific built-in functions (Object.create.. eval..)
+
+literals can be rewritten to be wrapped into proxies immediately. constructors are functions, which should already be proxied so that proxy behavior can be specified to return proxies for new instances, while specific built-in functions can be patched globally or rewritten for source to also return proxies.
+
+
+
+\subsection{Versions of The Runtime}
+
+particular versions of the runtime
+
+global version data structure for the runtime, runtime versions may have predecessors and may have successors, versions of objects get chosen using the current global version of the runtime
+
+not necessarily necessary to copy each object for each version, but can be done on writes. further, not necessarily necessary to copy objects completely, but diffs or even delegation between diffs in a prototypical manner can be implemented
