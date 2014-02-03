@@ -1,10 +1,10 @@
-\section{Approach} \label{sec:APPROACH}
+\chapter{Approach} \label{sec:APPROACH}
 
 \todo{better title?}
 
 
 
-\subsection{Idea: Object Versioning}
+\section{Idea: Object Versioning}
 
 version-aware references: references that know multiple versions of the same object and choose a particular version of it at runtime when accessed 
 
@@ -17,7 +17,7 @@ versioning the programming runtime, while side effects to state of other program
 
 
 
-% \subsection{3.X why an implementation solely in javascript}
+% \section{3.X why an implementation solely in javascript}
 % 
 % implementation in the JavaScript language, without changing the virtual machine: use objects as references, make sure those objects are used everywhere..
 % 
@@ -29,7 +29,7 @@ versioning the programming runtime, while side effects to state of other program
 
 
 
-\subsection{Proxies as Version-aware References}
+\section{Proxies as Version-aware References}
 
 implementation in javascript, so there are only actual references in JavaScript, but we can use objects that represent references that know multiple versions of objects.
 
@@ -40,7 +40,7 @@ also we let the proxy objects hold all versions of an object instead of, for exa
 
 
 
-\subsection{Version-aware References Instead of References}
+\section{Version-aware References Instead of References}
 
 use version-aware references consistently:
 for all references between two objects use version-aware references instead. that is, all usual references need to become references to a proxy objects, which then reference one or multiple versions of the actual object.
@@ -53,7 +53,7 @@ literals can be rewritten to be wrapped into proxies immediately. constructors a
 
 
 
-\subsection{Versions of The Runtime}
+\section{Versions of The Runtime}
 
 particular versions of the runtime
 
