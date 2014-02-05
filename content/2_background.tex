@@ -1,39 +1,82 @@
-\chapter{Background} \label{sec:BACKGROUND}
+\chapter{Background / Motivation} \label{sec:BACKGROUND}
 
-\todo{better title}
+\todo{better title for the background / motivation section}
 
+\todo{a couple of statements that summarize the subsections of these whole section}
 
+\section{Directly Manipulating Objects In Programming Systems}
 
-\section{developing objects / developing parts in Lively}
-
-interactive programming systems like Self, Fabrik~\cite{Ingalls1988FVP}, Etoys~\cite{Kay2005Etoys}, the Lively Kernel, allow to develop at runtime and to manipulate particular objects, may those be instances of classes or just objects in case of object-oriented programming systems that rely on prototypical inheritance… in lively there are classes, COP layers, traits, but also object-specific manipulation:
-direct manipulation of objects, halo buttons, style editor, script editor: style and composition (state), scripts (object-specific behavior, which is also state..)
-
-resulting artifact is not necessarily code, but often a particular object / object state, object repository / PartsBin~\cite{Lincke2012LPC}...
-
-exploration: change styles, composition directly, see result immediately. see changing appearance, but also changing values. change behavior at runtime. trigger behavior / evaluate scripts/snippets to see their effects, maybe just to understand behavior/code... or script-up some changes to objects, when it’s easier to express desired changes with code than with direct manipulation tools as, for example, halos
-
-magnifier example: development of particular objects, with screenshots…
-
-describe the perceived benefits: no edit-save-load/instantiate cycle / fast feedback, example values visible while editing code, expression of relations between objects and other visible attributes like color through mouse expressions not code… 
-[cite some benefits described in the Self and prototypical inheritance / concrete objects research, by David Ungar, Alan Borning, Antero Taivalsaari]
-\cite{Taivalsaari1996CVP}, \cite{Tailvalsaari1992Kevo}, \cite{Borning1986CVP}, \cite{Taivalsaari97CVP}
-
-
-\section{problem description / motivation: recovery needs when manipulating objects}
-
-[some description of situations with recovery needs]
-undo a direct manipulation of style or behavior, either accidental changes–up to accidentally removing some morphs–or changes that later on turn out inappropriate, even partly inappropriate
-
-up to: try changes/scripts with the sole intent of trying them, to explore and understand, without any permanent effect
-
-magnifier example continued: … multiple different not too obviously anticipatable recovery needs, again with some screenshots
-
-want to be able to go back to a previous version, undo inappropriate changes, recover some of the state or behavior of some particular previous version
+Multiple programming systems allow to manipulate objects directly and at runtime.
+Examples for such systems include Self, Fabrik~\cite{Ingalls1988FVP}, Kevo~\cite{Tailvalsaari1992Kevo}, Etoys~\cite{Kay2005Etoys}, Scratch\cite{Maloney2010SPL}, and the Lively Kernel.
+In these systems programmers can change the state and behavior of single objects directly, without adaptin classes or other forms of abstract source code descriptions. 
+Examples for objects developed in this approach range from relatively simple objects like primitive graphical shapes over interactive widgets to more applications that are more directly useful like presentation software or programming tools.
+There are different advantages associated with this kind of development.
+First, it is easier to introduce unique objects with their own specific structure or behavior~\todo{cite: ungar-simplicity or borning here}. 
+Second, developers may benefit from seeing concrete examples before reading the abstract class description~\todo{cite: tailvalsaari-cvp}.
+A concrete example provides particular values for its states and, in case of objects with a visual appearance, can be actually looked at.
+Third, especially for such visual objects, development systems can provide more direct manipulation tools with more immediate feedback on each change.
+Such direct manipulation can take the form of drag-and-drop operations to manipulate graphical composition, manipulation of visual properties like color fills and rotations, or evaluating a code snippet that effects the object visibly.
 
 
 
-\section{continuous versioning with coexist}
+
+\section{Directly Manipulating Objects In Lively}
+
+In the case of Lively, developers can manipulate both abstract behavior descriptions and specific objects.
+They can make changes to source code in modules and classes, but also to the state and behavior of particular objects.
+Since classes and other abstract definitions are also edited at runtime, changes to both single objects and general classes take effect immediately, but developers still have a concrete example when editing objects to see their effects more clearly.
+For this direct manipulation, Lively's tools do focus on graphical objects, which are called \emph{Morphs} or \emph{Parts} in Lively.
+Morphs as Lively implements the Morphic framework~\cite{Maloney1995Mor}.
+Parts because developers can save versions of their objects in an object repository, called Parts Bin~\cite{Lincke2012LPC}, which contains numerous simple simple parts to be used for more complete applications.
+Developers can use \emph{Halo} buttons to manipulate, for example, the size, position, or rotation of morphs, and further add one morph to another.
+They can change even more aspects of the appearance using a style editor, which allows to, for example, add borders to morphs or make their color more transparent.
+These two tools manipulate the state of particular objects directly.
+In contrast, a tool called Object Editor can be used to change all object-specific behavior of an object.
+Developers can view, change, save, and evaluate all scripts particular to that object.
+
+\todo{some screenshot that shows the tools, with numbers to show multiple distinct tools in a single screenshot..}
+
+To exemplify how developers change objects directly in Lively, we will outline the process of adding a new feature to Lively's Object Editor.
+The editor itself has been been developed by composing and editing simple graphical objects like buttons, text fields, and lists.
+For this reason, we do not have to adapt any source code modules to change the editor, but rather manipulate and save a concrete editor object.
+The new feature we choose for this example is a magnifier button that can show the editor's current target, meaning the object the editor currently shows scripts for.
+
+A first step towards this new feature could be copying an existing button object or loading a button object from Lively's Parts Bin.
+We then can use the button's halos, in particular the resize tool, to give the button a smaller and square extent.
+Next, we can load an image showing a magnifier.
+Using drag and drop we can add the image to the button and the button to the editor.
+Dropping a morph onto another structurely connects morphs in Lively.
+That is, moving the editor around will also move the button with its image accordingly, while saving will respectively include both the button and the image.
+Besides manipulating the state of the button, image, and editor objects---using mouse interactions to set their extents, their positions, and connect them---we would probably next add some object-specific behavior.
+First, we can add scripts to the button that while the mouse cursor hovers above it, a translucent rectangle is layed over the current target, highlighting the morph that is currently being edited.
+
+\todo{add screenshots to the magnifier example, }
+
+
+\section{Recovery Needs When Directly Manipulating Objects}
+
+While manipulating objects directly, developers might make changes that turn out to be inappropriate.
+
+In the previously summarized exemplary development session developers might, for example, developers might accidentally move the new button after carefully positioning it.
+Or they might accidentally drop the button into an existing layout, thereby undesirebly repositioning multiple unrelated morphs.
+An extreme example for such an accidental inappropriate change is closing a morph that had meaningful, but unsaved changes.
+
+In constrast to those undesired accidental, well intentioned changes can also result in the desire to recover a previous development state.
+For example, when fine-tuning the visual appearance of a morph, a developer might make many changes to the sizes, the positions, and the colors of morphs, only to decide later-on that a particular intermediate version was most appealing.
+Or developers change a script only to learn that introduced an an error or a decrease of performance.
+Further, developers can change objects not only through direct manipulation, but also could write a code snippet that makes changes to the state or behavior of an objects.
+Such a snippet could of course change any number of properties of many objects at once, so re-establishing a previous situation would be a laborious task.
+
+Another category of development interactions that potentially introduce undesirable changes is the exploration of code snippets.
+As Lively's Object Editor manipulates the scripts of a specific object, developers can often evaluate the scripts or parts of them directly.
+While such code evaluation might help to understand the effects of particular code, it might also actually change the editor's target or other objects undesirably and permanently.
+
+In essence, there are many situations in which developers might want to undo some of their operations.
+They might want to recover a previous development state or just withdraw particular changes to particular objects.
+Developers can save versions of objects and those can be restored later-on.
+However, explicitly saving particular versions of objects has serveral drawbacks.
+
+\section{continuous versioning}
 
 motivation for CoExist: explicit precautionary actions like saving versions is laborious and/or error-prone. saving each intermediate version is not practical (writing up some version comment, running all necessary tests, in the case of lively saving all objects takes a moment, often also no distinction between a private temporary snapshot and a meaningful increment that’s to be published and shared), while saving particular important versions is error-prone (not clear which version to save, risk assessment very difficult… reasons for recovery needs mostly unanticipated… recovery often necessary because of a mistake, because something wasn’t considered or anticipated… this risk assessment whether a change will be an actual increment is difficult… sometimes easier to make the changes and experience the results than to anticipate the changes beforehand...)… 
 
@@ -43,12 +86,12 @@ allows to concentrate on implementing ideas… while a fine-grained versioning h
 
 
 
-\section{Goal: continuous object versioning for lively}
-
-for the same reasons as in 2.3, we don’t want to rely on explicitly save particular versions of the parts and/or the worlds and/or the system code in Lively…
-
-coexist-like continuous versioning, but with state, complete runtime as some changes also affect state of the runtime that is not persisted (global variables.. config..), state that doesn’t even get saved with a world and/or parts
-
-fine-grained object versioning as foundation for continuous object versioning, that is versions of the runtime for each potentially manipulating user interaction..
-
-goal: full recovery support for lively/javascript similar to the one Coexist provides for Squeak/Smalltalk: fine-grained versioning of state and behavior, on each manipulating user interaction, to be able to recover previous development states when necessary, without explicitly preparing versions that might or might not be useful later-on, allows to concentrate on implementing ideas and supports an explorative approach to programming, changing things just to see/experience the outcome immediately..
+% \section{Goal: continuous object versioning for lively}
+% 
+% for the same reasons as in 2.3, we don’t want to rely on explicitly save particular versions of the parts and/or the worlds and/or the system code in Lively…
+% 
+% coexist-like continuous versioning, but with state, complete runtime as some changes also affect state of the runtime that is not persisted (global variables.. config..), state that doesn’t even get saved with a world and/or parts
+% 
+% fine-grained object versioning as foundation for continuous object versioning, that is versions of the runtime for each potentially manipulating user interaction..
+% 
+% goal: full recovery support for lively/javascript similar to the one Coexist provides for Squeak/Smalltalk: fine-grained versioning of state and behavior, on each manipulating user interaction, to be able to recover previous development states when necessary, without explicitly preparing versions that might or might not be useful later-on, allows to concentrate on implementing ideas and supports an explorative approach to programming, changing things just to see/experience the outcome immediately..
