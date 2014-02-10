@@ -1,6 +1,21 @@
 \chapter{Evaluation} \label{sec:EVALUATION}
 
-\section{correctness / completeness}
+Our JavaScript implementation is functional, but seems not yet practical.
+
+Multiple correctly running JavaScript benchmarks as well as our target programming system, the Lively Kernel, attest the functionality of our JavaScript implementation.
+The proxies as implementation of version-aware references behave like usual objects in all situations that occurr in both the benchmarks and in the Lively Kernel.
+Additionally, a simple implementation of linear versioning shows that our implementation allows to re-establish previous development states in Lively.
+Therefore, the references to relevant objects in all tested situations have been version-aware, attesting that our source transformation and the proxy behavior return versioning proxies for all new objects. 
+
+The memory overhead of our implementation appears to be practical, while the execution overhead of the current implementation does not.
+The current execution overhead is in the range of three orders of magnitude for popular JavaScript benchmarks and typical user interactions in Lively.
+Microbenchmarks that compare the proxy-based version-aware references to direct references even show four orders of magnitude.
+
+In analyzing this overhead, we gained the impression that only one order of magnitude execution overhead is due to our specific proxy behavior, while most of the overhead can be ascribed to the used proxies implementation itself.
+In fact, we experienced that a comparable indirection to the default behavior of the used ECMAScript 6 Direct Proxies can be implemented considerably faster with ordinary JavaScript.
+This raises questions about the current state of the implementation of the proxies themselves, especially about interference with the v8's JIT compiler, and also indicates implementation strategies promising more practical execution overhead, using more source transformation and plain JavaScript.
+
+\section{Functionality}
 
 \begin{itemize}
     \item common JavaScript language benchmark suites: Octance\footnote{\url{http://code.google.com/p/octane-benchmark/},\goodbreak accessed February 3, 2014, at version 26} and The Computer Language Benchmarks Game\footnote{\url{http://benchmarksgame.alioth.debian.org/},\goodbreak accessed February 3, 2014}, javascript implementation\footnote{\url{http://github.com/kragen/shootout},\goodbreak accessed February 3, 2014, at version 71aa4ec4cd15940c59f1a1bb71ac1ff1572a55c2}
@@ -9,7 +24,7 @@
 
 
 
-\section{feasibility}
+\section{Practicability}
 
 memory overhead:
 \begin{itemize}
@@ -24,4 +39,6 @@ execution time overhead:
     \item user interaction benchmarks – with vs. without proxies
 \end{itemize}
 
+
+analysis...
 maybe some discussion of the execution overhead and numbers on the different layers of the layered implementation cost how much performance: versioning proxy handler > default ES 6 shim proxies > harmony proxies in Chrome..
