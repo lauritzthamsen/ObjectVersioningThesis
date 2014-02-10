@@ -1,46 +1,82 @@
-\chapter{Approach} \label{sec:APPROACH}
+\chapter{Versions of Objects} \label{sec:APPROACH}
 
-\todo{better title?}
+\todo{better section title, for 3. Versions of Objects.. or better titles for all (sub)sections within}
+
+% As explained in Section~\ref{sec:BACKGROUND}, programmers benefit from being able to recover previous development states without explicitly preparing for occasional recovery needs.
+
+% Continuous versioning provides previous intermediate development states automatically, as explained in Section~\ref{sec:BACKGROUND}.
+% In systems like the Lively Kernel, such intermediate development states consist of particular versions of behavior and state of objects.
+
+% fine-grained = many small versions of individual objects
+
+We propose fine-grained object versioning for recovery support in systems in which developers manipulate objects directly.
+The idea is based on preserving multiple versions of objects and relying on alternative references that transparently resolve to one of those.
+
+Our approach for implementing this idea in JavaScript and for the Lively Kernel relies on using proxies and source transformations.
+The proxies are our language-level solution for alternative references that transparently delegate to one among many versions for the same object.
+We rely on a combination of proxy behavior and source transformation to use such proxies consistently for all mutable objects.
+Besides these approaches for having and using version-aware references, a simple and linear versioning structure suffices to provide basic undo and redo capabilities.
+
+\section{Idea}
+
+When changes made directly to objects in a programming system turn out to be inappropriate, developers might want to re-establish a previous situation of the programming runtime.
+For this, we propose to save versions of objects and to use alternative references that point to the current version.
+These references, which we call Version-aware References, encapsulate the multiplicity of versions.
+That is, to change which version of an object is used, no object state and no references need to be changed.
+Instead the version-aware reference to the object in question resolves to the newly active version when it is used.
+
+The version-aware reference for a versioned object should also be used consistently by the system.
+That is, no direct references to particular versions of a versioned object should be available so there is no way to access any version other the one to which the version-aware reference currently resolve, preventing inconsistencies.
+One way to establish this would be to completely use version-aware references instead of ordinary references in the programming system.
+This would also allow to re-establish versions of the entire runtime when versions of all objects are created accordingly.
+That is, for a version of the runtime the state of each object would be preserved and associated with that particular system version.
+This association subsequentely allows to have all version-aware references resolve to the object state at which the system version was created.
+
+Version-aware references should be transparent to programmers.
+Programmers should especially not have to adapt their program code to operate with version-aware references.
+Instead version-aware references should be provided by the programming system.
+
+% A situation of the programming runtime is made up by the state of all objects.
+% Therefore, we want to preserve particular versions of the objects.
 
 
+% First, to be able to recover a previous state of a programming system in which developers change objects directly, particular states of objects need to be preserved.
+% However, versions of objects need not only to be available, but further need to be  
 
-\section{Idea: Object Versioning}
+% Further, to be able to revisit such development situations, the preserverd versions of objects need to be re-insertable .
 
-version-aware references: references that know multiple versions of the same object and choose a particular version of it at runtime when accessed 
+% For this, we propose to store copies of objects for interesting situations and alternative references that always refer to a particular version for such a versioned object.
 
-versions of the object corresponding to versions of the runtime, which may get created explicitly by the programmer, but also could be created with manipulating user interactions (saving source code, evaluating do-its, directly manipulating graphical attributes and composition, other events). so, for a given version of the runtime, there are versions of the object. setting a version of the runtime then determines which version of an object is used when the reference to that object gets resolved.
-
-versioning the programming runtime, while side effects to state of other programs, or server processes, or databases cannot be reversed with this approach 
-
-
-
+% Such version-aware references could then be used for all object relations in whole object graphs.
+% Preserving versions of such graphs coordinately then allows to reinstate particular situations of those whole graphs.
+% That is, for example, all object references in the runtime could be version-aware references while preserving the states of all objects at particular moments.
+% In that case, the whole runtime can be reset to the situations that have been saved.
 
 
-
-% \section{3.X why an implementation solely in javascript}
+% version-aware references: references that know multiple versions of the same object and choose a particular version of it at runtime when accessed 
 % 
-% implementation in the JavaScript language, without changing the virtual machine: use objects as references, make sure those objects are used everywhere..
+% versions of the object corresponding to versions of the runtime, which may get explicitly created by programmers, but also could be implicitly created by each potentially manipulating user interaction as, for example, saving source code, evaluating do-its, directly manipulating attributes and composition of graphical elements, and button events.
+% so, for a given version of the runtime, there are versions of the object. setting a version of the runtime then determines which version of an object is used when the reference to that object gets resolved.
 % 
-% * proxies to implement version-aware references
-% * source transformations and proxy behavior to use version-aware references consistently
-% * global versions and proxy behavior to have particular versions of the runtime
+% versioning the programming runtime, while side effects to state of other programs, or server processes, or databases cannot be reversed with this approach 
 
+\section{Approach}
 
-
-
-
-\section{Proxies as Version-aware References}
+\subsection{Proxies as Version-aware References}
 
 implementation in javascript, so there are only actual references in JavaScript, but we can use objects that represent references that know multiple versions of objects.
 
 but as resolving a version-aware reference should transparently result in a particular version of the object, these objects need to delegate transparently to that particular version.
-therefore, we use proxy objects for version-aware references, in particular the ECMAScript 6 Direct Proxies.
+for this, we use proxy objects, in particular we use the ECMAScript 6 Direct Proxies as implementation of version-aware references.
 
 also we let the proxy objects hold all versions of an object instead of, for example, using object tables, so that when no object holds the version-aware reference any longer, the reference object with all versions of the actual object get garbage collected.
 
 
 
-\section{Version-aware References Instead of References}
+\subsection{Version-aware References Instead of References}
+
+This ensures that references to proxies are used consistently instead of direct references to objects and that such proxies are used for every object.
+
 
 use version-aware references consistently:
 for all references between two objects use version-aware references instead. that is, all usual references need to become references to a proxy objects, which then reference one or multiple versions of the actual object.
@@ -53,7 +89,7 @@ literals can be rewritten to be wrapped into proxies immediately. constructors a
 
 
 
-\section{Versions of The Runtime}
+\subsection{Versions of the Runtime}
 
 particular versions of the runtime
 
