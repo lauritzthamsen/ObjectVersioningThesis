@@ -19,7 +19,6 @@ Such direct manipulation can take the form of drag-and-drop operations to manipu
 
 
 
-
 \section{Directly Manipulating Objects In Lively}
 
 In the case of Lively, developers can manipulate both abstract behavior descriptions and specific objects.
@@ -53,6 +52,7 @@ First, we can add scripts to the button that while the mouse cursor hovers above
 \todo{add screenshots to the magnifier example, }
 
 
+
 \section{Recovery Needs When Directly Manipulating Objects}
 
 While manipulating objects directly, developers might make changes that turn out to be inappropriate.
@@ -73,14 +73,43 @@ While such code evaluation might help to understand the effects of particular co
 
 In essence, there are many situations in which developers might want to undo some of their operations.
 They might want to recover a previous development state or just withdraw particular changes to particular objects.
-Developers can save versions of objects and those can be restored later-on.
-However, explicitly saving particular versions of objects has serveral drawbacks.
+
+Developers can save particular versions of objects and those can be restored later-on by, for example, using Lively's Parts Bin.
+However, explicitly saving particular versions of objects has several drawbacks.
+
+
+have to remember to make commits
+
+commits take some effort: combining changes into meaningful increments, making sure the current version passes test cases, where test cases also take time, writing helpful commit messages
+
+for this reason, not a commit for every single change, but deciding when to commit, assessing the risks of changes and planning changes to a point where grouping changes into consistent steps, which each should be commited separately, is also time-consuming and error-prone
+
+explicitly creating versions as precautionary actions / for potential recovery needs, when ideas work out less well as expected, seems laborious and error-prone.
+publishing versions explicitly for sharing and documentation, however, is a different topic.
+
+% This is supposed to reduce both the time spent on and the errors made in manually precautionary actions.
+% Without CoExist, developers explicitly save explicit versions of the code and write short summaries, often in form of commit messages.
+% Developers also run tests to understand the impact of their changes.
+% While running all tests of the system can take a long time, deciding which takes are helpful in evaluating the recent changes also is often a difficult decision.
+% As those two tasks are, thus, cumbersome, developers often do not do both for every single change, but aim to save interesting versions, creating a new version for every meaningful increment.
+% However, estimating which changes might be risky and, thus, 
+% 
+% planning and deciding which groups of changes also pose an effort to developers, who need to estimate which 
+
+% motivation for CoExist: explicit precautionary actions like saving versions is laborious and/or error-prone. saving each intermediate version is not practical (writing up some version comment, running all necessary tests, in the case of lively saving all objects takes a moment, often also no distinction between a private temporary snapshot and a meaningful increment that’s to be published and shared), while saving particular important versions is error-prone (not clear which version to save, risk assessment very difficult… reasons for recovery needs mostly unanticipated… recovery often necessary because of a mistake, because something wasn’t considered or anticipated… this risk assessment whether a change will be an actual increment is difficult… 
 
 \section{continuous versioning}
 
-motivation for CoExist: explicit precautionary actions like saving versions is laborious and/or error-prone. saving each intermediate version is not practical (writing up some version comment, running all necessary tests, in the case of lively saving all objects takes a moment, often also no distinction between a private temporary snapshot and a meaningful increment that’s to be published and shared), while saving particular important versions is error-prone (not clear which version to save, risk assessment very difficult… reasons for recovery needs mostly unanticipated… recovery often necessary because of a mistake, because something wasn’t considered or anticipated… this risk assessment whether a change will be an actual increment is difficult… sometimes easier to make the changes and experience the results than to anticipate the changes beforehand...)… 
+In contrast to having developers manually preserve particular versions of their code and run the appropriate set of test cases for such, CoExist provides automatic recovery support.
+Every change made to source code yields a version for which CoExist also captures test results and a screenshot of the development state.
+Thus, developers have access to a fine-grained and rich history of development states when they need to recover previous situations.
 
+CoExist allows developers to recover previous versions of the code without having to take precautionary actions manually.
+For each of those versions CoExists then automatically also captures test results and screenshots of the development environment, helping developers in finding relevant versions when recovery is necessary.
 
+% Developers do not have to manually create commits or run tests for development states that seem important.
+
+% sometimes easier to make the changes and experience the results than to anticipate the changes beforehand...)… 
 automatic and continuous versioning of the system code whenever code changes, whenever a user interacts/saves/changes code.
 allows to concentrate on implementing ideas… while a fine-grained versioning history, which can also be enriched with test results and screenshots to support finding relevant versions, is there for every change that turns out inappropriate.. programmers can always just make changes and concentrate fully on implementing them without too much thought and effort going into precautionary actions… because the coexist tool / tool support records all changes and their effect on test case outcomes… 
 
@@ -88,6 +117,8 @@ allows to concentrate on implementing ideas… while a fine-grained versioning h
 
 % \section{Goal: continuous object versioning for lively}
 % 
+% coexist, only code!!! ooohh noooooo!!! but automatically having a fine-grained history of the runtime would be greeeeaaaat 
+
 % for the same reasons as in 2.3, we don’t want to rely on explicitly save particular versions of the parts and/or the worlds and/or the system code in Lively…
 % 
 % coexist-like continuous versioning, but with state, complete runtime as some changes also affect state of the runtime that is not persisted (global variables.. config..), state that doesn’t even get saved with a world and/or parts
