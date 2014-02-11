@@ -4,6 +4,7 @@
 
 \todo{a couple of statements that summarize the subsections of these whole section}
 
+
 \section{Directly Manipulating Objects In Programming Systems}
 
 Multiple programming systems allow to manipulate objects directly and at runtime.
@@ -19,7 +20,7 @@ Such direct manipulation can take the form of drag-and-drop operations to manipu
 
 
 
-\section{Directly Manipulating Objects In Lively}
+\section{Directly Manipulating Objects In The Lively Kernel}
 
 In the case of Lively, developers can manipulate both abstract behavior descriptions and specific objects.
 They can make changes to source code in modules and classes, but also to the state and behavior of particular objects.
@@ -98,7 +99,7 @@ publishing versions explicitly for sharing and documentation, however, is a diff
 
 % motivation for CoExist: explicit precautionary actions like saving versions is laborious and/or error-prone. saving each intermediate version is not practical (writing up some version comment, running all necessary tests, in the case of lively saving all objects takes a moment, often also no distinction between a private temporary snapshot and a meaningful increment that’s to be published and shared), while saving particular important versions is error-prone (not clear which version to save, risk assessment very difficult… reasons for recovery needs mostly unanticipated… recovery often necessary because of a mistake, because something wasn’t considered or anticipated… this risk assessment whether a change will be an actual increment is difficult… 
 
-\section{continuous versioning}
+\section{Recovery Support Through Continuous Versioning}
 
 In contrast to having developers manually preserve particular versions of their code and run the appropriate set of test cases for such, CoExist provides automatic recovery support.
 Every change made to source code yields a version for which CoExist also captures test results and a screenshot of the development state.
@@ -115,14 +116,16 @@ allows to concentrate on implementing ideas… while a fine-grained versioning h
 
 
 
-% \section{Goal: continuous object versioning for lively}
-% 
-% coexist, only code!!! ooohh noooooo!!! but automatically having a fine-grained history of the runtime would be greeeeaaaat 
+\section{Recovery Support for the Lively Kernel}
 
-% for the same reasons as in 2.3, we don’t want to rely on explicitly save particular versions of the parts and/or the worlds and/or the system code in Lively…
-% 
-% coexist-like continuous versioning, but with state, complete runtime as some changes also affect state of the runtime that is not persisted (global variables.. config..), state that doesn’t even get saved with a world and/or parts
-% 
-% fine-grained object versioning as foundation for continuous object versioning, that is versions of the runtime for each potentially manipulating user interaction..
-% 
+coexist provides convenient recovery automatically, but recognizes and tracks only changes to source code, not to the state of objects, but automatically having a fine-grained history of the runtime would be greeeeaaaat 
+
+versioning objects.. multiple versions of the objects of the runtime, with the ability to establish each of those versions of the runtime functionally
+
+% the usage we intend for the object versioning: 
+but implicit versioning of the object state, not on every change to object but corresponding to user interactions, manipulating user interaction.. saving scripts, directly manipulating state through halo buttons or drag and drop composition, evaluating do-it snippets
+fine-grained object versioning as foundation for continuous object versioning
+
+state of the complete runtime, including state of the runtime that is not persisted (global variables.. config..)
+
 % goal: full recovery support for lively/javascript similar to the one Coexist provides for Squeak/Smalltalk: fine-grained versioning of state and behavior, on each manipulating user interaction, to be able to recover previous development states when necessary, without explicitly preparing versions that might or might not be useful later-on, allows to concentrate on implementing ideas and supports an explorative approach to programming, changing things just to see/experience the outcome immediately..
