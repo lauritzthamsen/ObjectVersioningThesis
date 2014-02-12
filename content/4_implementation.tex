@@ -1,7 +1,16 @@
 \chapter{Implementation} \label{sec:IMPLEMENTATION}
 
+\section{Implementation with Direct Proxies}
 
-\section{details of the proxies (3.2)}
+% \section{3.X why an implementation solely in javascript}
+% 
+% implementation in the JavaScript language, without changing the virtual machine: use objects as references, make sure those objects are used everywhere..
+% 
+% * proxies to implement version-aware references
+% * source transformations and proxy behavior to use version-aware references consistently
+% * global versions and proxy behavior to have particular versions of the runtime
+
+\subsection{Using ECMAScript 6 Direct Proxies}
 
 % \begin{itemize}
 %     \item ECMAScript 6 Direct Proxies\footnote{\url{http://wiki.ecmascript.org/doku.php?id=harmony:direct_proxies},\goodbreak accessed February 3rd, 2014}: proxy handler object, traps; ES 6 in DRAFT ~\cite{ECMA2014ES6}, deprecated Harmony Proxy proposal implemented in current chromes, but 
@@ -29,7 +38,7 @@ part 2: patches: Object.isRegExp, ‘some string’.match (done by patching Stri
 
 
 
-\section{"details of ‘using the version-aware references consistently’” ( / details for 3.3)}
+\subsection{Returning Proxies For New Objects}
 
 goal: all references to newly created objects need to be version-aware references, i.e. references to proxies instead of references to the (initial version of the) target. 
 
@@ -47,7 +56,7 @@ goal: all references to newly created objects need to be version-aware reference
 
 
 
-\section{details for the versions of the runtime (details for 3.4)}
+\subsection{Providing Simple Global Versions for Undo and Redo}
 
 JS execution: single-threaded, cooperative scheduling 
 
@@ -70,14 +79,21 @@ JS execution: single-threaded, cooperative scheduling
 
 
 
-\section{asynchronous scripts / concurrency in JavaScript}
+
+
+
+
+
+\section{Limitations of the Implementation}
+
+
+\subsection{Limitations for Concurrent JavaScript Functions}
+
 
 single-threaded and cooperative scheduling, but setTimeout / setInterval... stop asynchronous actions from following versions when undoing... source transformations, which scripts belongs to which version
 
 
-
-
-\section{Implementation limitations}
+\subsection{Limitations in the Execution Environment}
 
 \begin{itemize}
     \item only works in recent Chromes, with experimental JavaScript... ECMAScript 6 Direct Proxies not yet fully implemented, not yet stable.. shim library\footnote{\url{http://github.com/tvcutsem/harmony-reflect},\goodbreak accessed February 3, 2014, at version 0.0.11}..
@@ -87,5 +103,5 @@ single-threaded and cooperative scheduling, but setTimeout / setInterval... stop
 
 
 \begin{itemize}
-    \item debugging: lots of ‘low-level’/framework frames, dev tools don’t handle proxies well (hovering, labels, stepping into)
+    \item debugging: interference with Chrome's developer tools, which don’t handle proxies well (hovering, labels, stepping into)
 \end{itemize}

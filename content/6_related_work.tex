@@ -15,7 +15,7 @@ worlds could be a basis for implementing continuous versioning… but implementa
 \section{Back-in-Time Debugging}
 
 back-in-time debugging~\cite{Lewis2003BIT}
-Logging-based approaches, Replay-based approaches \todo{see Lienhard2008POB}.. both to recreate a particular state of the runtime... but purpose is debugging and not necessarily recovering.. 
+Logging-based approaches, Replay-based approaches \todo{see Lienhard2008POB}.. to recreate a particular state of the runtime... but purpose is debugging and not necessarily recovering.. 
 
 Practical Back-in-Time Debugging~\cite{Lienhard2008POB}, Aliases (Lienhard Diss): the idea of using objects for references that hold more information on objects, including information on the objects past, which are called object aliases in this work, is very similar to our version-aware references. including the idea to rely on the usual garbage collection to take care of versions for an unreachable object
 
@@ -24,7 +24,7 @@ different intent: only debugging vs. undo/redo during usage
 different approach to when to create these references… not at object creation, but more appropriate for following a single execution flow (without preparing the rest of the system)
 
 
-\section{Offline Worlds: Automated Client–Side Persistence in Lively Kernel}
+\section{Offline Worlds}
 Offline Worlds~\cite{Czuchra2012OfW}, automatically saving worlds in a fixed interval
 
 intend: Browser- oder Betriebssystem-Abstuerzen, Netzwerk- oder Server-Ausfaellen, so- wie gleichzeitigen Aenderungen durch andere Nutzer fuehrt
@@ -41,23 +41,26 @@ ChangeBoxes~\cite{Denker2007EEC}
 Class-boxes? \todo{what about Alexandre Bergel's Class-boxes.. and other boxes by the SCG?}
 
 
-\section{Subject-oriented Programming / Us}
+\section{Subject-oriented Programming}
 maybe something about David Ungar's Us~\cite{}
 
 
 \section{Context-oriented Programming}
-Context-oriented Programming~\cite{Hirschfeld2008COP}, ContextJS~\cite{Lincke2011OIC}, scoping changes in a self-supporting system~\cite{Lincke2012SCS}
+Context-oriented Programming~\cite{Hirschfeld2008COP}
+
+ContextJS~\cite{Lincke2011OIC}, scoping changes in a self-supporting system~\cite{Lincke2012SCS}
 
 
 \section{Software Transactional Memory}
 Software Transactional Memory~\cite{Shavit1995STM}
 
 
+s\section{Scoped Assignments}
+Tanter's scoped assignment construct  that enables programmers to control the scope of side effects 
 
-\section{TODO: might be related..}
 
-Johnson and Duggan’s GL programming language \todo{gl? (related to Worlds..)}
-Morrisett sub-stores 
+\todo{is Johnson and Duggan’s GL programming language related work? (see worlds paper)}
+\todo{are Morrisett sub-stores related work? (see worlds papers)}
 
-Tanter's scoped assignment construct  that enables programmers to control the scope of side effects \todo{scoped assignments? (related to Worlds..)}
+
 
