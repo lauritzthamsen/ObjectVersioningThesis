@@ -1,6 +1,10 @@
 \chapter{Future Work} \label{sec:FUTURE_WORK}
 
-\section{improving the implementation / a faster implementation}
+In the future, we want to improve the practicability of our implementation.
+In addition, we would like to build upon it.
+We want meaningful versions of the programming runtime to be preserved automatically and developers to be able to find relevant versions.
+
+\section{Reducing the Execution Overhead of Our Implementation}
 
 \begin{itemize}
     \item lookup-indirection-microbenchmark… proxy-akin indirection vs. direct reference...
@@ -10,7 +14,8 @@ source-rewrite-approach.. source code transformations instead of proxies
 
 anObject.aProperty() -> apply(anObject, get(anObject, aProperty))
 
-\section{recovery support / versioning tool support}
+
+\section{Continuous Object Versioning with Recovery Support Tools}
 
 \begin{itemize}
     \item continuous versioning: versions whenever a user (might) trigger side effects, with each trigger that (might) effects some state: direct manipulation of morphs with halo buttons, evaluation of do-it code snippets, saving scripts or methods, mouse events that fire up code execution.
