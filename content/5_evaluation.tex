@@ -33,22 +33,33 @@ That is, at least for the scenarios we tested, our approach and its proxy-based 
 
 \section{Practicability: Impact on Performance}
 
-memory overhead: for the version-aware references, but the overhead does increase with the number of versions per object...
-\begin{itemize}
-    \item for the version-aware references for lively, measured (and explained… per proxy now...)
-    \item something about how each new global version requires memory, but each depending on how big the changes are / or how much needs to be copied..
-\end{itemize}
+The version-aware references have an impact on memory consumption and on the program execution.
 
-\todo{should we also present some numbers for how much more memory is consumed when we create versions?}
+\subsection{Memory Overhead}
+
+In our proxy-based implementation, the system uses a proxy for each reachable object, and all references that would usually point directly to the object point to the proxy instead.
+These proxies require additional space.
+That is, even without preserving multiple versions for any object, the system requires more space when all mutable state is referred to only through proxies, as shown in Figure~\ref{fig:MemoryOverhead}.
+Loading an empty Lively world requires three times more space with proxies than without proxies.
+For each proxied object the system now saves a proxy, which includes an internal proxy object, an ordinary JavaScript object that implements the proxy's functionality, an ordinary JavaScript object as dictionary for all versions, and, currently, boolean flags to, for example, save whether a proxy should preserve versions or not.
+However, while the system creates proxies for most objects, it does not access all objects via proxies.
+For example, objects for source code modules and all objects used for implementing the versioning system itself are accessed directly. 
 
 \begin{figure}[h]
     \centering
     \includegraphics[width=\textwidth]{figures/memoryOverhead.pdf}
-    \caption{Memory consumption when starting an empty Lively Kernel environment in megabyte.}
-    \label{fig:ExecutionOverhead}
+    \caption{Memory consumption when starting an empty Lively Kernel world in megabyte.}
+    \label{fig:MemoryOverhead}
 \end{figure}
 
-execution time overhead: for the version-aware references, and the overhead does not increase with the number of versions per object...
+In contrast to the memory overhead for the version-aware references, the memory consumption for different versions of the runtime does not correlate linearly to the number of proxied objects.
+In particular, our implementation does not copy all proxied objects for each versions, but only creates copies as new versions of objects when objects are changed.
+Therefore, the memory required for new versions of the runtime depends on how many objects change and how big those objects are, and it is subsequentely not possible to present this memory overhead independent of concrete usage scenarios.
+
+
+\subsection{Execution Overhead}
+
+for the version-aware references, and the overhead does not increase with the number of versions per object...
 \begin{itemize}
     \item common JavaScript language benchmark suites – with vs. without proxies.. see Figure~\ref{fig:ExecutionOverheads}
     \item user interaction benchmarks – with vs. without proxies: starting the lively kernel (including loading a world), opening halos on a morph, opening the world menu, opening the parts bin (/ a workspace / the system code browser), resizing the SCB (programmatically) (?), dragging (programmatically) (?)
