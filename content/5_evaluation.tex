@@ -1,33 +1,28 @@
 \chapter{Discussion} \label{sec:DISCUSSION}
 
-Our JavaScript implementation seems functional, but not yet practical.
-
-Correctly running JavaScript benchmarks and our target programming system, the Lively Kernel, attest the functionality of our JavaScript implementation.
-The proxies, which implement version-aware references, behave like the respective version of an object in all situations tested by the benchmarks and the Lively Kernel.
-Additionally, the linear global runtime versions exemplify how our approach and our JavaScript implementation allow to re-establish previous development states in Lively.
-Therefore, all references to relevant objects are version-aware in all tested situations.
+We tested the implementation with two JavaScript benchmark suites and our target programming system, the Lively Kernel.
+The proxies, which implement version-aware references, behave like the respective versions of objects in all situations exhibited.
+The linear global runtime versions allows to re-establish previous development states in Lively.
+That is, all references to relevant objects appear to be version-aware references in the tested situations.
 
 The memory overhead of our implementation appears to be practical, while the execution overhead of the current implementation does not.
-The current execution overhead is in the range of three orders of magnitude for popular JavaScript benchmarks and typical user interactions in Lively.
-Microbenchmarks comparing the version-aware references to direct references however even slow down four orders of magnitude.
-
-In analyzing this overhead, we gained the impression that only one order of magnitude is due to the specific proxy behavior, while most of the overhead can be ascribed to the proxy implementation itself.
-In fact, we experienced that a comparable indirection to the proxies can be implemented considerably faster with ordinary JavaScript.
-This raises questions about the current state of the implementation of the proxies themselves, especially about interference with the v8's JIT compiler, and also indicates more practical implementation strategies.
-
-The proxies show during debugging due to limitations of the proxy implementation.
-However, the developer tools show the original source code, despite the implementation's transformations of the sources.
-
-
+The measured execution overhead is in the range of three orders of magnitude for popular JavaScript benchmarks and typical user interactions in Lively.
+Direct comparisons of just the version-aware references and direct references show slow downs of four orders of magnitude.
+In analyzing these results, we gained the impression that only one order of magnitude is due to the specific proxy behavior, while most of the overhead can be ascribed to the Direct Proxies as currently available in the Chrome browser.
+In fact, a comparable indirection can be implemented considerably faster with ordinary JavaScript and further source transformations, promising more practical implementations.
 
 \section{Functionality: Undo and Redo for the Lively Kernel}
 
-\begin{itemize}
-    \item common JavaScript language benchmark suites: Octance\footnote{\url{http://code.google.com/p/octane-benchmark/},\goodbreak accessed February 3, 2014, at version 26} and The Computer Language Benchmarks Game\footnote{\url{http://benchmarksgame.alioth.debian.org/},\goodbreak accessed February 3, 2014}, javascript implementation\footnote{\url{http://github.com/kragen/shootout},\goodbreak accessed February 3, 2014, at version 71aa4ec4cd15940c59f1a1bb71ac1ff1572a55c2}
-    \item starting and running the Lively Kernel with version-aware references, simple global undo / redo for lively
-\end{itemize}
+Besides testing the behavior of our proxies and our source transformations with isolated test cases, we also used two benchmark suites to check our implementation.
+In particular, the system works for all benchmarks from the Octance benchmark suite\footnote{\url{http://code.google.com/p/octane-benchmark/},\goodbreak accessed February 3, 2014, at version 26} and the JavaScript version of the Computer Language Benchmarks Game\footnote{\url{http://benchmarksgame.alioth.debian.org/},\goodbreak accessed February 3, 2014}, javascript implementation\footnote{\url{http://github.com/kragen/shootout},\goodbreak accessed February 3, 2014, at version 71aa4ec4cd15940c59f1a1bb71ac1ff1572a55c2}.
+For each individual benchmark, we transform the source code using our source transformations and, thereby, execute the benchmark code with version-aware references to mutable objects.
+All benchmarks run without errors and return the same results as when executed without any source transformations.
+These tests indicate that the source transformation yields working source code and that our proxy-based version-aware references behave as intended where used.
+For the questions whether all references to mutable objects are version-aware and whether the version-aware references correctly delegate to one among many versions---that is, whether the source transformations and proxies allow to preserve and re-establish versions of Lively's JavaScript runtime---we tested the simple linear runtime versioning explained in \todo{3.2.3..}:
+When we pass Lively's source code modules to our source transformations during the bootstrap, we were able to preserve and re-establish the particular runtime state of multiple example scenarios, including the state of graphical applications of, for example, text editors and other developer tools.
+That is, at least for the scenarios we tested, our approach and its proxy-based JavaScript implementation provides fine-grained object versioning for the Lively Kernel.
 
-
+\todo{should we add a link to a published demo screencast for this? or screenshots? and describe the tested undo/redo scenarios a bit more..?}
 
 \section{Practicability: Impact on Performance}
 
@@ -48,10 +43,7 @@ execution time overhead:
 analysis...
 maybe some discussion of the execution overhead and numbers on the different layers of the layered implementation cost how much performance: versioning proxy handler > default ES 6 shim proxies > harmony proxies in Chrome..
 
+% This raises questions about the current state of the implementation of the proxies themselves, especially about interference with the v8's JIT compiler, and also indicates more practical implementation strategies.
 
 
-\section{Usability: Impact on Debugging}
-
-\begin{itemize}
-    \item adds lots of ‘low-level’ frames, dev tools don’t handle proxies well (hovering, labels, stepping into), but we have at least source maps, so developers can debug the original code and not the result of our source transformation
-\end{itemize}
+% say something about how much time it takes to commit and re-establish a version?
