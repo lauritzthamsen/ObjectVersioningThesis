@@ -11,6 +11,9 @@ Direct comparisons of just the version-aware references and direct references sh
 In analyzing these results, we gained the impression that only one order of magnitude is due to the specific proxy behavior, while most of the overhead can be ascribed to the Direct Proxies as currently available in the Chrome browser.
 In fact, a comparable indirection can be implemented considerably faster with ordinary JavaScript and further source transformations, promising more practical implementations.
 
+\todo{Eval: should we add something about how long it takes to do the source transformations?}
+\todo{Eval: should we add something on how long commit and undo/redo take?}
+
 \section{Functionality: Undo and Redo for the Lively Kernel}
 
 Besides testing the behavior of our proxies and our source transformations with isolated test cases, we also used two benchmark suites to check our implementation.
@@ -22,22 +25,43 @@ For the questions whether all references to mutable objects are version-aware an
 When we pass Lively's source code modules to our source transformations during the bootstrap, we were able to preserve and re-establish the particular runtime state of multiple example scenarios, including the state of graphical applications of, for example, text editors and other developer tools.
 That is, at least for the scenarios we tested, our approach and its proxy-based JavaScript implementation provides fine-grained object versioning for the Lively Kernel.
 
+\todo{only the v8 benchmark suite, as language shootout actually contains too many benchmarks...!!}
+\todo{add some info about the reduced input sizes to the Splay benchmark.. input reduced by one order of magnitude.. as automatic execution was impeded by unresponsive JS script check otherwise.. }
+
 \todo{should we add a link to a published demo screencast for this? or screenshots? and describe the tested undo/redo scenarios a bit more..?}
+
 
 \section{Practicability: Impact on Performance}
 
-memory overhead:
+memory overhead: for the version-aware references, but the overhead does increase with the number of versions per object...
 \begin{itemize}
     \item for the version-aware references for lively, measured (and explained… per proxy now...)
     \item something about how each new global version requires memory, but each depending on how big the changes are / or how much needs to be copied..
 \end{itemize}
 
+\todo{should we also present some numbers for how much more memory is consumed when we create versions?}
 
-execution time overhead:
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{figures/memoryOverhead.pdf}
+    \caption{Memory consumption when starting an empty Lively Kernel environment in megabyte.}
+    \label{fig:ExecutionOverhead}
+\end{figure}
+
+execution time overhead: for the version-aware references, and the overhead does not increase with the number of versions per object...
 \begin{itemize}
-    \item common JavaScript language benchmark suites – with vs. without proxies
-    \item user interaction benchmarks – with vs. without proxies
+    \item common JavaScript language benchmark suites – with vs. without proxies.. see Figure~\ref{fig:ExecutionOverheads}
+    \item user interaction benchmarks – with vs. without proxies: starting the lively kernel (including loading a world), opening halos on a morph, opening the world menu, opening the parts bin (/ a workspace / the system code browser), resizing the SCB (programmatically) (?), dragging (programmatically) (?)
 \end{itemize}
+
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{figures/executionOverhead.pdf}
+    \caption{Execution overhead for proxy-based version-aware references in 100\% overhead compared to ordinary JavaScript references.}
+    \label{fig:ExecutionOverhead}
+\end{figure}
+
 
 
 analysis...
