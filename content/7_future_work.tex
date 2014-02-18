@@ -1,10 +1,16 @@
 \chapter{Future Work} \label{sec:FUTURE_WORK}
 
 In the future, we want to improve the practicability of our implementation.
-In addition, we would like to build upon it.
-We want meaningful versions of the programming runtime to be preserved automatically and developers to be able to find relevant versions.
 
-\section{Reducing the Execution Overhead of Our Implementation}
+In addition, we would like to build upon it.
+The system should preserve meaningful versions of the runtime automatically and support developers in finding relevant previous state in recovery situations.
+
+performance of the implementation could also improve through faster proxies
+
+proxies do not necessarily have to be used to access all mutable state, temporary mutable state as, for example, by the object-oriented OMeta parser used in Lively does not need to be versioned. 
+given Chrome's single-threaded and cooperative execution of JavaScript code, it is not possible to preserve or change the version of the runtime during parsing, anyway..
+
+\section{Improving the Performance of Our JavaScript Implementation}
 
 \begin{itemize}
     \item lookup-indirection-microbenchmark… proxy-akin indirection vs. direct reference...
@@ -15,7 +21,7 @@ source-rewrite-approach.. source code transformations instead of proxies
 anObject.aProperty() -> apply(anObject, get(anObject, aProperty))
 
 
-\section{Continuous Object Versioning with Recovery Support Tools}
+\section{Providing Continuous Object Versioning with Recovery Support Tools}
 
 \begin{itemize}
     \item continuous versioning: versions whenever a user (might) trigger side effects, with each trigger that (might) effects some state: direct manipulation of morphs with halo buttons, evaluation of do-it code snippets, saving scripts or methods, mouse events that fire up code execution.

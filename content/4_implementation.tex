@@ -1,6 +1,6 @@
-\chapter{Implementation} \label{sec:IMPLEMENTATION}
+\chapter{Implementation with Direct Proxies} \label{sec:IMPLEMENTATION}
 
-\section{Implementation with Direct Proxies}
+\todo{add a link to a published github commit}
 
 % \section{3.X why an implementation solely in javascript}
 % 
@@ -10,7 +10,7 @@
 % * source transformations and proxy behavior to use version-aware references consistently
 % * global versions and proxy behavior to have particular versions of the runtime
 
-\subsection{Using ECMAScript 6 Direct Proxies}
+\section{Using ECMAScript 6 Direct Proxies}
 
 % \begin{itemize}
 %     \item ECMAScript 6 Direct Proxies\footnote{\url{http://wiki.ecmascript.org/doku.php?id=harmony:direct_proxies},\goodbreak accessed February 3rd, 2014}: proxy handler object, traps; ES 6 in DRAFT ~\cite{ECMA2014ES6}, deprecated Harmony Proxy proposal implemented in current chromes, but 
@@ -38,9 +38,13 @@ part 2: patches: Object.isRegExp, ‘some string’.match (done by patching Stri
 
 
 
-\subsection{Returning Proxies For New Objects}
+\section{Returning Proxies For New Objects}
 
 goal: all references to newly created objects need to be version-aware references, i.e. references to proxies instead of references to the (initial version of the) target. 
+
+we rewrite instead of patching them globally, because that's not possibly for all built-in objects.
+also, our implementation is itself in javascript and, therefore, uses built-in data types, too, which should not be proxied.
+for this reasons, we transform the sources of modules loaded after our versioning implementation.
 
 \begin{itemize}
     \item value of literal expressions: source transformations (objects, arrays, function expressions), examples.. function declarations and hoisting, literal accessor functions in object literals
@@ -56,7 +60,7 @@ goal: all references to newly created objects need to be version-aware reference
 
 
 
-\subsection{Providing Simple Global Versions for Undo and Redo}
+\section{Providing Simple Global Versions for Undo and Redo}
 
 JS execution: single-threaded, cooperative scheduling 
 
@@ -81,19 +85,16 @@ JS execution: single-threaded, cooperative scheduling
 
 
 
-
-
-
 \section{Limitations of the Implementation}
 
 
-\subsection{Limitations for Concurrent JavaScript Functions}
+% \subsection{Limitations for Concurrent JavaScript Functions}
 
 
 single-threaded and cooperative scheduling, but setTimeout / setInterval... stop asynchronous actions from following versions when undoing... source transformations, which scripts belongs to which version
 
 
-\subsection{Limitations in the Execution Environment}
+% \subsection{Limitations in the Execution Environment}
 
 \begin{itemize}
     \item only works in recent Chromes, with experimental JavaScript... ECMAScript 6 Direct Proxies not yet fully implemented, not yet stable.. shim library\footnote{\url{http://github.com/tvcutsem/harmony-reflect},\goodbreak accessed February 3, 2014, at version 0.0.11}..
@@ -105,3 +106,15 @@ single-threaded and cooperative scheduling, but setTimeout / setInterval... stop
 \begin{itemize}
     \item debugging: interference with Chrome's developer tools, which don’t handle proxies well (hovering, labels, stepping into)
 \end{itemize}
+
+
+% \subsection{Usability: Impact on Debugging}
+
+\begin{itemize}
+    \item adds lots of ‘low-level’ frames, dev tools don’t handle proxies well (hovering, labels, stepping into), but we have at least source maps, so developers can debug the original code and not the result of our source transformation
+\end{itemize}
+
+
+Besides impacting code execution, the current implementation of object versioning for Lively also  with certain programming tasks.
+Though the version-aware references should be transparent to programmers, in the current proxy-based implementation proxies show during debugging.
+However, the developer tools show the original source code, despite the implementation's transformations of the sources.
