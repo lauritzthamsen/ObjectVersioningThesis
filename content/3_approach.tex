@@ -7,14 +7,15 @@ The programming system should preserve multiple versions of objects and should i
 Our approach for implementing this for the Lively Kernel in JavaScript relies on proxies and source transformations.
 This provides a language-level solution for alternative references and object versioning.
 
+
 \section{Version-aware References}
 
 When changes made directly to objects turn out to be inappropriate, developers might want to re-establish a previous state of the programming system.
 For this, we propose to save versions of objects and to use alternative, version-aware references.
-Version-aware references dynamically resolve to one of several versions of objects.
-To change which version of an object is used, no object state and no references need to be updated explicitly.
-Instead the version-aware reference to the object in question resolves to the correct version dynamically when used, thereby encapsulating the multiplicity of versions per object.
-Other than that, version-aware references behave like usual references.
+Version-aware references should dynamically resolve to one of several versions of objects.
+To change which version of an object is used, these references should not be updated.
+Instead the version-aware references should resolve to the correct version of an object dynamically when used, thereby encapsulating the multiplicity of versions per object.
+Other than that, version-aware references should behave like usual references.
 They can be assigned to variables and be passed around.
 A version of an object is in the simplest case a copy with its values for primitive values and object relations.
 That is, version-aware references point to one out of many versions for a conceptually identical object, while objects are versioned in their entirety and not per property.
@@ -62,51 +63,77 @@ This way, programmers could undo each of those actions, regardless of whether th
 Using user actions as granularity for versions of the programming runtime allows developers to undo and redo the changes associated with concrete, rememberable actions.
 Further, compared to saving every change to each object into separate versions, this granularity yields fewer versions for the programmer to consider in recovery situations.
 
+
+
 \section{Object Versioning for the Lively Kernel}
 
 Our approach for providing object versioning for the Lively Kernel uses proxies to implement version-aware references in JavaScript.
-Further, we exchange ordinary references with proxies for all mutable objects by returning proxies whenever a new object is created.
-This is done by transforming sources and by returning proxies from proxied constructors.
-Simple global versions of the runtime to be used by the proxies suffice for basic recovery support in the single-threaded Lively Kernel programming system.
-
-% Our proxies manage  transparently delegate to one among many versions for the same object, while they in this approach also manage the different versions for an object.
-% 
-% We rely on a combination of proxy behavior and source transformation to use the proxies consistently around all mutable objects.
-% Besides these approaches for having and using version-aware references, a simple and linear versioning structure suffices to provide basic undo and redo capabilities.
-
+We exchange ordinary references with proxies for all mutable objects by returning proxies whenever a new object is created.
+This is done by transforming sources to proxy object literals and constructor functions.
+Further, the proxies return proxies again when they are used as constructors.
+Also through proxy behavior and some global versioning data, we provide basic recovery support for the single-threaded Lively Kernel programming system.
 
 
 \subsection{Proxies as Version-aware References}
 
-implementation in javascript, so there are only actual references in JavaScript, but we can use objects that represent references that know multiple versions of objects.
+We do not actually require an alternative kind of references for JavaScript to provide version-aware references.
+Instead we can use ordinary references and proxy objects.
+That is, each reference that would normally point directly to an object points to a proxy instead.
+The proxies know how to access the actual versions for each object and delegate transparently to one particular among those.
 
-but as resolving a version-aware reference should transparently result in a particular version of the object, these objects need to delegate transparently to that particular version.
-for this, we use proxy objects, in particular we use the ECMAScript 6 Direct Proxies as implementation of version-aware references.
+we let the proxy objects hold all versions of an object instead of, for example, using object tables, so that when no object holds the version-aware reference any longer, the proxy object and all actual version objects get garbage collected.
 
-also we let the proxy objects hold all versions of an object instead of, for example, using object tables, so that when no object holds the version-aware reference any longer, the reference object with all versions of the actual object get garbage collected.
+fully virtual objects, intercept all kinds of access to the proxies and can handle that access arbitrarly.
+our implementation delegates intercepted to the current version.
 
+%  ECMAScript 6 Direct Proxies: fully virtual objects, traps to specify proxy behavior, traps for property reads, property writes, accessing the prototype, other meta programming... where we delegate each of those actions to the current version
 
 
 \subsection{Proxies For All Mutable Objects}
 
 This ensures that references to proxies are used consistently instead of direct references to objects and that such proxies are used for every object.
 
+for all references that would normally relate two objects we need version-aware references instead.
+that is, all usual references need to become references to proxy objects, which then reference one or multiple versions of the actual object.
+also, two references to the same proxy object have to be identical as references to the same object are identical.
+for this reason, we create a proxy as an object is created and return a reference to the proxy instead to the object.
+this reference to the proxy is, thus, then passed around in the program as only access to the versioned object.
+therefore, all access goes through the proxy and there are no direct references to the object.
+further, identity that would usually compare the object with other objects now compares the proxy with other proxies.
 
-use version-aware references consistently:
-for all references between two objects use version-aware references instead. that is, all usual references need to become references to a proxy objects, which then reference one or multiple versions of the actual object.
+for our approach, all expressions that create new objects need to return proxies for those objects instead.
+there are three different ways to create an object in javascript: evaluating literal expressions, applying constructor functions, and calling specific built-in functions as, for example, the eval function.
 
-given that proxy references are returned as such when reading object properties and variables, it is only necessary to immediately wrap objects when they are created to use proxy references consistently for the system. so, we return version-aware references / proxies instead of the usual references for all new objects that are created.
+we apply source transformation to wrap literal expressions in a function that creates and returns a proxy for the expression's result.
+besides objects and arrays functions are also mutable objects in javascript.
+therefore, we wrap the literal forms of objects, arrays, and functions.
 
-ways to create new objects in javascript: literals, constructor, specific built-in functions (Object.create.. eval..)
+in javascript, all functions can be constructors and create new objects when called with the new operator.
+except, for built-in functions of JavaScript standard library all functions are expressed as function literals, which we transform to be wrapped by our proxies.
+as the virtual object proxies we use for version-aware references intercept different object access differently, we can specify their construct behavior and let them return proxies for the newly created objects.
 
-literals can be rewritten to be wrapped into proxies immediately. constructors are functions, which should already be proxied so that proxy behavior can be specified to return proxies for new instances, while specific built-in functions can be patched globally or rewritten for source to also return proxies.
-
+however, there are also built-in functions that create objects and that are not created from literal form.
+therefore, these are not automatically proxied.
+one category of such built-in functions are built-in constructors.
+for example, the built-in data types like objects and arrays can be created by calling new Object or new Array.
+we transform these built-in constructor functions explicity, wrapping each into the proxying function.
+besides this category, there are also very specific built-in functions, that we transform separately to specific alternatives.
+one example for such functions is the global eval function.
+while the return value of that function also potentially needs to be a reference to a proxy instead of an ordinary object, eval takes arbitrary code which might express an arbitrary object structure where references also should not be directly between objects.
+therefore, in the case of eval, we wrap eval, but also let the string argument to eval pass through our source transformations.
 
 
 \subsection{Versions of the Lively Runtime}
 
-particular versions of the runtime
+developers can only effectively undo changes, which potentially affect many objects and are not necessarily fully known, when whole object graphs or even the entire runtime can be re-set to a particular state.
+for this, the version-aware references for multiple objects need to resolve to versions that were saved together.
+therefore, our proxies hold all versions for an object in a dictionary that connects version identifiers for actual objects.
+which of these versions for each object should be chosen can be declared globally as javascript runs single-threaded and with cooperative scheduling and there is, thus, no possiblity to cause inconsistencies through accidentaly changing the global version within JavaScript while another JavaScript function is executed.
+this global versioning information is an object that holds a version identifier, to be used by the proxies when deciding to which version they delegate, and may also have a predecessor and a successor.
 
-global version data structure for the runtime, runtime versions may have predecessors and may have successors, versions of objects get chosen using the current global version of the runtime
+this global versioning information with its potentially predecessor and successor can also be used to not copy every object for every preserved state of the runtime.
+that is, when an object has not changed from one version to the next, it does not need to be copied.
+the version-aware references could just follow the global information to return the last preserved version.
 
-not necessarily necessary to copy each object for each version, but can be done on writes. further, not necessarily necessary to copy objects completely, but diffs or even delegation between diffs in a prototypical manner can be implemented
+besides this copy-on-write optimization, another optimization would be to not copy objects completely, but to only store changes.
+this could, for example, also apply prototypical inheritance to have versions that delegate to previous versions and only express the differences between versions.
