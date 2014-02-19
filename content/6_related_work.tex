@@ -1,15 +1,26 @@
 \chapter{Related Work} \label{sec:RELATED_WORK}
 
+\todo{section intro for related work}
+
 \todo{is Johnson and Duggan’s GL programming language related work? (see worlds paper)}
 \todo{are Morrisett sub-stores related work? (see worlds papers)}
 
-\todo{section intro for related work}
 
 
 \section{CoExist}
 
 \cite{Steinert2012COE}
-continuous versioning, tool support for Squeak/Smalltalk that provides a fine-grained history of changes made to code and tools to find the relevant version, including a timeline of versions that shows test results for each version and a version browser that also shows screen shots for each version… but only code changes are recognized, not state of objects or classes. and implemented for Squeak/Smalltalk, not JavaScript..
+CoExist provides recovery support through continuous versioning in Squeak/Smalltalk.
+For each change made to source code, CoExist creates a new version of the system sources, resulting in a fine-grained history of changes.
+CoExist then presents this fine-grained history in a timeline and a browser.
+For each version, those tools provide diffs, but also test results and a screenshot.
+That is, developers do not need to take precautionary actions explicitly during development, but still can easily recover previous development states.
+Developers can concentrate on implementing their ideas and as CoExist records a version for each change, there is also no possibility that developers miss a version they need later-on.
+
+Both CoExist and our object versioning record and manage multiple versions of the development state.
+They have in common that preserved versions are also part of the program runtime and that versions can be re-established easily.
+However, CoExist already records versions continuously on the granularity of changes made by developers and provides much more tool support to find and recover changes from previous versions, which we want to provide for our implementation and the Lively Kernel in the future.
+In contrast to CoExist, our system not only preserves code, but also the state of objects and, thus, is primarily intended for programming systems that allow to manipulate objects directly.
 
 
 \section{Worlds}
