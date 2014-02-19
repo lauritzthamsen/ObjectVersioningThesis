@@ -21,11 +21,46 @@ source-rewrite-approach.. source code transformations instead of proxies
 anObject.aProperty() -> apply(anObject, get(anObject, aProperty))
 
 
-\section{Providing Continuous Object Versioning with Recovery Support Tools}
+\section{Providing Continuous Object Versioning with Recovery Tools}
 
+Our implementation allows to preserve and to re-establish versions of the Lively runtime, but these versions need to be currently created explicitly.
+Developers still need to preserve particular versions, which is error-prone and effortful, as explained in Section \todo{refer to code exist section}. Developers might forget to preserve versions, or they underestimate the risk of changes and decide not to preserve a version.
+At the same time, it takes effort to assess the risk of upcoming changes, to run appropriate tests to check the current state, and to commit a version.
+For these reasons and as suggested by CoExist, we want the system to provide a fine-grained history continuously.
+Developers should be able to recover versions that they have not explicitly preserved previously.
+This includes that developers also need to be able to find the versions they are looking for.
+
+We could conceivably create versions of the runtime for any change to an object.
+However, while that might be technically feasible, developers also need to be able to find and recognize the particular versions they want to recover state from.
+Therefore, we propose to preserve versions associated with actions of developers, to allow developers to undo the effects of their actions when they recognize actions did not only improve their programs.
+In particular, the system could, for example, automatically preserve a version of the state whenever a developer
 \begin{itemize}
-    \item continuous versioning: versions whenever a user (might) trigger side effects, with each trigger that (might) effects some state: direct manipulation of morphs with halo buttons, evaluation of do-it code snippets, saving scripts or methods, mouse events that fire up code execution.
-on a granularity meaningful to the user, so he knows he can take back his actions on the system.
-    \item finding relevant versions: see what triggered a version (do-it, halo button, save button, application button)?, when the version was created (screenshot, screencast)?, how it is related to other versions (time line of versions)?, what has changed? which object(s) (morph names, structural context a la morph composition or related named morphs)? how can these objects be identified? how where objects changed (state diff, code diff)?, what is the impact of the changes (test results, benchmark results)?
-    \item ability to revisit the or one of the previous versions,fine-grained version control to be able to recover versions of particular objects from previous versions of the runtime (cherry-picking), branching from a previous version, merging branches… diffing versions of objects… high-level summary of the differences between versions of the runtime
+    \item manipulates a graphical object directly with one of Lively's halo tools or through drag and drop, or
+    \item directly evaluates (``Do-It'') a code snippet, or
+    \item saves a script of an object or a method of a class, or
+    \item triggers code execution by clicking a button or pressing a key.
 \end{itemize}
+
+Besides preserving versions continuously on a granularity helpful to the users, we also want to support developers in finding particular versions of the runtime by adding helpful information to each of the versions.
+Versions can be presented in relation to each other in, for example, a timeline.
+This way developers could see the order of their actions and for each version of the runtime, which versions preceded and which versions followed.
+Such a timeline could also present timestamps for the versions.
+Another helpful information would probably be the action that triggered preserving a version such as whether a developer used a halo button or evaluated a code snippet.
+This could be supported by recording screenshots or even short screencasts for each version.
+A third category of helpful information for a version, besides when and why a version was preserved, could be information on what was changed between two version: which objects have changed and how have they changed.
+What source code changed can often be indicated by static information as, for example, a class, its module, and the containing package.
+There is, however, less static information for objects.
+In case of Livey, for graphical objects, we might be able to present how they relate to the scenegraph of visible objects.
+Further, some objects do have explicit names in Lively.
+How objects changed between versions can be presented in a diff view for both state and behavior.
+Lastly, the system could also provide information on the impact of changes: For each version, we could also preserve results for test cases and benchmarks.
+
+When developers have recovery needs and also find the particular previous version they were looking for, they might want to revisit it for different purposes.
+For example, developers might just want to re-establish a particular state of the system to see how an application behaved or looked at that moment.
+Similarly, they might want, for example, to try an alternative idea without loosing all versions following the one they are currently revisiting.
+That is, they might want to create a branch of changes as an alternative to the main line of versions.
+Further, besides moving freely between versions of the runtime as well as creating and deleting lines of history, they also probably will want to recover particular state from particular versions.
+Such state could be a particular version of a graphical application part they are working on, but also could be the state of a tool such as a code browser currently opened on a specific source code module.
+For this, we want to support developers in copying particular state up to whole objects from one version of the runtime to another.
+
+All in all, this tool support for recovery should allow developers to find and re-establish versions, to create and delete lines of histories, and to diff and merge changes from one version of the system to another.
