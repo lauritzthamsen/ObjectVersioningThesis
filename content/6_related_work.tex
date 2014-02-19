@@ -25,9 +25,16 @@ In contrast to CoExist, our system not only preserves code, but also the state o
 
 \section{Worlds}
 
-(language construct to capture side-effects of statements into worlds. worlds are first-class values. new worlds can be created from existing worlds, which also establishes a parent relationship, so that worlds can be commited to their parents again. both sprouting new worlds and commiting the side effects of inheriting worlds back to their parent worlds is explicit. as is the management of world values. a programming tool to support explicit experimentation and a basis for multiple application, including undo/redo for particular application. but explicit capturing of side-effects instead continuous capturing of versions. 
-worlds could be a basis for implementing continuous versioning… but implementation of Worlds/JS is not quite practical for our goals: no garbage collection with global worlds tables, relies on OMeta (interferes with debugging / exception listening, doesn’t provide source maps, proxies have advantages..)
+Worlds are a language construct to capture and control the scope of side-effects: changes to the state of objects are by default only effective in the world in which the changes occurred.
+Worlds are first-class values, to be used to execute statements in a particular world.
+A new world can be spawned from an existing world, which establishes a child-parent relationships between the two worlds.
+Developers can commit changes contained in a child world to its parent world, thereby extending the scope of the captured side-effects.
+For this, the Worlds approach further includes conditions to prevent inconsistencies as result of commits.
 
+In comparison, Worlds provides a language construct to support explicitly experimenting with different states of the runtime, while object versioning provides versions of the runtime intented to be created implicitly and continuously: Our approach does not include extensions to existing programming languages with versions as first-class values and no conditions under which versions of the runtime should be merged into their predecessors.
+
+That said, worlds could, potentially, also be used as a basis for continuous object versioning.
+However, out of practical considerations---currently, Worlds, for example, provides no garbage collection and also does not work for all possible JavaScript code---we decided not to build upon worlds, but to implement object versioning as explained in Section~\ref{sec:IMPLEMENTATION}.
 
 
 \section{Offline Worlds}
