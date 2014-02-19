@@ -23,6 +23,7 @@ However, CoExist already records versions continuously on the granularity of cha
 In contrast to CoExist, our system not only preserves code, but also the state of objects and, thus, is primarily intended for programming systems that allow to manipulate objects directly.
 
 
+
 \section{Worlds}
 
 Worlds are a language construct to capture and control the scope of side-effects: changes to the state of objects are by default only effective in the world in which the changes occurred.
@@ -37,15 +38,18 @@ That said, worlds could, potentially, also be used as a basis for continuous obj
 However, out of practical considerations---currently, Worlds, for example, provides no garbage collection and also does not work for all possible JavaScript code---we decided not to build upon worlds, but to implement object versioning as explained in Section~\ref{sec:IMPLEMENTATION}.
 
 
+
 \section{Offline Worlds}
-Offline Worlds~\cite{Czuchra2012OfW}, automatically saving worlds in a fixed interval
 
-intend: Browser- oder Betriebssystem-Abstuerzen, Netzwerk- oder Server-Ausfaellen, so- wie gleichzeitigen Aenderungen durch andere Nutzer fuehrt
-vs. recover from changes that turn out to be inappropriate (single user, single session..)
+Offline Worlds~\cite{Czuchra2012OfW} is an approach to implementing automatic saving of Lively worlds as protection against system failures.
+The world is saved automatically in a fixed time interval to be able to re-establish the latest saved version of the world in case of unexpected crashes, or network or server outages.
 
-in an interval: Offline Worlds store progress automatically based on an interval that is set to 10 seconds...
-
-implementation differences: serializing worlds vs. copy-on-write versions of objects of the runtime: creating new versions (serialization and diffing to gain world version deltas) and revisiting older versions (loading older worlds from scratch) should be considerable slower, interruptive / stop-the-world, whereas with our approach the overhead for new versions or revisting is less and also more incremental than stop-the-world (new versions of the runtime with essentially no cost at that point in time, but new versions of objects only when we write to them, reusing older versions on an object granularity, and not resetting all objects to a previous version, but dynamically resolving to the correct version whenever references are followed..), but Martins approach has no basic execution overhead, just way more costly and interruptive commit/undo operations... in comparsion, our approach might be more suited for very fine-grained object versioning, while Martins might be more suited for the occasional snapshot of the world..
+As only the differences to the last saved version is stored, Offline Worlds would also allow to re-establish other versions than the latest.
+However, in contrast to our goals, the Offline Worlds approach aims at preserving the latest state of a Lively world to provide recovery from system failures, while our approach aims to preserve multiple versions of the runtime to provide recovery from inappropriate changes.
+Further, Offline Worlds only preserve the state of all graphical objects, whereas our versions also preserve other globally accessible state such as the global system configuration, classes, and state explicitly excluded when serializing graphical objects.
+Also, while our approach saves new versions incrementally and resolves to different versions dynamically, Offline Worlds saves and loads versions of the world in a discrete, interruptive step.
+While object versioning introduces a constant execution overhead for resolving version-aware references, Offline Worlds stops the world for both saving and loading versions.
+For this reason, object versioning seems to be more practical for fine-grained versioning.
 
 
 
