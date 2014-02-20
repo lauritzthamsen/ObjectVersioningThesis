@@ -7,38 +7,49 @@
 \chapter{Introduction} \label{sec:INTRODUCTION}
 
 % Background
-lively~\cite{Ingalls2008LKS,Krahn2009LWD}: background (self-supporting, web-based development environent), in the tradition of smalltalk~\cite{GoldbergRobson83} and self~\cite{Ungar1987SPS,Ungar2007SEL}, development of objects (direct manipulation of particular objects, halo buttons, object-specific behavior).
+Programming systems like the Lively Kernel~\cite{Ingalls2008LKS,Krahn2009LWD}, also known as just Lively, allow to directly change objects.
+In contrast to many other object-oriented systems, in which programmers develop the source code of classes, Lively provides tools to directly manipulate the styles, the composition, and the scripts of particular objects.
+Lively also encourages programmers to evaluate scripts directly to change objects or to test functionality.
+The results of such development is the state of the objects, not abstract source code describing objects.
 
 % Problem
-problem: recovery needs (undo a change, lost changes, exploring the effects of changes/scripts without permanent changes).
+But Lively currently does not provide undo for changes to objects on the level other programming systems provide undo for changes to text.
+When changes turn out to be inappropriate, the programmer needs to undo them manually or, in case she previously made a snapshot, load an earlier version of an object.
 
 % So what?
+Both of these approaches require the programmer to do the work: either she has to see and undo all changes, which might involve many properties of many objects when, for example, the changes where introduced by evaluating a code snippet, or she has to make many snapshots of objects---not to share and document her work, but to protect it against changes that unexpectedly turn out to be mistakes.
+The high effort of recovering from mistakes is especially at odds with Lively's encouragement to try ideas immediately: development happens at runtime, composition and other manipulation of graphical objects is done directly using the mouse, the scripts of objects can be evaluated directly in the context of the particular objects, and workspaces are used to manipulate objects with ad-hoc code snippets.
+In short, developers are encouraged to change the state, but do not get much support when that unexpectedly does not improve the state.
 
-different approaches to recovering previous versions of state / undoing actions that turn out inappropriate:
+% Previous / alternative approaches
+Different approaches provide support for undoing changes made to the state of objects:
 \begin{itemize}
-    \item the command pattern~\cite{GammaHelmJohnsonVlissides95} to record and potentially undo recent actions, but need application-specific commands and undo implementations... unpractical considering the  recovery needs, because triggered scripts of objects can change everything else... side effects of operations might exceed a particular object.. difficult to implement rollbacks that cover everything..
-    \item Worlds~\cite{Warth2011Wor}, language construct for scoping side-effects, but explicit world sprouting, world selection, and commiting captured side-effects back.. similar to saving parts and worlds explicitly. that is, we can anticipate recovery needs by saving intermediate versions, but have to do that explicitly and that takes some effort, so can be forgotten or doesn’t happen when we fail to expect an outcome and recovery need
+    \item Lively could implement the command pattern~\cite{GammaHelmJohnsonVlissides95} to record all actions made by developers and provide rollbacks for each of those. This is, however, unpractical, given that developers can write and evaluate arbitrary code to manipulate objects directly, and even the discrete set of manipulations programmers can do with special-purpose tools would require a rather comprehensive implementation of the pattern.
+    \item Programmers could use Worlds~\cite{Warth2011Wor}, a language construct for controlling the scope side-effects, to capture the effects of their actions into different worlds. Worlds as such, though, would require developers to explicitly create worlds before their changes and discard worlds when changes turn out be mistakes. Therefore, worlds would require the programmer to do take precautionary actions for convenient recovery support, just like version control systems do. In addition, the respective implementation of Worlds is not practical. It, for example, currently prevents garbage collection.
 \end{itemize}
 
-
-
-
+Another approach, called CoExist~\cite{Steinert2012COE}, provides support for undoing changes made to the source code of classes, and does this without requiring developers to take precautionary actions.
+CoExist records versions for each change automatically and, thus, provides a fine-grained history of development states.
+Besides diffs, CoExist also provides test results and screenshots to help programmers find the version they want to recover.
+In result, developers are not required to make commits to be able to recover without manually undoing all changes.
+CoExist, though, is currently only available for Squeak/Smalltalk, not for Lively, and recognizes only changes made to the source code of classes.
 
 % Solution
-continuous versioning, as provided by CoExist~\cite{Steinert2012COE}, records all changes made to source code automatically and provides a fine-grained history of development states, allows programmers to concentrate on implementing ideas instead of also explicitly taking precautionary actions for potential and distant recovery needs..
-but as implemented for Squeak/Smalltalk CoExist doesn’t recognize changes to object state...
+For similar recovery support in Lively, we propose Object Versioning, an approach for preserving and re-establishing versions of the runtime of systems like Lively.
+Object Versioning saves particular versions of objects and uses alternative, version-aware references between all objects.
+The version-aware references then delegate object access---all kinds of reads and writes---to a particular version of an object.
+To which version the references delegate can be changed for all version-aware references system-wide for all references.
+Similarly, demanding new versions of all objects is also done globally, but happens incrementally on writes, to not stop the environment completely for new versions.
+This way, multiple version-aware references can be resolved transitively, following them as they were in a particular state of the runtime.
 
-we need continuous object versioning, behavior and state, similar to CoExist, recording versions of the system state whenever the developer or user triggers changes to the system by interacting with tools or an application, to be able to recover information from previous states...
-
-approach based on alternative, version-aware references that know and choose from multiple versions for the same object
-
-
-
+We propose this approach for Lively with the intention to provide CoExist-like recovery support through continuous versioning.
+That is, the approach should allow fine-grained histories of development states---many, but still particular versions of the entire runtime that can correspond to developer actions and can be re-established quickly.
+It should also allow to enhance versions of the runtime with further helpful information as, for example, test results, screenshots, and diffs. \\
 
 % Contributions
-The contributions of this thesis are as follows:
+The contributions of this thesis are as follows: \\
 % \begin{itemize}
 %     \item ...
 % \end{itemize}
 
-The remainder of this thesis is organized as follows. Section \ref{sec:APPROACH} introduces our approach...
+The remainder of this thesis is organized as follows. Section \ref{sec:APPROACH} introduces our approach... \\
