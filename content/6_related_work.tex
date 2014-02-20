@@ -55,14 +55,26 @@ For this reason, object versioning seems to be more practical for fine-grained v
 
 \section{Back-in-Time Debugging}
 
-back-in-time debugging~\cite{Lewis2003BIT}
-Logging-based approaches, Replay-based approaches \todo{see Lienhard2008POB}.. to recreate a particular state of the runtime... but purpose is debugging and not necessarily recovering.. 
+Back-in-time Debuggers~\cite{Lewis2003BIT}, also known as Omniscient Debuggers, allow developers to inspect previous program states and step backwards in the control flow to effectively undo the effects of statements.
+For this, approaches are either based on logging or replay: either the debugger records previous states to be able to recreate a particular previous situations, requiring mainly space for all the different states, or the debugger re-executes the program up to a particular previous situation, requiring mainly time to run the program again.
+While many logging-based approaches also introduce execution overheads, replay-based approaches need to ensure that the program is re-executed deterministically, which is difficult to ensure when the program relies on state outside of its program runtime as, for example, files or other programs.
 
-Practical Back-in-Time Debugging~\cite{Lienhard2008POB}, Aliases (Lienhard Diss): the idea of using objects for references that hold more information on objects, including information on the objects past, which are called object aliases in this work, is very similar to our version-aware references. including the idea to rely on the usual garbage collection to take care of versions for an unreachable object
+Our approach is more related to logging-based back-in-time debugging.
+It also allows to re-establish a previous situation through preserving previous states.
+However, back-in-time debuggers need to be able to undo the effects of every statement separately, while our system's versioning granularity is arbitrarily and can, for example, correspond to developer interaction with the live system.
+In general, back-in-time debuggers support a particular development task---debugging--- and, thus, are also often only active when a program is started in separate debugging mode, while the purpose of object versioning is more comprehensive and we expect it to be active at least during all development tasks, but possibly even be always enabled.
 
-different intent: only debugging vs. undo/redo during usage
+A concrete and particularly related work is Practical Object-oriented Back-in-Time Debugging~\cite{Lienhard2008POB}, a logging-based approach that also preserves the history for each object using alternative references.
+As in our approach, these alternative references, called Aliases, are actually also objects, part of the application memory, and contain information about the history and origin of the values stored in objects.
+Aliases are, however, never passed around, but new aliases are created for each read or write of an object field or an array and for each reference passed as parameter.
+Each of these aliases refers to an actual value, but also to an alias for the value the variable previously referred to---its predecessor---and to the alias that was used to create this new alias from---its origin.
+An alias and its origin both refer to the same value, but provide different information as their creation context, which always is a particular method.
+That is, the origin link can be used to follow the object's ``flow'' through the program, and, because each alias also records a timestamp when created, the predecessor link can be followed while comparing timestamps to read a value as it were at a particular moment in time.
 
-different approach to when to create these references… not at object creation, but more appropriate for following a single execution flow (without preparing the rest of the system)
+In comparison to our approach, there is not just one alias object for every mutable object, but potentially many---as many as references to that object, while there is only one version-aware reference.
+Further, an alias object has predecessors for every value stored in a variable such as an object field, while our version-aware references hold a subset of the different state the same object had, corresponding to particular discrete versions of the runtime, which may or may not have been commited automatically.
+That is, with the presented debugging approach its possible to recreate all states the system was in and also retrace the flow of all values, while our system stores only meaningful versions that, for example, might correspond to developer actions.
+Another difference lies in the in the expected usage extent: the alias references are intended to be used only for explicit debugging sessions, while our version-aware reference are intended to be used always, at least completely during all development activities.
 
 
 
