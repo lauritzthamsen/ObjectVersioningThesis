@@ -23,7 +23,6 @@ However, CoExist already records versions continuously on the granularity of cha
 In contrast to CoExist, our system not only preserves code, but also the state of objects and, thus, is primarily intended for programming systems that allow to manipulate objects directly.
 
 
-
 \section{Worlds}
 
 Worlds are a language construct to capture and control the scope of side-effects: changes to the state of objects are by default only effective in the world in which the changes occurred.
@@ -38,7 +37,6 @@ That said, worlds could, potentially, also be used as a basis for continuous obj
 However, out of practical considerations---currently, Worlds, for example, provides no garbage collection and also does not work for all possible JavaScript code---we decided not to build upon worlds, but to implement object versioning as explained in Section~\ref{sec:IMPLEMENTATION}.
 
 
-
 \section{Offline Worlds}
 
 Offline Worlds~\cite{Czuchra2012OfW} is an approach to implementing automatic saving of Lively worlds as protection against system failures.
@@ -50,7 +48,6 @@ Further, Offline Worlds only preserve the state of all graphical objects, wherea
 Also, while our approach saves new versions incrementally and resolves to different versions dynamically, Offline Worlds saves and loads versions of the world in a discrete, interruptive step.
 While object versioning introduces a constant execution overhead for resolving version-aware references, Offline Worlds stops the world for both saving and loading versions.
 For this reason, object versioning seems to be more practical for fine-grained versioning.
-
 
 
 \section{Back-in-Time Debugging}
@@ -77,6 +74,20 @@ That is, with the presented debugging approach its possible to recreate all stat
 Another difference lies in the in the expected usage extent: the alias references are intended to be used only for explicit debugging sessions, while our version-aware reference are intended to be used always, at least completely during all development activities.
 
 
+\section{Context-oriented Programming}
+
+Context-oriented Programming~\cite{Hirschfeld2008COP} adds dedicated language constructs for dynamic behavior adaptions to object-oriented programs.
+Depending on context information, COP allows to enable and disable layers, which contain variations to be executed instead or around methods of the object-oriented base program, at runtime.
+Context information can be any information which is computationally accessible.
+Different implementation of COP provide different mechansims to scope the activation of layers: often layers can be activated explicitly for a particular scope of the program or globally for the entire runtime.
+In ContextJS~\cite{Lincke2011OIC} it is even possible to activate layers only for specific objects.
+
+In comparison to our approach, COP also allows to group changes to the system into layers and which of those sets of changes are active can be changed dynamically.
+However, while COP concentrates on behavior variations, our approach recognizes changes to state and behavior.
+At the same time, COP supports the composition of multiple layers, while object versioning expects a single specific version to be the current version.
+COP further is a language construct that allows to separate heterogeneous cross-cutting concerns, while object versioning is part of the programming system to allow developers to recover previous development states.
+However, \cite{Lincke2012SCS} showed that COP can also allow developers to experiment with changes to a system: developers may implement their proposed changes to behavior in layers, not aiming primarily at modularization, but to not change the system permanently and instead be able to recover easily.
+Though this requires developers to make experiments explicitly---explicitly creating layers and explicitly moving code from layers back to the base system, once experiments are considered successful and changes expected to be permanent, when developers want to maintain the original modularization of the system.
 
 \section{ChangeBoxes}
 ChangeBoxes~\cite{Denker2007EEC}
@@ -90,10 +101,9 @@ maybe something about David Ungar's Us~\cite{}
 
 
 
-\section{Context-oriented Programming}
-Context-oriented Programming~\cite{Hirschfeld2008COP}
 
-ContextJS~\cite{Lincke2011OIC}, scoping changes in a self-supporting system~\cite{Lincke2012SCS}
+
+
 
 
 \section{Software Transactional Memory}
