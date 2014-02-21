@@ -41,15 +41,18 @@ The version-aware references then delegate object access---all kinds of reads an
 To which version the references delegate can be changed for all version-aware references system-wide for all references.
 Similarly, demanding new versions of all objects is also done globally, but happens incrementally on writes, to not stop the environment completely for new versions.
 This way, multiple version-aware references can be resolved transitively, following them as they were in a particular state of the runtime.
+\todo{der Rest des Ansatzes: versions of objects preserved in the application memory, proxies as approach to implementing version-aware references, source transformations and proxy behavior to use these proxies consistently for references to objects)}
 
 We propose this approach for Lively with the intention to provide CoExist-like recovery support through continuous versioning.
 That is, the approach should allow fine-grained histories of development states---many, but still particular versions of the entire runtime that can correspond to developer actions and can be re-established quickly.
-It should also allow to enhance versions of the runtime with further helpful information as, for example, test results, screenshots, and diffs. \\
+It should also allow to enhance versions of the runtime with further helpful information as, for example, test results, screenshots, and diffs.\\
 
 % Contributions
-The contributions of this thesis are as follows: \\
-% \begin{itemize}
-%     \item ...
-% \end{itemize}
+The contributions of this thesis are as follows:
+\begin{itemize}
+    \item idea - object versioning: version-aware references (Section~\ref{sec:APPROACH:1}).
+    \item approach for implementing version-aware with proxies and source transformations for Lively (Section~\ref{sec:APPROACH:2}).
+    \item implementation in JavaScript, using EcmaScript 6 Direct Proxies (Section~\ref{chapter:IMPLEMENTATION}).\\
+\end{itemize}
 
-The remainder of this thesis is organized as follows. Section \ref{sec:APPROACH} introduces our approach... \\
+The remainder of this thesis is organized as follows. Section \ref{chapter:APPROACH} introduces our approach...\\
