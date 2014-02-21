@@ -1,4 +1,4 @@
-\chapter{Object Versioning} \label{sec:APPROACH}
+\chapter{Object Versioning} \label{chapter:APPROACH}
 
 As explained in Section~\ref{sec:BACKGROUND}, programmers benefit from being able to recover previous development states without explicitly preparing for potential recovery needs.
 We propose fine-grained object versioning for such recovery support in systems in which developers manipulate objects directly.
@@ -8,7 +8,7 @@ Our approach for implementing this for the Lively Kernel in JavaScript relies on
 This provides a language-level solution for alternative references and object versioning.
 
 
-\section{Version-aware References}
+\section{Version-aware References} \label{sec:APPROACH:1}
 
 When changes made directly to objects turn out to be inappropriate, developers might want to re-establish a previous state of the programming system.
 For this, we propose to save versions of objects and to use alternative, version-aware references.
@@ -65,7 +65,7 @@ Further, compared to saving every change to each object into separate versions, 
 
 
 
-\section{Object Versioning for the Lively Kernel}
+\section{Object Versioning for the Lively Kernel} \label{sec:APPROACH:2}
 
 Our approach for providing object versioning for the Lively Kernel uses proxies to implement version-aware references in JavaScript.
 We exchange ordinary references with proxies for all mutable objects by returning proxies whenever a new object is created.
