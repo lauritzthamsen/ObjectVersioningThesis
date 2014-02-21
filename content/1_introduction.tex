@@ -7,7 +7,7 @@
 \chapter{Introduction} \label{chapter:INTRODUCTION}
 
 % Background
-Programming systems like the Lively Kernel~\cite{Ingalls2008LKS,Krahn2009LWD}, also known as just Lively, allow to directly change objects.
+Programming systems like the Lively Kernel~\cite{Ingalls2008LKS,Krahn2009LWD}, also known as just \emph{Lively}, allow to directly change objects.
 In contrast to many other object-oriented systems, in which programmers develop the source code of classes, Lively provides tools to directly manipulate the styles, the composition, and the scripts of particular objects.
 Lively also encourages programmers to evaluate scripts directly to change objects or to test functionality.
 The results of such development is the state of the objects, not abstract source code describing objects.
@@ -35,17 +35,24 @@ In result, developers are not required to make commits to be able to recover wit
 CoExist, though, is currently only available for Squeak/Smalltalk, not for Lively, and recognizes only changes made to the source code of classes.
 
 % Solution
-For similar recovery support in Lively, we propose Object Versioning, an approach for preserving and re-establishing versions of the runtime of systems like Lively.
-Object Versioning saves particular versions of objects and uses alternative, version-aware references between all objects.
-The version-aware references then delegate object access---all kinds of reads and writes---to a particular version of an object.
-To which version the references delegate can be changed for all version-aware references system-wide for all references.
-Similarly, demanding new versions of all objects is also done globally, but happens incrementally on writes, to not stop the environment completely for new versions.
-This way, multiple version-aware references can be resolved transitively, following them as they were in a particular state of the runtime.
-\todo{der Rest des Ansatzes: versions of objects preserved in the application memory, proxies as approach to implementing version-aware references, source transformations and proxy behavior to use these proxies consistently for references to objects)}
+For similar recovery support, we propose to implement object versioning in Lively: to be able to preserve and re-establish versions of the live programming system.
+In particular, we propose an approach based on saving versions of objects and using alternative, version-aware references to objects.
+Versions of objects are just objects, for example plain copies, and also part of the application memory.
+The version-aware references are references that know available versions of objects and resolve to a particular version among those transparently.
+To not only have a single object be as it was at a particular moment, but instead all objects of the system, corresponding versions of all objects need to be preserved together, and references need to resolve to corresponding versions accordingly.
+So, to preserve a particular state of the system, the state of all objects is preserved, possibly incrementally, on writes and only for objects that actually change.
+To which versions the version-aware references then resolve is changed simultaneously for all, also possibly without interrupting the system completely, through having the references decide dynamically to which version they resolve.
+This way, multiple version-aware references can be resolved transitively to the state as it was at one point.
 
-We propose this approach for Lively with the intention to provide CoExist-like recovery support through continuous versioning.
-That is, the approach should allow fine-grained histories of development states---many, but still particular versions of the entire runtime that can correspond to developer actions and can be re-established quickly.
-It should also allow to enhance versions of the runtime with further helpful information as, for example, test results, screenshots, and diffs.\\
+As concrete solution for Lively, we propose to implement version-aware references in JavaScript on the level of the language: through proxies and source transformations, without requiring adaptions to execution engines.
+The proxies implement version-aware references.
+That is, the proxies stand in for references: conventional references point to them and they delegate all object access--all kinds of reads and writes--to one among many versions of the object they stand for.
+A combination of proxy behavior and source transformation then allows to introduce and use proxies consistently for all objects.
+
+We propose this object versioning for Lively with the intention to provide CoExist-like recovery support, including continuous versioning.
+Therefore, the approach should support fine-grained histories of development states---many, but still particular versions of the entire runtime that can correspond to developer actions and can be re-established quickly.
+It should also allow to enhance preserved development states with further information as, for example, test results, screenshots, and diffs.
+That is, in the future, we want to build upon the proposed solution and support developers in efficiently finding and recovering state from continuously preserved, fine-grained histories of development sessions.\\
 
 % Contributions
 The contributions of this thesis are as follows:
