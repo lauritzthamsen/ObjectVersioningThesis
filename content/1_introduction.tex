@@ -41,7 +41,7 @@ Developers can re-establish these versions conveniently and without either many 
 CoExist, though, is currently only available for Squeak/Smalltalk, not for Lively, and recognizes only changes made to the source code of classes.
 
 % Solution
-For similar recovery support, we propose to implement object versioning for Lively to be able to preserve and re-establish versions of the Lively programming system.
+For similar recovery support in programming systems like Lively, we propose object versioning to be able to preserve and re-establish versions of the programming runtime.
 In particular, we propose an approach based on preserving multiple versions of objects and using alternative, version-aware references to objects.
 Versions of objects are just objects, in the simplest case just copies, and also part of the application memory.
 The version-aware references are references that know available versions of objects and resolve transparently to a particular version among those.
@@ -65,9 +65,14 @@ That is, in the future, we want to build upon the proposed solution and support 
 % Contributions
 The contributions of this thesis are as follows:
 \begin{itemize}
-    \item idea - object versioning: version-aware references (Section~\ref{sec:APPROACH:1}).
-    \item approach for implementing version-aware with proxies and source transformations for Lively (Section~\ref{sec:APPROACH:2}).
-    \item implementation in JavaScript, using EcmaScript 6 Direct Proxies (Section~\ref{chapter:IMPLEMENTATION}).\\
+    \item An approach to object versioning for systems like Lively that relies on alternative, version-aware references that transparently delegate to one of multiple versions of each object (Section~\ref{sec:APPROACH:1}).
+    \item A concrete, language-level solution that provides the proposed version-aware references through proxies and source transformations for Lively (Section~\ref{sec:APPROACH:2}).
+    \item An implementation of the concrete solution in JavaScript that allows to preserve and re-establish development states in Lively (Section~\ref{chapter:IMPLEMENTATION}).\\
 \end{itemize}
 
-The remainder of this thesis is organized as follows. Section \ref{chapter:APPROACH} introduces our approach...\\
+The remainder of this thesis is organized as follows. 
+Chapter~\ref{chapter:BACKGROUND} illustrates the recovery needs developers have when they directly develop objects.
+Chapter~\ref{chapter:APPROACH} introduces our approach to object versioning and describes how proxies can be used for concrete implementations.
+Chapter~\ref{chapter:IMPLEMENTATION} describes our implementation for the Lively Kernel, which Chapter~\ref{chapter:DISCUSSION} then discusses in terms of functionality and practicability.
+Chapter~\ref{chapter:RELATED_WORK} compares our solution to related work.
+Chapter~\ref{chapter:RELATED_WORK} presents future work, while Chapter~\ref{chapter:RELATED_WORK} concludes this paper.
