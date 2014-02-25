@@ -7,40 +7,56 @@
 \chapter{Introduction} \label{chapter:INTRODUCTION}
 
 % Background
-Programming systems like the Lively Kernel~\cite{Ingalls2008LKS,Krahn2009LWD}, also known as just \emph{Lively}, allow to directly develop objects.
-For this and in contrast to many other object-oriented systems, in which programmers develop the source code of classes, Lively provides tools to directly manipulate the style, the graphical composition, and the scripts of particular objects.
-Lively also [encourages] programmers to directly script objects: to manipulate the state of particular objects using code snippets and to try code snippets in the context of objects to see and understand their effects.
+
+programming systems that allow development at runtime, like LISP or python REPL or Squeak/Smalltalk, change the programs as it runs, immediate feedback
+[geht um programmiersysteme, in denen ... spannend ]
+
+[eine unterkategorie dieser programmiersysteme ] programmverhalten nicht nur über klassen, sondern auch durch objekte definieren.. wie self und lively..
+prototype-based object oriented programming (Self, JavaScript), objects (not classes) as programming unit, applications can be expressed solely with objects and these can be edited at runtime, in contrast to many other object-oriented systems, in which programmers develop the source code of classes
+werte von objekten inspekten, ändern. verhalten ansehen und ändern.
 The results of such development is the state of actual objects, not source code that abstractly describes potential objects.
 
+Lively Kernel~\cite{Ingalls2008LKS,Krahn2009LWD}.. designed to allow a certain kind of development.. direct manipulation with immediate feedback.
+art der entwicklung unterscheidet sich.. support for trying ideas immediately..encourages to directly change particular objects.
+extra werkzeuge... Developers are able to make changes directly and receive immediate feedback
+for this, Lively provides tools to directly manipulate the style, the graphical composition, and the scripts of particular objects. 
+development happens at runtime, composition and other manipulation of graphical objects is done directly using the mouse, the scripts of objects can be tried directly in the context of the particular objects, and workspaces are used to manipulate objects with ad-hoc code snippets.
+composition and other manipulation of graphical objects is done directly using the mouse, the scripts of objects can be tried directly in the context of the particular objects, and workspaces are used to manipulate objects with ad-hoc code snippets.
+% ("what kind of changes?")
+
 % Problem
-However, Lively currently does not provide recovery support for changes to objects.
-When changes unexpectedly do not improve the system, the programmer needs to undo them manually.
-In particular, Lively does not provide an undo for changes to objects that compares to the undo for changes to text other programming systems provide.
+however, such changes to objects can turn out not to be improvements. 
+accidental changes, accidentally changing the position of a graphical object, or accidentally connecting the wrong objects graphically.
+changes to the style of an object, color, size of borders, only to later-on realize or decide that the previous version was more appealing.
+changes to the behavior, thereby introducing defects to the program, or accidentally decreasing the performance..
+% ("what can go wrong?” / recovery needs)
+
+so, when changes unexpectedly do not improve the system, the programmer needs to undo them manually.
+Lively does not provide an undo for changes to objects that compares to the undo for changes to text other programming systems provide.
 % So what?
-This is especially at odds with Lively's support for trying ideas immediately: development happens at runtime, composition and other manipulation of graphical objects is done directly using the mouse, the scripts of objects can be tried directly in the context of the particular objects, and workspaces are used to manipulate objects with ad-hoc code snippets.
+This is especially at odds with Lively's support for trying ideas immediately.
 Developers are able to make changes directly and receive immediate feedback, but do not get support when those changes turn out to be inappropriate.
 
-When previous state has to be recovered, the programmer might follow one of two possible approaches: She can try to manually reset the state, using the same tools changes were made with, to how it previously was. Or, in case she previously made a snapshot, she can load an earlier version of an object.
-Both of these approaches require the programmer [to do the work].
+When previous state has to be recovered, try to manually reset the state, using the same tools changes were made with, to how it previously was.
 Resetting state manually requires her to comprehend all changes, to remember previous states, and to actually re-establish those---all while the changes might involve multiple properties of multiple objects from multiple different developer actions.
-Alternatively, when an applicable commit exists, she could re-establish a preserved version.
+
+lively also allows to commit versions of objects.
+in case she previously made a snapshot, she can load an earlier version of an object.
+when an applicable commit exists, she could re-establish a preserved version.
 Depending on how far such a version then is from the actually desired state, she might still have to make changes towards her target.
 To keep the effort required to re-establish any previous state in this way low, she could preserve many versions.
 % For example, she could preserve a version before for every manipulating action.
 However, this requires her to make many commits---commits not to share and document her work, but to protect it against changes that unexpectedly turn out to be mistakes---and this would also be effort---especially when she still wants preserved versions to be usable and documented, requiring each preserved state to be tested and accompanied by a helpful description.
 
-% or preserve the right commits---commits not to share and document her work, but to protect it against changes that unexpectedly turn out to be mistakes, and this would also be effort.
-% She would have to commit often or plan changes beforehand to a point at which she knows which changes are risky and require precautionary actions.
+Both of these approaches require the programmer to manually re-set the changed state or to take explicit precautionary actions.
 
 
-% Existing approaches
-Besides these approaches, different approaches are intended to support undoing changes to the state of objects:
-\begin{itemize}
-    \item Lively could implement the command pattern~\cite{GammaHelmJohnsonVlissides95} to record all actions made by developers and provide rollbacks for each of those. This is, however, unpractical, given that developers can write and evaluate arbitrary code to manipulate objects directly. Further, even the discrete set of manipulations programmers can do with existing tools would require a rather comprehensive set of application-specific rollbacks, while developers would also have to implement new rollbacks for each newly implemented kind of direct manipulation.
-    \item Programmers could use Worlds~\cite{Warth2011Wor}, a language construct for controlling the scope of side-effects. Worlds allow to capture the side-effects of statements into different worlds. These worlds can be used to run code with these changes. Developers could, conceivably, execute each of their actions in separate worlds and, subsequentely, when necessary, discard worlds to use previous ones instead. Worlds as such, though, would require developers to explicitly create and discard worlds. Therefore, worlds would still require the programmer to explicitly take precautionary actions for potentially necessary recovery, just like version control systems do. In addition, the respective implementation of Worlds is currently not yet practical. It, for example, prevents garbage collection.
-\end{itemize}
 
-In summary, both the command pattern and Worlds still require developers to prepare for negative outcomes explicitly.
+a typical approach for implementing undo.. command pattern~\cite{GammaHelmJohnsonVlissides95} to record all actions made by developers and provide rollbacks for each of those. This is, however, unpractical, given that developers can write and evaluate arbitrary code to manipulate objects directly. Further, even the discrete set of manipulations programmers can do with existing tools would require a rather comprehensive set of application-specific rollbacks, while developers would also have to implement new rollbacks for each newly implemented kind of direct manipulation.
+
+a more recent approach to .. side-effects .. Worlds~\cite{Warth2011Wor}, a language construct for controlling the scope of side-effects. Worlds allow to capture the side-effects of statements into different worlds. These worlds can be used to run code with these changes. Developers could, conceivably, execute each of their actions in separate worlds and, subsequentely, when necessary, discard worlds to use previous ones instead. Worlds as such, though, would require developers to explicitly create and discard worlds. Therefore, worlds would still require the programmer to explicitly take precautionary actions for potentially necessary recovery, just like version control systems do. In addition, the respective implementation of Worlds is currently not yet practical. It, for example, prevents garbage collection.
+
+Both the command pattern and Worlds still require developers to prepare for negative outcomes explicitly.
 In contrast, CoExist~\cite{Steinert2012COE} provides support for undoing changes without requiring developers to take precautionary actions beforehand.
 CoExist records versions for changes automatically and, thereby, provides a fine-grained history of development states.
 Each change to source code yields a version that programmers can see diff views, test results, and screenshots to, and programmers can also re-establish all these versions. 
