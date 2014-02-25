@@ -110,3 +110,5 @@ Measuring the performance of such a manually provided indirection reveals a much
 In fact, such an indirection would only take twice the time to read a property from a specific target in such a \lstinline{get}-function compared to reading a property directly. 
 All this suggests that the performance of EcmaScript 6 Direct Proxies in Chrome might improve in the future.
 At the same time, as suggested in Section \todo{future work, source transformation section}, we might also decide to base our version-aware references on source transformations and custom indirections instead of proxies altogether.
+
+\todo{another performance related question to discuss would be whether preserving versions of the runtime by copying objects on write also impedes the responsiveness of the Lively tools much..}

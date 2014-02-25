@@ -3,12 +3,20 @@
 \todo{a couple of statements that preview the main points of each of the following subsections}
 
 
-\section{Programming Objects Directly}
+\section{Prototype-based Object-oriented Programming}
 
-Multiple programming systems allow to manipulate objects directly and at runtime.
-Examples for such systems include Self, Fabrik~\cite{Ingalls1988FVP}, Kevo~\cite{Tailvalsaari1992Kevo}, Etoys~\cite{Kay2005Etoys}, Scratch\cite{Maloney2010SPL}, and the Lively Kernel.
-In these systems programmers can change the state and behavior of single objects directly, without adaptin classes or other forms of abstract source code descriptions. 
-Examples for objects developed in this approach range from relatively simple objects like primitive graphical shapes over interactive widgets to more applications that are more directly useful like presentation software or programming tools.
+languages in which developers implement systems directly with objects, not classes: Self, JavaScript, Kevo~\cite{Tailvalsaari1992Kevo}..
+prototypical inheritance or full copies / concatenation
+% In these systems programmers design the behavior of single objects, without adaptin classes or other forms of abstract source code descriptions. 
+
+
+development at runtime
+some of these languages are used in systems in which programmers develop at runtime, like in Smalltalk: Self, Kevo, the Lively Kernel, Fabrik~\cite{Ingalls1988FVP}, Scratch\cite{Maloney2010SPL}, Etoys~\cite{Kay2005Etoys}
+some of these systems are self-supporting like Self and the Lively Kernel, while others only allow to develop particular objects in this fashion like Scratch and Etoys.
+
+% Examples for objects developed in this approach range from relatively simple objects like primitive graphical shapes over interactive widgets to more applications that are more directly useful like presentation software or programming tools.
+
+
 There are different advantages associated with this kind of development.
 First, it is easier to introduce unique objects with their own specific structure or behavior~\todo{cite: ungar-simplicity or borning here}. 
 Second, developers may benefit from seeing concrete examples before reading the abstract class description~\todo{cite: tailvalsaari-cvp}.
@@ -17,74 +25,56 @@ Third, especially for such visual objects, development systems can provide more 
 Such direct manipulation can take the form of drag-and-drop operations to manipulate graphical composition, manipulation of visual properties like color fills and rotations, or evaluating a code snippet that effects the object visibly.
 
 
+\section{The Lively Kernel}
 
-\section{Part Development In The Lively Kernel}
+lively: self-supporting, web-based development environent, in the tradition of smalltalk~\cite{GoldbergRobson83} and self~\cite{Ungar1987SPS,Ungar2007SEL}, development at runtime.
 
-In the case of Lively, developers can manipulate both abstract behavior descriptions and specific objects.
-They can make changes to source code in modules and classes, but also to the state and behavior of particular objects.
-Since classes and other abstract definitions are also edited at runtime, changes to both single objects and general classes take effect immediately, but developers still have a concrete example when editing objects to see their effects more clearly.
-For this direct manipulation, Lively's tools do focus on graphical objects, which are called \emph{Morphs} or \emph{Parts} in Lively.
-Morphs as Lively implements the Morphic framework~\cite{Maloney1995Mor}.
-Parts because developers can save versions of their objects in an object repository, called Parts Bin~\cite{Lincke2012LPC}, which contains numerous simple simple parts to be used for more complete applications.
-Developers can use \emph{Halo} buttons to manipulate, for example, the size, position, or rotation of morphs, and further add one morph to another.
-They can change even more aspects of the appearance using a style editor, which allows to, for example, add borders to morphs or make their color more transparent.
-These two tools manipulate the state of particular objects directly.
-In contrast, a tool called Object Editor can be used to change all object-specific behavior of an object.
-Developers can view, change, save, and evaluate all scripts particular to that object.
+morphic, morphs. the world. world can be saved and loaded, with all graphical versions saved with their current state.
+
+in and for JavaScript: prototype-based programming language with prototypical inheritance.
+so, programs can be expressed using objects and prototypical inheritance.
+
+but also provides classes, layers, and traits. 
+
+and provides a particular way of scripting graphical objects, called parts.
+instances of classes, but can have instance-specific behavior, can be manipulated directly with various tools (inspector, object editor, halo buttons, style editor).
+graphical objects developed in this fashion are called parts and can be saved to and loaded from an object repository, called the Parts Bin.
+the Parts Bin also preserves versions of parts.
+new parts can be created by instantiating classes and by copying existing parts, including loading versions of parts.
 
 \todo{some screenshot that shows the tools, with numbers to show multiple distinct tools in a single screenshot..}
 
-To exemplify how developers change objects directly in Lively, we will outline the process of adding a new feature to Lively's Object Editor.
-The editor itself has been been developed by composing and editing simple graphical objects like buttons, text fields, and lists.
-For this reason, we do not have to adapt any source code modules to change the editor, but rather manipulate and save a concrete editor object.
-The new feature we choose for this example is a magnifier button that can show the editor's current target, meaning the object the editor currently shows scripts for.
-
-A first step towards this new feature could be copying an existing button object or loading a button object from Lively's Parts Bin.
-We then can use the button's halos, in particular the resize tool, to give the button a smaller and square extent.
-Next, we can load an image showing a magnifier.
-Using drag and drop we can add the image to the button and the button to the editor.
-Dropping a morph onto another structurely connects morphs in Lively.
-That is, moving the editor around will also move the button with its image accordingly, while saving will respectively include both the button and the image.
-Besides manipulating the state of the button, image, and editor objects---using mouse interactions to set their extents, their positions, and connect them---we would probably next add some object-specific behavior.
-First, we can add scripts to the button that while the mouse cursor hovers above it, a translucent rectangle is layed over the current target, highlighting the morph that is currently being edited.
-
-\todo{add screenshots to the magnifier example, }
+% In the case of Lively, developers can manipulate both abstract behavior descriptions and specific objects.
+% They can make changes to source code in modules and classes, but also to the state and behavior of particular objects.
+% Since classes and other abstract definitions are also edited at runtime, changes to both single objects and general classes take effect immediately, but developers still have a concrete example when editing objects to see their effects more clearly.
+% For this direct manipulation, Lively's tools do focus on graphical objects, which are called \emph{Morphs} or \emph{Parts} in Lively.
+% Morphs as Lively implements the Morphic framework~\cite{Maloney1995Mor}.
+% Parts because developers can save versions of their objects in an object repository, called Parts Bin~\cite{Lincke2012LPC}, which contains numerous simple simple parts to be used for more complete applications.
+% Developers can use \emph{Halo} buttons to manipulate, for example, the size, position, or rotation of morphs, and further add one morph to another.
+% They can change even more aspects of the appearance using a style editor, which allows to, for example, add borders to morphs or make their color more transparent.
+% These two tools manipulate the state of particular objects directly.
+% In contrast, a tool called Object Editor can be used to change all object-specific behavior of an object.
+% Developers can view, change, save, and evaluate all scripts particular to that object.
 
 
 
-\section{Recovery Needs When Manipulating Objects Directly}
 
-While manipulating objects directly, developers might make changes that turn out to be inappropriate.
+\section{CoExist}
 
-In the previously summarized exemplary development session developers might, for example, developers might accidentally move the new button after carefully positioning it.
-Or they might accidentally drop the button into an existing layout, thereby undesirebly repositioning multiple unrelated morphs.
-An extreme example for such an accidental inappropriate change is closing a morph that had meaningful, but unsaved changes.
-
-In constrast to those undesired accidental, well intentioned changes can also result in the desire to recover a previous development state.
-For example, when fine-tuning the visual appearance of a morph, a developer might make many changes to the sizes, the positions, and the colors of morphs, only to decide later-on that a particular intermediate version was most appealing.
-Or developers change a script only to learn that introduced an an error or a decrease of performance.
-Further, developers can change objects not only through direct manipulation, but also could write a code snippet that makes changes to the state or behavior of an objects.
-Such a snippet could of course change any number of properties of many objects at once, so re-establishing a previous situation would be a laborious task.
-
-Another category of development interactions that potentially introduce undesirable changes is the exploration of code snippets.
-As Lively's Object Editor manipulates the scripts of a specific object, developers can often evaluate the scripts or parts of them directly.
-While such code evaluation might help to understand the effects of particular code, it might also actually change the editor's target or other objects undesirably and permanently.
-
-In essence, there are many situations in which developers might want to undo some of their operations.
-They might want to recover a previous development state or just withdraw particular changes to particular objects.
-
-Developers can save particular versions of objects and those can be restored later-on by, for example, using Lively's Parts Bin.
-However, explicitly saving particular versions of objects has several drawbacks.
+% In contrast to having developers manually preserve particular versions of their code and run the appropriate set of test cases for such, CoExist provides automatic recovery support.
+% Every change made to source code yields a version for which CoExist also captures test results and a screenshot of the development state.
+% Thus, developers have access to a fine-grained and rich history of development states when they need to recover previous situations.
+% 
+% CoExist allows developers to recover previous versions of the code without having to take precautionary actions manually.
+% For each of those versions CoExists then automatically also captures test results and screenshots of the development environment, helping developers in finding relevant versions when recovery is necessary.
+% 
+% % Developers do not have to manually create commits or run tests for development states that seem important.
+% 
+% % sometimes easier to make the changes and experience the results than to anticipate the changes beforehand...)… 
+% automatic and continuous versioning of the system code whenever code changes, whenever a user interacts/saves/changes code.
+% allows to concentrate on implementing ideas… while a fine-grained versioning history, which can also be enriched with test results and screenshots to support finding relevant versions, is there for every change that turns out inappropriate.. programmers can always just make changes and concentrate fully on implementing them without too much thought and effort going into precautionary actions… because the coexist tool / tool support records all changes and their effect on test case outcomes… 
 
 
-have to remember to make commits
-
-commits take some effort: combining changes into meaningful increments, making sure the current version passes test cases, where test cases also take time, writing helpful commit messages
-
-for this reason, not a commit for every single change, but deciding when to commit, assessing the risks of changes and planning changes to a point where grouping changes into consistent steps, which each should be commited separately, is also time-consuming and error-prone
-
-explicitly creating versions as precautionary actions / for potential recovery needs, when ideas work out less well as expected, seems laborious and error-prone.
-publishing versions explicitly for sharing and documentation, however, is a different topic.
 
 % This is supposed to reduce both the time spent on and the errors made in manually precautionary actions.
 % Without CoExist, developers explicitly save explicit versions of the code and write short summaries, often in form of commit messages.
@@ -97,35 +87,3 @@ publishing versions explicitly for sharing and documentation, however, is a diff
 
 % motivation for CoExist: explicit precautionary actions like saving versions is laborious and/or error-prone. saving each intermediate version is not practical (writing up some version comment, running all necessary tests, in the case of lively saving all objects takes a moment, often also no distinction between a private temporary snapshot and a meaningful increment that’s to be published and shared), while saving particular important versions is error-prone (not clear which version to save, risk assessment very difficult… reasons for recovery needs mostly unanticipated… recovery often necessary because of a mistake, because something wasn’t considered or anticipated… this risk assessment whether a change will be an actual increment is difficult… 
 
-
-
-\section{Recovery Support Through Continuous Versioning}
-
-In contrast to having developers manually preserve particular versions of their code and run the appropriate set of test cases for such, CoExist provides automatic recovery support.
-Every change made to source code yields a version for which CoExist also captures test results and a screenshot of the development state.
-Thus, developers have access to a fine-grained and rich history of development states when they need to recover previous situations.
-
-CoExist allows developers to recover previous versions of the code without having to take precautionary actions manually.
-For each of those versions CoExists then automatically also captures test results and screenshots of the development environment, helping developers in finding relevant versions when recovery is necessary.
-
-% Developers do not have to manually create commits or run tests for development states that seem important.
-
-% sometimes easier to make the changes and experience the results than to anticipate the changes beforehand...)… 
-automatic and continuous versioning of the system code whenever code changes, whenever a user interacts/saves/changes code.
-allows to concentrate on implementing ideas… while a fine-grained versioning history, which can also be enriched with test results and screenshots to support finding relevant versions, is there for every change that turns out inappropriate.. programmers can always just make changes and concentrate fully on implementing them without too much thought and effort going into precautionary actions… because the coexist tool / tool support records all changes and their effect on test case outcomes… 
-
-
-
-\section{Continuous Object Versioning for the Lively Kernel}
-
-coexist provides convenient recovery automatically, but recognizes and tracks only changes to source code, not to the state of objects, but automatically having a fine-grained history of the runtime would be greeeeaaaat 
-
-versioning objects.. multiple versions of the objects of the runtime, with the ability to establish each of those versions of the runtime functionally
-
-% the usage we intend for the object versioning: 
-but implicit versioning of the object state, not on every change to object but corresponding to user interactions, manipulating user interaction.. saving scripts, directly manipulating state through halo buttons or drag and drop composition, evaluating do-it snippets
-fine-grained object versioning as foundation for continuous object versioning
-
-state of the complete runtime, including state of the runtime that is not persisted (global variables.. config..)
-
-% goal: full recovery support for lively/javascript similar to the one Coexist provides for Squeak/Smalltalk: fine-grained versioning of state and behavior, on each manipulating user interaction, to be able to recover previous development states when necessary, without explicitly preparing versions that might or might not be useful later-on, allows to concentrate on implementing ideas and supports an explorative approach to programming, changing things just to see/experience the outcome immediately..

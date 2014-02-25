@@ -1,0 +1,74 @@
+\chapter{Motivation} \label{chapter:MOTIVATION}
+
+% motivation: similar to the intro, but in much more detail, by example!
+
+\section{Part Development In Lively}
+
+To exemplify how developers change objects directly in Lively, we will outline the process of adding a new feature to Lively's Object Editor.
+The editor itself has been been developed by composing and editing simple graphical objects like buttons, text fields, and lists.
+For this reason, we do not have to adapt any source code modules to change the editor, but rather manipulate and save a concrete editor object.
+The new feature we choose for this example is a magnifier button that can show the editor's current target, meaning the object the editor currently shows scripts for.
+
+A first step towards this new feature could be copying an existing button object or loading a button object from Lively's Parts Bin.
+We then can use the button's halos, in particular the resize tool, to give the button a smaller and square extent.
+Next, we can load an image showing a magnifier.
+Using drag and drop we can add the image to the button and the button to the editor.
+Dropping a morph onto another structurely connects morphs in Lively.
+That is, moving the editor around will also move the button with its image accordingly, while saving will respectively include both the button and the image.
+Besides manipulating the state of the button, image, and editor objects---using mouse interactions to set their extents, their positions, and connect them---we would probably next add some object-specific behavior.
+First, we can add scripts to the button that while the mouse cursor hovers above it, a translucent rectangle is layed over the current target, highlighting the morph that is currently being edited.
+
+\todo{add screenshots to the magnifier example, }
+
+
+
+\section{Recovery Needs When Developing Parts}
+
+While manipulating objects directly, developers might make changes that turn out to be inappropriate.
+
+In the previously summarized exemplary development session developers might, for example, developers might accidentally move the new button after carefully positioning it.
+Or they might accidentally drop the button into an existing layout, thereby undesirebly repositioning multiple unrelated morphs.
+An extreme example for such an accidental inappropriate change is closing a morph that had meaningful, but unsaved changes.
+
+In constrast to those undesired accidental, well intentioned changes can also result in the desire to recover a previous development state.
+For example, when fine-tuning the visual appearance of a morph, a developer might make many changes to the sizes, the positions, and the colors of morphs, only to decide later-on that a particular intermediate version was most appealing.
+Or developers change a script only to learn that introduced an an error or a decrease of performance.
+Further, developers can change objects not only through direct manipulation, but also could write a code snippet that makes changes to the state or behavior of an objects.
+Such a snippet could of course change any number of properties of many objects at once, so re-establishing a previous situation would be a laborious task.
+
+Another category of development interactions that potentially introduce undesirable changes is the exploration of code snippets.
+As Lively's Object Editor manipulates the scripts of a specific object, developers can often evaluate the scripts or parts of them directly.
+While such code evaluation might help to understand the effects of particular code, it might also actually change the editor's target or other objects undesirably and permanently.
+
+In essence, there are many situations in which developers might want to undo some of their operations.
+They might want to recover a previous development state or just withdraw particular changes to particular objects.
+
+Developers can save particular versions of objects and those can be restored later-on by, for example, using Lively's Parts Bin.
+However, explicitly saving particular versions of objects has several drawbacks.
+
+
+have to remember to make commits
+
+commits take some effort: combining changes into meaningful increments, making sure the current version passes test cases, where test cases also take time, writing helpful commit messages
+
+for this reason, not a commit for every single change, but deciding when to commit, assessing the risks of changes and planning changes to a point where grouping changes into consistent steps, which each should be commited separately, is also time-consuming and error-prone
+
+explicitly creating versions as precautionary actions / for potential recovery needs, when ideas work out less well as expected, seems laborious and error-prone.
+publishing versions explicitly for sharing and documentation, however, is a different topic.
+
+
+
+
+% \section{Continuous Object Versioning for the Lively Kernel}
+% 
+% coexist provides convenient recovery automatically, but recognizes and tracks only changes to source code, not to the state of objects, but automatically having a fine-grained history of the runtime would be greeeeaaaat 
+% 
+% versioning objects.. multiple versions of the objects of the runtime, with the ability to establish each of those versions of the runtime functionally
+% 
+% % the usage we intend for the object versioning: 
+% but implicit versioning of the object state, not on every change to object but corresponding to user interactions, manipulating user interaction.. saving scripts, directly manipulating state through halo buttons or drag and drop composition, evaluating do-it snippets
+% fine-grained object versioning as foundation for continuous object versioning
+% 
+% state of the complete runtime, including state of the runtime that is not persisted (global variables.. config..)
+% 
+% % goal: full recovery support for lively/javascript similar to the one Coexist provides for Squeak/Smalltalk: fine-grained versioning of state and behavior, on each manipulating user interaction, to be able to recover previous development states when necessary, without explicitly preparing versions that might or might not be useful later-on, allows to concentrate on implementing ideas and supports an explorative approach to programming, changing things just to see/experience the outcome immediately..

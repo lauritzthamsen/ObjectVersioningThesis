@@ -20,14 +20,14 @@ In particular, Lively does not provide an undo for changes to objects that compa
 This is especially at odds with Lively's support for trying ideas immediately: development happens at runtime, composition and other manipulation of graphical objects is done directly using the mouse, the scripts of objects can be tried directly in the context of the particular objects, and workspaces are used to manipulate objects with ad-hoc code snippets.
 Developers are able to make changes directly and receive immediate feedback, but do not get support when those changes turn out to be inappropriate.
 
-When previous state has to be recovered, the programmer currently has two possible approaches: She can try to manually reset the state, using the same tools changes were made with, to how it previously was. Or, in case she previously made a snapshot, she can load an earlier version of an object.
+When previous state has to be recovered, the programmer might follow one of two possible approaches: She can try to manually reset the state, using the same tools changes were made with, to how it previously was. Or, in case she previously made a snapshot, she can load an earlier version of an object.
 Both of these approaches require the programmer [to do the work].
 Resetting state manually requires her to comprehend all changes, to remember previous states, and to actually re-establish those---all while the changes might involve multiple properties of multiple objects from multiple different developer actions.
 Alternatively, when an applicable commit exists, she could re-establish a preserved version.
 Depending on how far such a version then is from the actually desired state, she might still have to make changes towards her target.
 To keep the effort required to re-establish any previous state in this way low, she could preserve many versions.
 % For example, she could preserve a version before for every manipulating action.
-However, this requires her to make many commits---commits not to share and document her work, but to protect it against changes that unexpectedly turn out to be mistakes---and this would also be effort---especially when she still wants preserved versions to be usable and documented, requiring each preserved state to be tested and accompanied by a version description.
+However, this requires her to make many commits---commits not to share and document her work, but to protect it against changes that unexpectedly turn out to be mistakes---and this would also be effort---especially when she still wants preserved versions to be usable and documented, requiring each preserved state to be tested and accompanied by a helpful description.
 
 % or preserve the right commits---commits not to share and document her work, but to protect it against changes that unexpectedly turn out to be mistakes, and this would also be effort.
 % She would have to commit often or plan changes beforehand to a point at which she knows which changes are risky and require precautionary actions.
