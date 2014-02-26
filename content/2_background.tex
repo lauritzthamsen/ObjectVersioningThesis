@@ -27,20 +27,31 @@ Such direct manipulation can take the form of drag-and-drop operations to manipu
 
 \section{The Lively Kernel}
 
-lively: self-supporting, web-based development environent, in the tradition of smalltalk and Self, development at runtime.
+Lively, also referred to as the Lively Kernel, is a browser-based programming system in the tradition of both Smalltalk and Self.
+It incorporates tools and techniques to be completely self-sufficient.
+Development in Lively happens at runtime, and programmers can create and save new version of the Lively Kernel itself.
 
-morphic, morphs. the world. world can be saved and loaded, with all graphical versions saved with their current state.
+Lively is based in the JavaScript programming language.
+Therefore, the system and applications are expressed in a prototype-based object-oriented language that also provides prototypical inheritance.
+At the same time, Lively also provides a class system for JavaScript and considerable parts of the system itself are expressed using classes.
+One of these parts expressed through classes is an implementation of Morphic~\cite{Maloney1995Mor}, a framework for developing graphical applications.
+Programmers can alter graphical objects of this framework, which are called \emph{Morphs}, using direct manipulation and through a number of tools.
 
-in and for JavaScript: prototype-based programming language with prototypical inheritance.
-so, programs can be expressed using objects and prototypical inheritance.
+Programmers can change the position of morph objects by dragging and the composition by an alternative dragging, which is called \emph{grabbing}.
+Further, Lively provides a set of tools, called \emph{Halos}, directly at morphs, as shown in Figure \todo{halo figure}.
+The different halo buttons allow, for example, to resize, rotate, and copy morphs, while other halo buttons open specific tools, which are shown in Figure~\todo{figure for the inspector, the style editor, and the object editor} to further manipulate the morphs:
 
-but also provides classes, layers, and traits. 
+\begin{itemize}
+    \item The \emph{Inspector} presents all the values that make up a morph's state. It also has a small code pane at the bottom, intended to be used to manipulate the state programmatically.
+    \item The \emph{Style Editor} allows to manipulate certain aspects of a morph's visual appearance. Programmers can use it to, for example, change a morphs color, border width, or the layout of its submorphs.
+    \item The \emph{Object Editor} is a tool dedicated to the object-specific behavior of morphs, which are called \emph{scripts} in Lively. It shows all scripts of a particular morph, but also can add and adapt scripts to that.
+\end{itemize}
 
-and provides a particular way of scripting graphical objects, called parts.
-instances of classes, but can have instance-specific behavior, can be manipulated directly with various tools (inspector, object editor, halo buttons, style editor).
-graphical objects developed in this fashion are called parts and can be saved to and loaded from an object repository, called the Parts Bin.
-the Parts Bin also preserves versions of parts.
-new parts can be created by instantiating classes and by copying existing parts, including loading versions of parts.
+Another tool related to morphs, though not available from a halo button, is Lively's \emph{Parts Bin}~\cite{Lincke2012LPC}, an object repository to save and load specific versions of morphs.
+Morphs saved to the Parts Bin are called \emph{parts} to emphasize the ability to reuse any one of the morphic implementations stored in the Parts Bin in another application.
+
+When morphs are copied, Lively does not establish a prototypical inheritance relationship between the copy and the original.
+Instead, Lively copies the entire state and both are instances of the same morphic class.
 
 \todo{some screenshot that shows the tools, with numbers to show multiple distinct tools in a single screenshot..}
 
@@ -49,7 +60,7 @@ new parts can be created by instantiating classes and by copying existing parts,
 % Since classes and other abstract definitions are also edited at runtime, changes to both single objects and general classes take effect immediately, but developers still have a concrete example when editing objects to see their effects more clearly.
 % For this direct manipulation, Lively's tools do focus on graphical objects, which are called \emph{Morphs} or \emph{Parts} in Lively.
 % Morphs as Lively implements the Morphic framework~\cite{Maloney1995Mor}.
-% Parts because developers can save versions of their objects in an object repository, called Parts Bin~\cite{Lincke2012LPC}, which contains numerous simple simple parts to be used for more complete applications.
+% Parts because developers can save versions of their objects in an object repository, called Parts Bin~\cite{}, which contains numerous simple simple parts to be used for more complete applications.
 % Developers can use \emph{Halo} buttons to manipulate, for example, the size, position, or rotation of morphs, and further add one morph to another.
 % They can change even more aspects of the appearance using a style editor, which allows to, for example, add borders to morphs or make their color more transparent.
 % These two tools manipulate the state of particular objects directly.
