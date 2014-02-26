@@ -27,7 +27,7 @@ Such direct manipulation can take the form of drag-and-drop operations to manipu
 
 \section{The Lively Kernel}
 
-Lively, also referred to as the Lively Kernel, is a browser-based programming system in the tradition of both Smalltalk and Self.
+Lively, also referred to as the \emph{Lively Kernel}, is a browser-based programming system in the tradition of both Smalltalk and Self.
 It incorporates tools and techniques to be completely self-sufficient.
 Development in Lively happens at runtime, and programmers can create and save new version of the Lively Kernel itself.
 
@@ -37,38 +37,44 @@ At the same time, Lively also provides a class system for JavaScript and conside
 One of these parts expressed through classes is an implementation of Morphic~\cite{Maloney1995Mor}, a framework for developing graphical applications.
 Programmers can alter graphical objects of this framework, which are called \emph{Morphs}, using direct manipulation and through a number of tools.
 
-Programmers can change the position of morph objects by dragging and the composition by an alternative dragging, which is called \emph{grabbing}.
-Further, Lively provides a set of tools, called \emph{Halos}, directly at morphs, as shown in Figure \todo{halo figure}.
-The different halo buttons allow, for example, to resize, rotate, and copy morphs, while other halo buttons open specific tools, which are shown in Figure~\todo{figure for the inspector, the style editor, and the object editor} to further manipulate the morphs:
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.3\textwidth]{figures/halos.pdf}
+    \caption{The halo buttons of a simple morph.}
+    \label{fig:Halos}
+\end{figure}
 
-\begin{itemize}
-    \item The \emph{Inspector} presents all the values that make up a morph's state. It also has a small code pane at the bottom, intended to be used to manipulate the state programmatically.
-    \item The \emph{Style Editor} allows to manipulate certain aspects of a morph's visual appearance. Programmers can use it to, for example, change a morphs color, border width, or the layout of its submorphs.
-    \item The \emph{Object Editor} is a tool dedicated to the object-specific behavior of morphs, which are called \emph{scripts} in Lively. It shows all scripts of a particular morph, but also can add and adapt scripts to that.
-\end{itemize}
+Programmers can change the position of morph objects by dragging and the composition by an alternative dragging, which is called \emph{grabbing}.
+A composition of morphs is also contained in a morph---a morph with submorphs---and this way, morphs are not limited to to be basic shapes or simple widgets, but can be the entire user interface of arbitrary applications.
+Lively further provides a set of manipulation tools, called \emph{Halos}, as shown in Figure~\ref{fig:Halos}, that developers can bring up directly at morphs.
+The different halo buttons allow, for example, to resize~\textcircled{R}, rotate\textcircled{T}, and copy~\textcircled{C} morphs.
+The copy operation does not establish a prototypical inheritance relationship between the copy and the original, but copies entire state, including of which class the copy is an instance.
+Other halo buttons open specific tools, which are shown in Figure~\ref{fig:LivelyTools} to further manipulate the morphs:
+
+\begin{enumerate}
+    \item The \emph{Inspector}~\textcircled{1} presents all the values that make up a morph's state. It also has a small code pane at the bottom, intended to be used to manipulate the state programmatically.
+    \item The \emph{Style Editor}~\textcircled{2} allows to manipulate certain aspects of a morph's visual appearance. Programmers can use it to, for example, change a morphs color, border width, or the layout of its submorphs.
+    \item The \emph{Object Editor}~\textcircled{3} is a tool dedicated to the object-specific behavior of morphs, which are called \emph{scripts} in Lively. It shows all scripts of a particular morph, but also can add and adapt scripts to that.
+\end{enumerate}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{figures/livelyTools.pdf}
+    \caption{Lively's tools to manipulate properties of morphs, from left to right: the Inspector, the Style Editor, and the Object Editor.}
+    \label{fig:LivelyTools}
+\end{figure}
 
 Another tool related to morphs, though not available from a halo button, is Lively's \emph{Parts Bin}~\cite{Lincke2012LPC}, an object repository to save and load specific versions of morphs.
 Morphs saved to the Parts Bin are called \emph{parts} to emphasize the ability to reuse any one of the morphic implementations stored in the Parts Bin in another application.
+Figure~\ref{fig:PartsBin} shows the Parts Bin and, in particular, a group of tools that the Parts Bin contains, which also includes both the Style Editor and the Object Editor.
+Both these tools are examples for graphical applications developed from available parts, with their logic expressed in scripts, and saved to the Parts Bin.
 
-When morphs are copied, Lively does not establish a prototypical inheritance relationship between the copy and the original.
-Instead, Lively copies the entire state and both are instances of the same morphic class.
-
-\todo{some screenshot that shows the tools, with numbers to show multiple distinct tools in a single screenshot..}
-
-% In the case of Lively, developers can manipulate both abstract behavior descriptions and specific objects.
-% They can make changes to source code in modules and classes, but also to the state and behavior of particular objects.
-% Since classes and other abstract definitions are also edited at runtime, changes to both single objects and general classes take effect immediately, but developers still have a concrete example when editing objects to see their effects more clearly.
-% For this direct manipulation, Lively's tools do focus on graphical objects, which are called \emph{Morphs} or \emph{Parts} in Lively.
-% Morphs as Lively implements the Morphic framework~\cite{Maloney1995Mor}.
-% Parts because developers can save versions of their objects in an object repository, called Parts Bin~\cite{}, which contains numerous simple simple parts to be used for more complete applications.
-% Developers can use \emph{Halo} buttons to manipulate, for example, the size, position, or rotation of morphs, and further add one morph to another.
-% They can change even more aspects of the appearance using a style editor, which allows to, for example, add borders to morphs or make their color more transparent.
-% These two tools manipulate the state of particular objects directly.
-% In contrast, a tool called Object Editor can be used to change all object-specific behavior of an object.
-% Developers can view, change, save, and evaluate all scripts particular to that object.
-
-
-
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.7\textwidth]{figures/partsBin.pdf}
+    \caption{Lively's Parts Bin opened on the \emph{Tools} category.}
+    \label{fig:PartsBin}
+\end{figure}
 
 \section{CoExist}
 
