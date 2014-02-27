@@ -3,27 +3,30 @@
 \todo{a couple of statements that preview the main points of each of the following subsections}
 
 
-\section{Prototype-based Object-oriented Programming}
+\section{Prototype-based Programming}
 
-languages in which developers implement systems directly with objects, not classes: Self, JavaScript, Kevo~\cite{Tailvalsaari1992Kevo}..
-prototypical inheritance or full copies / concatenation
-% In these systems programmers design the behavior of single objects, without adaptin classes or other forms of abstract source code descriptions. 
+Prototype-based programming is object-oriented programming, in which applications are constructed using only objects, without classes.
+Examples for programming languages or systems that implement prototype-based programming are Self, JavaScript, and Kevo~\cite{Taivalsaari1992Kevo}.
+Self and JavaScript incorporate prototypical inheritance.
+They allow objects to inherit state and behavior directly from other objects: an object has a prototype to which it delegates when looking up a property in the object itself yields no results.
+Kevo, in constrast, does not provide this kind of delegation, but allows to make full copies of objects.
+Programmers can create new objects with initially the same state and behavior as existing ones, but all objects remain self-contained.
+That is, in Kevo, changing an object only changes that particular object and a particular object can only be changed by directly changing it, not by, for example, changing a prototype or a class.
 
+Despite this difference, prototype-based programming allows to build programs by creating particular objects, in contrast to the class-based style of object-oriented programming, in which programs are defined in abstract structure and behavior descriptions.
+In particular, each of the parts of a program is an object with particular state, a particular example instead of a general category.
 
-development at runtime
-some of these languages are used in systems in which programmers develop at runtime, like in Smalltalk: Self, Kevo, the Lively Kernel, Fabrik~\cite{Ingalls1988FVP}, Scratch\cite{Maloney2010SPL}, Etoys~\cite{Kay2005Etoys}
-some of these systems are self-supporting like Self and the Lively Kernel, while others only allow to develop particular objects in this fashion like Scratch and Etoys.
+There are different advantages associated with this kind of programming:
+\begin{itemize}
+    \item \cite{Taivalsaari1996CVP} and \cite{Ungar1987SPS} argue that developers may easier understand concrete examples than abstract classes of objects. A concrete example provides particular values for its states and, in case of objects with a visual appearance, can be actually looked at.
+    \item \cite{Ungar1987SPS} and \cite{Borning1986CVP} describe how prototype-based programming makes it easier to introduce one-of-a-kind objects with their own structure or behavior.
+    \item \cite{Borning1986CVP} and \cite{Maloney1995Mor} make the point that especially programming visual elements can be more concrete with prototypes. Instead of writing code to define the appearance of objects, developers can manipulate particular graphical elements directly. Developers could, for example, use the mouse to manipulate properties like the size, position, and style or to combine multiple basic elements into one composition. This way, developers always see intermediate states and do not only receive feedback on explicit test runs in-between edit-compile-load cycles or run/edit distinctions. 
+\end{itemize}
 
-% Examples for objects developed in this approach range from relatively simple objects like primitive graphical shapes over interactive widgets to more applications that are more directly useful like presentation software or programming tools.
-
-
-There are different advantages associated with this kind of development.
-First, it is easier to introduce unique objects with their own specific structure or behavior~\todo{cite: ungar-simplicity or borning here}. 
-Second, developers may benefit from seeing concrete examples before reading the abstract class description~\todo{cite: tailvalsaari-cvp}.
-A concrete example provides particular values for its states and, in case of objects with a visual appearance, can be actually looked at.
-Third, especially for such visual objects, development systems can provide more direct manipulation tools with more immediate feedback on each change.
-Such direct manipulation can take the form of drag-and-drop operations to manipulate graphical composition, manipulation of visual properties like color fills and rotations, or evaluating a code snippet that effects the object visibly.
-
+Similarly to the previous examples, many end-user programming systems, including Scratch\cite{Maloney2010SPL}, Etoys~\cite{Kay2005Etoys}, or Fabrik~\cite{Ingalls1988FVP}, enable users to express their programs in particular objects, all with graphic representations and tools to directly manipulate those.
+In addition, programmers manipulate objects at runtime in these end-user programming systems and many general-purpose prototype-based programming systems, like Lively, Self, and Kevo.
+These also provide tools for manipulating graphical objects directly, where graphical elements range from simple objects like primitive shapes over interactive widgets to applications that are more directly useful like presentation software or programming tools.
+In general, development at runtime, prototype-based programming, and direct manipulation of graphical elements seem properties of programming systems that suit each other.
 
 \section{The Lively Kernel}
 
@@ -47,7 +50,7 @@ Programmers can alter graphical objects of this framework, which are called \emp
 Programmers can change the position of morph objects by dragging and the composition by an alternative dragging, which is called \emph{grabbing}.
 A composition of morphs is also contained in a morph---a morph with submorphs---and this way, morphs are not limited to to be basic shapes or simple widgets, but can be the entire user interface of arbitrary applications.
 Lively further provides a set of manipulation tools, called \emph{Halos}, as shown in Figure~\ref{fig:Halos}, that developers can bring up directly at morphs.
-The different halo buttons allow, for example, to resize~\textcircled{R}, rotate\textcircled{T}, and copy~\textcircled{C} morphs.
+The different halo buttons allow, for example, to resize~\textcircled{R}, rotate~\textcircled{T}, and copy~\textcircled{C} morphs.
 The copy operation does not establish a prototypical inheritance relationship between the copy and the original, but copies entire state, including of which class the copy is an instance.
 Other halo buttons open specific tools, which are shown in Figure~\ref{fig:LivelyTools} to further manipulate the morphs:
 
@@ -78,6 +81,13 @@ Both these tools are examples for graphical applications developed from availabl
 
 \section{CoExist}
 
+% see http://www.bastiansteinert.org/coexist.html, also for an image to do a screenshot in
+
+approach to recovery support based on continuous versions
+
+
+
+
 % In contrast to having developers manually preserve particular versions of their code and run the appropriate set of test cases for such, CoExist provides automatic recovery support.
 % Every change made to source code yields a version for which CoExist also captures test results and a screenshot of the development state.
 % Thus, developers have access to a fine-grained and rich history of development states when they need to recover previous situations.
@@ -103,4 +113,6 @@ Both these tools are examples for graphical applications developed from availabl
 % planning and deciding which groups of changes also pose an effort to developers, who need to estimate which 
 
 % motivation for CoExist: explicit precautionary actions like saving versions is laborious and/or error-prone. saving each intermediate version is not practical (writing up some version comment, running all necessary tests, in the case of lively saving all objects takes a moment, often also no distinction between a private temporary snapshot and a meaningful increment that’s to be published and shared), while saving particular important versions is error-prone (not clear which version to save, risk assessment very difficult… reasons for recovery needs mostly unanticipated… recovery often necessary because of a mistake, because something wasn’t considered or anticipated… this risk assessment whether a change will be an actual increment is difficult… 
+
+\todo{figure for CoExist, showing both the timeline and the version browser, with numbers, similar to the figure for the Lively tools}
 
