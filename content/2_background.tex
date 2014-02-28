@@ -70,11 +70,6 @@ Other halo buttons open specific tools, which are shown in Figure~\ref{fig:Livel
     \label{fig:LivelyTools}
 \end{figure}
 
-Another tool related to morphs, though not available from a halo button, is Lively's \emph{Parts Bin}~\cite{Lincke2012LPC}, an object repository to save and load specific versions of morphs.
-Morphs saved to the Parts Bin are called \emph{parts} to emphasize the ability to reuse any one of the morphic implementations stored in the Parts Bin in another application.
-Figure~\ref{fig:PartsBin} shows the Parts Bin and, in particular, a group of tools that the Parts Bin contains, which also includes both the Style Editor and the Object Editor.
-Both these tools are examples for graphical applications developed from available parts, with their logic expressed in scripts, and saved to the Parts Bin.
-
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.7\textwidth]{figures/partsBin.pdf}
@@ -82,13 +77,52 @@ Both these tools are examples for graphical applications developed from availabl
     \label{fig:PartsBin}
 \end{figure}
 
+Another tool related to morphs, though not available from a halo button, is Lively's \emph{Parts Bin}~\cite{Lincke2012LPC}, an object repository to save and load specific versions of morphs.
+Morphs saved to the Parts Bin are called \emph{parts} to emphasize the ability to reuse any one of the morphic implementations stored in the Parts Bin in another application.
+Figure~\ref{fig:PartsBin} shows the Parts Bin and, in particular, a group of tools that the Parts Bin contains, which also includes both the Style Editor and the Object Editor.
+Both these tools are examples for graphical applications developed from available parts, with their logic expressed in scripts, and saved to the Parts Bin.
+
+
+
+
 \section{CoExist}
 
 % see http://www.bastiansteinert.org/coexist.html, also for an image to do a screenshot in
 
-approach to recovery support based on continuous versions
+CoExist\footnote{\url{http://www.bastiansteinert.org/coexist.html}, accessed February 28, 2014} supports programmers through automatic and continuous versioning.
+The IDE extension preserves each indermediate development state with its respective source code and runtime information.
+Each of those states is presented as separate version in their original order along with change summaries, associated test results, and screenshots of the development environment.
+Programmers can comfortably review their development sessions, inspect the impact each individual change had on test cases, and recover previous development states.
+They can completely withdraw withdraw changes or just re-visit a previous state to recover information as, for example, the source code for a specific method.
 
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.7\textwidth]{figures/coexistTools.pdf}
+    \caption{CoExist's tools to recover information from previous development states: a timeline and a Version Browser.}
+    \label{fig:CoExist}
+\end{figure}
 
+CoExist provides tools to help programmers benefit from the preserved development histories.
+Figure~\ref{fig:CoExist} shows the tools CoExist provides in its Squeak/Smalltalk implementation.
+CoExist adds a timeline tool to the bottom of the development environment.
+It presents each intermediate development state through a small rectangle that indicates the impact on test cases: the bottom of the rectangle shows how many test cases passed and failed totally, while the top half highlights the test results that changed for this version. 
+Hovering above a version indicates which method of which class changed.
+Clicking a version provides access to its source code and more information on the test results, but also to re-establish any of the versions.
+Besides this timeline, CoExist provides a Version Browser tool.
+It shows changes to different modules separately, but those still in the order the changes were made.
+It presents the overview on test results, but in addition presents diffs and how the development environment appeared in each version.
+The timeline view, the summarized test results, the screenshots of the IDE, and the diffs all support programmers in re-tracing their steps, understanding the impact of their actions, and recover information from previous development states.
+
+This way, CoExist is intented to reduce the effort programmers put into either precautionary actions or compensational activities when changes turn out to be inappropriate.
+When programmers unintentionally do introduce errors, decrease the performance, or harm the design, they often want to re-establish a previous development state.
+For this, they can either manually edit changed source code or they can load a previously commited version of the sources.
+However, preserving versions manually is a significant effort, given the ideal of well-documented and helpful revision histories consisting of atomic commits.
+For that, programmers need to assemble changes to meaningful increments, test these, and write commit summaries.
+Testing each one is also helpful in that programmers find introduced problems early on intead of having to analyze a longer list of changes that all can potentially have introduced problems.
+
+With CoExist, developers do not have to take explicit precautionary actions, but still have access to a fine-grained history of development states.
+This is intended to encourage programmers to try ideas without worrying about negative consequences.
+They can focus on implementing new ideas, on their actual tasks, and then rely on CoExist to help in case any action unexpectedly needs to be undone.
 
 
 % In contrast to having developers manually preserve particular versions of their code and run the appropriate set of test cases for such, CoExist provides automatic recovery support.
@@ -116,6 +150,3 @@ approach to recovery support based on continuous versions
 % planning and deciding which groups of changes also pose an effort to developers, who need to estimate which 
 
 % motivation for CoExist: explicit precautionary actions like saving versions is laborious and/or error-prone. saving each intermediate version is not practical (writing up some version comment, running all necessary tests, in the case of lively saving all objects takes a moment, often also no distinction between a private temporary snapshot and a meaningful increment that’s to be published and shared), while saving particular important versions is error-prone (not clear which version to save, risk assessment very difficult… reasons for recovery needs mostly unanticipated… recovery often necessary because of a mistake, because something wasn’t considered or anticipated… this risk assessment whether a change will be an actual increment is difficult… 
-
-\todo{figure for CoExist, showing both the timeline and the version browser, with numbers, similar to the figure for the Lively tools}
-
