@@ -1,9 +1,11 @@
 \chapter{Background} \label{chapter:BACKGROUND}
 
-Our approach based on version-aware references, as described in Chapter~\ref{chapter:APPROACH}, can provide object versioning for prototype-based systems---systems in which programmers use objects as building blocks for applications.
-One particular example of these systems is Lively, a self-supporting web-based programming system with tools to directly edit graphical objects, for which we implemented our approach in JavaScript.
+Our approach, as described in Chapter~\ref{chapter:APPROACH}, provides object versioning for prototype-based programming systems.
+Prototype-based programming uses objects as building blocks for applications.
+One particular example of such a system is Lively, a self-supporting web-based programming system with tools to directly edit graphical objects.
+Lively is also the system for which we implemented our approach.
 
-A key motivation for this work, including the approach and implementation, is CoExist.
+A key motivation for our approach is CoExist.
 CoExist applies continuous versioning to provide recovery support automatically: programmers have access to a fine-grained history of development states without having to take any explicit precautionary actions themselves.
 
 \section{Prototype-based Programming}
@@ -30,6 +32,8 @@ Similarly to the previous examples, many end-user programming systems, including
 In addition, programmers manipulate objects at runtime in these end-user programming systems and many general-purpose prototype-based programming systems, like Lively, Self, and Kevo.
 These also provide tools for manipulating graphical objects directly, where graphical elements range from simple objects like primitive shapes over interactive widgets to applications that are more directly useful like presentation software or programming tools.
 In general, development at runtime, prototype-based programming, and direct manipulation of graphical elements seem properties of programming systems that suit each other.
+
+
 
 \section{The Lively Kernel}
 
@@ -84,10 +88,7 @@ Both these tools are examples for graphical applications developed from availabl
 
 
 
-
 \section{CoExist}
-
-% see http://www.bastiansteinert.org/coexist.html, also for an image to do a screenshot in
 
 CoExist\footnote{\url{http://www.bastiansteinert.org/coexist.html}, accessed February 28, 2014} supports programmers through automatic and continuous versioning.
 The IDE extension preserves each indermediate development state with its respective source code and associated runtime information.
