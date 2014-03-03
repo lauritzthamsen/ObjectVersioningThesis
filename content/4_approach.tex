@@ -88,11 +88,13 @@ In general, the approach distributes the cost for object versioning: besides inc
 
 \section{Object Versioning for the Lively Kernel} \label{sec:APPROACH:2}
 
-Our approach for providing object versioning for the Lively Kernel uses proxies to implement version-aware references in JavaScript.
-We exchange ordinary references with proxies for all mutable objects by returning proxies whenever a new object is created.
-This is done by transforming sources to proxy object literals and constructor functions.
-Further, the proxies return proxies again when they are used as constructors.
-Also through proxy behavior and some global versioning data, we provide basic recovery support for the single-threaded Lively Kernel programming system.
+Our approach for providing object versioning in JavaScript, built in and for the Lively Kernel, uses proxies to implement version-aware references.
+Instead of accessing mutable objects directly, proxies are accessed.
+In fact, our implementation exchanges ordinary references to objects with references to proxies, which then manage and delegate to different versions of the objects.
+This exchange is accomplished by returning proxies whenever a new object is created.
+For this, sources are transformed to proxy object literals and any constructor functions.
+Further, the proxies return proxies when they are used as constructors.
+Also, through proxy behavior and some global versioning management, we provide basic recovery support---simple undo and redo---for the single-threaded Lively Kernel programming system.
 
 
 \subsection{Proxies as Version-aware References}
