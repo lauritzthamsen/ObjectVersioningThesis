@@ -83,7 +83,7 @@ Using user actions as granularity also allows developers to undo and redo the ch
 The resulting histories can be fine-grained as for each version only changed objects need to be copied.
 For the same reason, creating many versions is not expected to be problematic for the development workflow.
 In general, the approach distributes the cost for object versioning: besides incrementally saving a version, switching the active version is also not interruptive.
-
+Switching the active version is also inexpensive due to the fact that all versions of objects and, thus, all versions of the runtime are kept in the application memory.
 
 
 \section{Object Versioning for the Lively Kernel} \label{sec:APPROACH:2}
@@ -99,17 +99,40 @@ Also, through proxy behavior and some global versioning management, we provide b
 
 \subsection{Proxies as Version-aware References}
 
-We do not actually require an alternative kind of references for JavaScript to provide version-aware references.
-Instead we can use ordinary references and proxy objects.
-That is, each reference that would normally point directly to an object points to a proxy instead.
-The proxies know how to access the actual versions for each object and delegate transparently to one particular among those.
+Proxies allow a language-level implementation of alternative references in JavaScript.
+Without requiring adaptions to the virtual execution engines, proxies can be inserted to stand-in for objects---so references that usually point directly to objects point to proxies instead---and these proxies can provide versioning information and behavior.
 
-we let the proxy objects hold all versions of an object instead of, for example, using object tables, so that when no object holds the version-aware reference any longer, the proxy object and all actual version objects get garbage collected.
-
-fully virtual objects, intercept all kinds of access to the proxies and can handle that access arbitrarly.
+the proxies dont need to be associated with a particular version, but can be fully virtual objects.
+they can intercept all kinds of access to the proxies and can handle that access arbitrarly.
 our implementation delegates intercepted to the current version.
 
-%  ECMAScript 6 Direct Proxies: fully virtual objects, traps to specify proxy behavior, traps for property reads, property writes, accessing the prototype, other meta programming... where we delegate each of those actions to the current version
+proxies can be used around every object, but do not have to: roots..
+
+The proxies need to fulfill at least three responsibilities:
+\begin{enumerate}
+    \item They need to know which versions are available for a particular object.
+    \item They need to choose one particular version among all available dynamically according to context information.
+    \item They need to delegate object access transparently to a chosen version.
+\end{enumerate}
+
+In our solution, we used proxy objects also to hold all versions of the object they stand-in for.
+This way, when the proxy is no longer reachable and, thus, eventually garbage collected, all versions of the objects are also collected.
+
+versions of which objects get garbage collected?
+* stuff accessed through version-aware references.. but not preserved in a version... 
+    var person = {name: 'Lauritz'};
+    [preserve as version 1]
+    person.currentAddress = {street: 'Friedrichstraße 112b',
+                     city: 'Berlin'};
+    delete person.currentAddress;
+    [preserve as version 2]
+even though there would temporarily exist a version-aware reference connecting the person object to a current address, this reference would be deleted before the version would be persisted. there would not be a version of the person with a version-aware reference to the address object and, thus, nothing prevents garbage collection.
+* roots ----version-aware ref---> ['something]... delete ['something']
+
+further, as the proxies already hold all versions, they also create new versions of objects in our solution, copies, when indicated by the programming system.
+
+
+
 
 
 \subsection{Proxies For All Mutable Objects}
