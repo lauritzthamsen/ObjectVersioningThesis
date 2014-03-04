@@ -175,19 +175,30 @@ One example for such functions is the global eval function.
 While the return value of that function also potentially needs to be a reference to a proxy instead of an ordinary object, eval takes arbitrary code which might express an arbitrary object structure and which might require multiple references to point to proxies.
 Therefore, in the specific case of eval, we proxy eval's result, but also let the string argument to the eval function pass through the source transformations beforehand.
 
-\subsection{Versions of the Lively Runtime}
+\subsection{Versions of the Lively Runtime} % how the proxies / version-aware references now allow to switch and create versions of the runtime.
 
-developers can only effectively undo changes, which potentially affect many objects and are not necessarily fully known, when whole object graphs or even the entire runtime can be re-set to a particular state.
-for this, the version-aware references for multiple objects need to resolve to versions that were saved together.
-therefore, our proxies hold all versions for an object in a dictionary that connects version identifiers for actual objects.
-which of these versions for each object should be chosen can be declared globally as javascript runs single-threaded and with cooperative scheduling and there is, thus, no possiblity to cause inconsistencies through accidentaly changing the global version within JavaScript while another JavaScript function is executed.
-this global versioning information is an object that holds a version identifier, to be used by the proxies when deciding to which version they delegate, and may also have a predecessor and a successor.
+Proxies hold multiple versions of an object.
+They can transparently delegate access to one particular amony many versions.
+They are also referred to consistently instead of the object.
+This allows to have and use particular versions of particular objects.
+However, to enable programmers to undo and redo arbitrary changes to the entire development state, our solution needs to preserve and choose versions of all objects in a coordinated way.
+Our solution to this is declaring versions of the runtime, preserving relationships between those versions, and annotating versions of objects with the version of the runtime they are part of.
 
-this global versioning information with its potentially predecessor and successor can also be used to not copy every object for every preserved state of the runtime.
-that is, when an object has not changed from one version to the next, it does not need to be copied.
-the version-aware references could just follow the global information to return the last preserved version.
+Our proxies hold available versions of an object and associate each version of the object with the version of the runtime it belongs to.
+When a proxy is created for an object, the object is preserved as the version of the object that belongs to the current version of the runtime.
+On writes, the proxies copy the latest version of the object and then do the write on the copy instead.
+The copy gets marked with the identifier of the new version of the runtime.
+When the proxies now choose a particular version of the object they stand-in for, they all use the version associated with the current version of the runtime or of a previous versions.
+This way, the proxies transitively all delegate to objects that accurately represent the state of the entire runtime as it was at a particular moment---when the version of the runtime was last active.
+To preserve a development state, the version of the runtime just has to be changed.
 
-besides this copy-on-write optimization, another optimization would be to not copy objects completely, but to only store changes.
-this could, for example, also apply prototypical inheritance to have versions that delegate to previous versions and only express the differences between versions.
+The version of the runtime can be global in JavaScript as JavaScript engines use only a single thread and cooperative scheduling.
+There is, therefore, no way to change which version of each object should be used while a path through an object graph is already partly resolved.
+The version also may have a predecessor and a successor.
+This way, for undo and redo the current version of the runtime only has to be set on the predecessor or the successor.
+Preserving the predecessor also allows to preserve versions of objects only on writes as, when objects have not changed in versions, the first available previous version of the object can be read.
+
+% Besides this copy-on-write optimization, another optimization would be to not copy objects completely, but to only store changes.
+% this could, for example, also apply prototypical inheritance to have versions that delegate to previous versions and only express the differences between versions.
 
 % further, as the proxies already hold all versions, they also create new versions of objects in our solution, copies, when indicated by the programming system.
