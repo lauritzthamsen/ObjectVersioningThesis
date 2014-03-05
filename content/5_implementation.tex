@@ -1,19 +1,19 @@
 \chapter{Implementation with Proxies} \label{chapter:IMPLEMENTATION}
 
-We implemented version-aware references for object versioning in JavaScript using proxies and source transformations.
+We implemented version-aware references for object versioning in JavaScript, using proxies and source transformations.
 That is, our prototype does not require changes to the JavaScript engines, but only a certain JavaScript language feature.
 In particular, it requires the Direct Proxies\footnote{\url{http://wiki.ecmascript.org/doku.php?id=harmony:direct_proxies}, accessed February 3rd, 2014} feature proposed with the Version 6 of ECMAScript, the standard that JavaScript follows, which is already partly available in multiple browsers at the time of writing.
 
-These proxies can intercept all kinds of access to them and can specify arbitrary behavior to handle this access, which we used to delegate access to a particular version of the object the proxy refers to.
-As the proxy implementation is a preliminary feature, a few additional workarounds are necessary for our use case.
+These proxies can handle all kinds of access with specific behavior, which we used to delegate the access to a particular version of the object the proxy stands-in for.
 To have these proxies intercept access to all mutable objects, for which multiple versions may exist, a combination of source transformations and proxy behavior ensures that proxies are returned instead of objects whenever new objects are created.
 The proxies also preserve and choose versions of their object corresponding to a global version identifier.
 This version identifier effectively establishes a particular state of the programming runtime and programmers can undo and redo all kinds of changes by changing the identifier.
 However, some additional logic is required to update state that is not part of the runtime state as, for example, the HTML document presented by browsers.
 
-Our prototypical implementation has some limitations due to its usage of a language feature, which has been included in the Draft ECMAScript 6 (September 2013)\footnote{\url{http://people.mozilla.org/~jorendorff/es6-draft.html}, accessed March 5th, 2014} that is not yet finalized.
-In particular, the proxies are not fully implemented in all browsers, yet, and some built-in developer tools in browsers also do not support them entirely.
-Nevertheless, the implementation allows to preserve states of JavaScript runtimes, is integrated with Lively and allows programmers to undo and redo changes, and is publicly available\footnote{\url{http://github.com/LivelyKernel/LivelyKernel/commit/e8a9c091d25be4e3d556717080020b8fa7d93929}}.
+As the direct proxy specification is preliminary---already progressed towards the Draft ECMAScript 6\footnote{\url{http://people.mozilla.org/~jorendorff/es6-draft.html}, accessed March 5th, 2014}, which is, however, still in draft status and not yet finalized---a few additional workarounds are necessary for our use case of the proxies.
+Further, the proxies are not fully implemented in all browsers, yet, and some built-in browser tools for developers also do not support them entirely.
+Nevertheless, our implementation is functional and integrated with Lively.
+It allows programmers to undo and redo changes and is publicly available\footnote{\url{http://github.com/LivelyKernel/LivelyKernel/commit/e8a9c091d25be4e3d556717080020b8fa7d93929}}.
 
 
 
@@ -116,7 +116,7 @@ single-threaded and cooperative scheduling, but setTimeout / setInterval... stop
 % \subsection{Limitations in the Execution Environment}
 
 \begin{itemize}
-    \item only works in recent Chromes, with experimental JavaScript... ECMAScript 6 Direct Proxies not yet fully implemented, not yet stable.. shim library\footnote{\url{http://github.com/tvcutsem/harmony-reflect},\goodbreak accessed February 3, 2014, at version 0.0.11}..
+    \item only works in recent Chromes, with experimental JavaScript... ECMAScript 6 Direct Proxies not yet fully implemented, not yet stable.. shim library\footnote{\url{http://github.com/tvcutsem/harmony-reflect}, accessed February 3, 2014, at version 0.0.11}..
 .. own adaptions to the shim library, to bridge the gap between the current version of the shim and information from the Spec draft (pass null for the target of a proxy)... fully virtual objects vs. consistency checks.. adapted library to fit spec draft (pass null as target of a fully virtual object, then no trap-return-value-consistency-with-target checks)
 \end{itemize}
     
