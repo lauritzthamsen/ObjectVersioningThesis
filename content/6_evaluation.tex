@@ -17,7 +17,7 @@ All presented results are averages over three runs.
 \section{Functionality: Undo and Redo for the Lively Kernel}
 
 Besides testing the behavior of our proxies and our source transformations with isolated test cases, we also used a benchmark suite to check our implementation.
-In particular, the system works for all benchmarks from the Octance benchmark suite\footnote{\url{http://code.google.com/p/octane-benchmark/},\goodbreak accessed February 3, 2014, at version 26}, which is also used to evaluate v8, the JavaScript engine used for Google's Chrome browser.
+In particular, the system works for all benchmarks from the Octance benchmark suite\footnote{\url{http://code.google.com/p/octane-benchmark/}, accessed February 3, 2014, at version 26}, which is also used to evaluate v8, the JavaScript engine used for Google's Chrome browser.
 For each individual benchmark, we transform the source code using our source transformations and, thereby, execute the benchmark code with version-aware references.
 All benchmarks run without errors and return the same results as when executed without any source transformations.
 That is, at least for these tests, our source transformations produce working source code and our proxy-based version-aware references behave as intended where used.
