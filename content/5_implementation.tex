@@ -1,40 +1,59 @@
-\chapter{Implementation with Direct Proxies} \label{chapter:IMPLEMENTATION}
+\chapter{Implementation with Proxies} \label{chapter:IMPLEMENTATION}
 
-% \section{3.X why an implementation solely in javascript}
-% 
-% implementation in the JavaScript language, without changing the virtual machine: use objects as references, make sure those objects are used everywhere..
-% 
-% * proxies to implement version-aware references
-% * source transformations and proxy behavior to use version-aware references consistently
-% * global versions and proxy behavior to have particular versions of the runtime
+We implemented version-aware references for object versioning in JavaScript using proxies and source transformations.
+That is, our prototype does not require changes to the JavaScript engines, but only a certain JavaScript language feature.
+In particular, it requires the Direct Proxies\footnote{\url{http://wiki.ecmascript.org/doku.php?id=harmony:direct_proxies}, accessed February 3rd, 2014} feature proposed with the Version 6 of ECMAScript, the standard that JavaScript follows, which is already partly available in multiple browsers at the time of writing.
 
-\todo{add a link to a published github commit?}
+These proxies can intercept all kinds of access to them and can specify arbitrary behavior to handle this access, which we used to delegate access to a particular version of the object the proxy refers to.
+As the proxy implementation is a preliminary feature, a few additional workarounds are necessary for our use case.
+To have these proxies intercept access to all mutable objects, for which multiple versions may exist, a combination of source transformations and proxy behavior ensures that proxies are returned instead of objects whenever new objects are created.
+The proxies also preserve and choose versions of their object corresponding to a global version identifier.
+This version identifier effectively establishes a particular state of the programming runtime and programmers can undo and redo all kinds of changes by changing the identifier.
+However, some additional logic is required to update state that is not part of the runtime state as, for example, the HTML document presented by browsers.
+
+Our prototypical implementation has some limitations due to its usage of a language feature, which has been included in the Draft ECMAScript 6 (September 2013)\footnote{\url{http://people.mozilla.org/~jorendorff/es6-draft.html}, accessed March 5th, 2014} that is not yet finalized.
+In particular, the proxies are not fully implemented in all browsers, yet, and some built-in developer tools in browsers also do not support them entirely.
+Nevertheless, the implementation allows to preserve states of JavaScript runtimes, is integrated with Lively and allows programmers to undo and redo changes, and is publicly available\footnote{\url{http://github.com/LivelyKernel/LivelyKernel/commit/e8a9c091d25be4e3d556717080020b8fa7d93929}}.
+
+
 
 \section{Using ECMAScript 6 Direct Proxies}
 
-% \begin{itemize}
-%     \item ECMAScript 6 Direct Proxies\footnote{\url{http://wiki.ecmascript.org/doku.php?id=harmony:direct_proxies},\goodbreak accessed February 3rd, 2014}: proxy handler object, traps; ES 6 in DRAFT ~\cite{ECMA2014ES6}, deprecated Harmony Proxy proposal implemented in current chromes, but 
-%     \item proxies for mutable JavaScript objects: objects, arrays, functions
-%     \item the proxy handlers really hold references to copies of the same object in a dictionary (version name -> object version)
-%     \item delegation to a particular version at runtime using a version of the target object according to some global version of the runtime..
-%     \item identity of proxyFor(obj) === proxyFor(obj), ProxyTable (weak-key map, objects -> to their proxies)
-% \end{itemize}
+proxies for mutable state: JavaScript objects: objects, arrays, functions
+proxies know versions and can delegate access transparently to one of many versions
 
-%  ECMAScript 6 Direct Proxies: fully virtual objects, traps to specify proxy behavior, traps for property reads, property writes, accessing the prototype, other meta programming... where we delegate each of those actions to the current version
+ECMAScript 6 Direct Proxies: proxy handler object,
+traps;
+% ES6 in DRAFT~\cite{ECMA2014ES6}
+deprecated Harmony Proxy proposal implemented in current chromes
+
+fully virtual objects traps to specify proxy behavior, traps for property reads, property writes, accessing the prototype, other meta programming...
+
+
+
+ECMAScript 6 Direct Proxies: fully virtual objects, traps to specify proxy behavior, traps for property reads, property writes, accessing the prototype, other meta programming... where we delegate each of those actions to the current version
+
+
+\begin{itemize}
+    \item the proxy handlers really hold references to copies of the same object in a dictionary (version name -> object version)
+    \item delegation to a particular version at runtime using a version of the target object according to some global version of the runtime..
+    \item identity of proxyFor(obj) === proxyFor(obj), ProxyTable (weak-key map, objects -> to their proxies)
+\end{itemize}
+
 
 
 proxy implementation limitations: 
 \begin{itemize}
-    \item proxies as prototypes (relation can’t be changed.. traps of proto fire when inheriting object is accessed.. problem is Chrome and only the proto case...)... protoProxy property on objects..
-    \item no instanceof trap, Object.instanceOf source transformation 
     \item [native code] boundary / primitive functions and objects: setting properties / calling functions leads to errors or has absolutely no effect: part 1: traps (sep-trap: onreadystatechange, apply-trap: any DOM function.., Array.prototype.concat, aWorker.postMessage.. multi-level unwrapping for args object, aFunc.apply or aFunc.call).
-part 2: patches: Object.isRegExp, ‘some string’.match (done by patching String.prototype.match)
+part 2: patches: Object.isRegExp, some string.match (done by patching String.prototype.match)
+    \item proxies as prototypes (relation cant be changed.. traps of proto fire when inheriting object is accessed.. problem is Chrome and only the proto case...)... protoProxy property on objects..
 \end{itemize}
 
 
-\begin{itemize}
-    \item DOM redrawing on undo / redo: DOM is out of versioning scope, doesn’t use version-aware references, has to be changed / redrawn on undo/redo explicitly
-\end{itemize}
+no instanceof trap, Object.instanceOf source transformation 
+
+
+
 
 
 
@@ -55,9 +74,7 @@ for this reasons, we transform the sources of modules loaded after our versionin
 
 [what about all other source transformations..??]
 
-% \begin{itemize}
-%     \item why UglifyJS: fast, complete, testing alternative grammar rules during parsing is not implemented using execeptions, provides source maps (all in contrast to OMeta)
-% \end{itemize}
+% why UglifyJS?: fast, complete, testing alternative grammar rules during parsing is not implemented using execeptions, provides source maps (all in contrast to OMeta)
 
 
 
@@ -78,7 +95,8 @@ JS execution: single-threaded, cooperative scheduling
 
 \begin{itemize}
     \item undo / redo implementation, example situation
-    \item redraw of the world as DOM objects / DOM relations are not part of the object versioning in JavaScript
+    \item redraw of the world as DOM objects / DOM relations are not part of the object versioning in JavaScript: DOM redrawing on undo / redo: DOM is out of versioning scope, doesn’t use version-aware references, has to be changed / redrawn on undo/redo explicitly
+    
 \end{itemize}
 
 
@@ -89,7 +107,7 @@ JS execution: single-threaded, cooperative scheduling
 \section{Limitations of the Implementation}
 
 
-% \subsection{Limitations for Concurrent JavaScript Functions}
+% \subsection{Limitations for Concurrent JavaScript}
 
 
 single-threaded and cooperative scheduling, but setTimeout / setInterval... stop asynchronous actions from following versions when undoing... source transformations, which scripts belongs to which version
@@ -104,15 +122,14 @@ single-threaded and cooperative scheduling, but setTimeout / setInterval... stop
     
 
 
-\begin{itemize}
-    \item debugging: interference with Chrome's developer tools, which don’t handle proxies well (hovering, labels, stepping into)
-\end{itemize}
+
 
 
 % \subsection{Usability: Impact on Debugging}
 
 \begin{itemize}
-    \item adds lots of ‘low-level’ frames, dev tools don’t handle proxies well (hovering, labels, stepping into), but we have at least source maps, so developers can debug the original code and not the result of our source transformation
+    \item adds lots of low-level frames, dev tools don’t handle proxies well (hovering, labels, stepping into), but we have at least source maps, so developers can debug the original code and not the result of our source transformation
+    \item debugging: interference with Chrome's developer tools, which don’t handle proxies well (hovering, labels, stepping into)
 \end{itemize}
 
 
