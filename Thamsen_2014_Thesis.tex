@@ -6,7 +6,7 @@
 %  print - do not color links
 %
 \documentclass[draft,master]{swathesis}
-
+\KOMAoptions{parskip=true}
 \addbibresource{thesis.bib}
 
 \usepackage{titlepage}
@@ -14,8 +14,7 @@
 subject=master,degree={Master of Science},
 ]{hpi-swa}
 
-\lstset{language=JavaScript}
-\setlength{\parskip}{\baselineskip}
+\lstset{language=JavaScript,extendedchars=true}
 
 \supervisors{
 Prof.\,Dr.\,Robert Hirschfeld\and
