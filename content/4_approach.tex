@@ -124,7 +124,9 @@ Thus, nothing prevents the garbage collector from claiming the proxy for the add
 \begin{code}[lst:example]{}{float,numbers=left}
     var person = {name: "Lauritz"};
     \\ preserve version
-    person.currentAddress = ...;
+ person.currentAddress = {street: "Friedrichstrasze",
+                         number: "112b",
+                         city: "Berlin"};
     delete person.currentAddress;
     \\ preserve version
 \end{code}
@@ -151,9 +153,9 @@ Checks that would usually compare the object with potentially other objects now 
 For this solution, all expressions that create new objects need to return proxies for those instead.
 In JavaScript, there are three different ways to create an object: 
 \begin{itemize}
-    \item evaluating literal expressions: e.g. %\lstinline{\{age: 12\}}
-    \item applying constructor functions: e.g. \lstinline{new Person(12)}
-    \item calling specific built-in functions: e.g. %\lstinline{Object.create(prototype, \{age: 12\})}
+    \item evaluating literal expressions: e.g. \lstinline|{age: 12}|
+    \item applying constructor functions: e.g. \lstinline|new Person(12)|
+    \item calling specific built-in functions: e.g. \lstinline|Object.create(prototype, {age: 12})|
 \end{itemize}
 
 We use source transformations to wrap literal expressions consistently into a \emph{proxy} function.
