@@ -1,5 +1,9 @@
 \chapter{Implementation with Proxies} \label{chapter:IMPLEMENTATION}
 
+% additional TODO: .call + .apply
+% and TODO: [what about all other source transformations..??]
+
+
 We implemented version-aware references for object versioning in JavaScript, using proxies and source transformations.
 That is, our prototype does not require changes to the JavaScript engines, but only a certain JavaScript language feature.
 In particular, it requires the Direct Proxies\footnote{\url{http://wiki.ecmascript.org/doku.php?id=harmony:direct_proxies}, accessed February 3rd, 2014} feature proposed with the Version 6 of ECMAScript, the standard that JavaScript follows, which is already partly available in multiple browsers at the time of writing.
@@ -13,36 +17,55 @@ However, some additional logic is required to update state that is not part of t
 As the direct proxy specification is preliminary---already progressed towards the Draft ECMAScript 6\footnote{\url{http://people.mozilla.org/~jorendorff/es6-draft.html}, accessed March 5th, 2014}, which is, however, still in draft status and not yet finalized---a few additional workarounds are necessary for our use case of the proxies.
 Further, the proxies are not fully implemented in all browsers, yet, and some built-in browser tools for developers also do not support them entirely.
 Nevertheless, our implementation is functional and integrated with Lively.
-It allows programmers to undo and redo changes and is publicly available\footnote{\url{http://github.com/LivelyKernel/LivelyKernel/commit/e8a9c091d25be4e3d556717080020b8fa7d93929}}.
+It allows programmers to undo and redo changes and is publicly available\footnote{\url{http://github.com/LivelyKernel/LivelyKernel/commit/858aca8c5ac0f203061823f463fda9b434131636}}.
 
 
 
 \section{Using ECMAScript 6 Direct Proxies}
 
-proxies for mutable state: JavaScript objects: objects, arrays, functions
-proxies know versions and can delegate access transparently to one of many versions
+Our implementation of version-aware references is based on the ECMAScript 6 Direct Proxies.
+These are supposed to stand-in for a particular object, but also can be used as fully virtual objects instead.
+In our case, the proxies represent multiple different versions of an object and do not delegate to any of those by default.
+Instead, they choose a particular version to delegate access to.
+The proxying behavior can be specified in a \emph{Handler} object, which has to be provided when creating proxies.
+Which kind of access is to be handled how is defined in so called \emph{Traps}, methods of the proxy handler that are called for different access.
+For example, when \lstinline{person} is a proxy and \lstinline{person.age} is called, the \emph{get}-trap fires.
+The \emph{get}-trap looks like \lstinline{function get(target, name, receiver)}.
+In our example, the \emph{target} parameter would be irrelevant as we use proxies as virtual objects, not to be associated with any particular object, whereas the \emph{name} would be the property name \'age\' and \emph{receiver} would be the proxy referred to by \emph{person} again.
 
-ECMAScript 6 Direct Proxies: proxy handler object,
-traps;
-% ES6 in DRAFT~\cite{ECMA2014ES6}
+Our proxy handler's \emph{get}-trap  like indicated by the following code snippet, which is simplified and leaves out handling of special cases due to the proxy implementation's shortcomings:
+
+\iffalse
+\begin{verbatim}\fi
+\begin{code}{}{}
+get: function(.., name, receiver) {
+    var version = this.currentVersion();
+    
+    if (name === 'isProxy') {
+    // more special cases...
+    
+    result = version[name];
+    
+    return this.ensureProxied(result);
+}
+\end{code}
+\iffalse
+\end{verbatim}\fi
+
+Besides the \emph{get}-trap, our proxy handler similarly provides behavior for all of the traps: \lstinline{set}, \lstinline{apply}, \lstinline{construct}, \lstinline{has}, \lstinline{hasOwn}, \lstinline{defineProperty}, \lstinline{deleteProperty}, \lstinline{getOwnPropertyDescriptor}, \lstinline{getOwnPropertyNames}, \lstinline{getPrototypeOf}, \lstinline{freeze}, \lstinline{seal}, \lstinline{preventExtensions}, \lstinline{isFrozen}, \lstinline{isSealed}, \lstinline{isExtensible}, \lstinline{enumerate}, \lstinline{keys}.
+All these traps fire for specific operators or meta-programming facilities provided by the built-in global \emph{Object}\footnote{\url{http://wiki.ecmascript.org/doku.php?id=harmony:direct_proxies\#api}, accessed March 5, 2014}.
+
+
+Besides these functions, the proxy handler also holds all versions of the objects they represent.
+For this, the proxy handler uses an object as dicitionary that associates version identifiers with the different versions of the object.
+
+
+
 deprecated Harmony Proxy proposal implemented in current chromes
 
-fully virtual objects traps to specify proxy behavior, traps for property reads, property writes, accessing the prototype, other meta programming...
+proxy implementation limitations:
+no instanceof trap, Object.instanceOf source transformation
 
-
-
-ECMAScript 6 Direct Proxies: fully virtual objects, traps to specify proxy behavior, traps for property reads, property writes, accessing the prototype, other meta programming... where we delegate each of those actions to the current version
-
-
-\begin{itemize}
-    \item the proxy handlers really hold references to copies of the same object in a dictionary (version name -> object version)
-    \item delegation to a particular version at runtime using a version of the target object according to some global version of the runtime..
-    \item identity of proxyFor(obj) === proxyFor(obj), ProxyTable (weak-key map, objects -> to their proxies)
-\end{itemize}
-
-
-
-proxy implementation limitations: 
 \begin{itemize}
     \item [native code] boundary / primitive functions and objects: setting properties / calling functions leads to errors or has absolutely no effect: part 1: traps (sep-trap: onreadystatechange, apply-trap: any DOM function.., Array.prototype.concat, aWorker.postMessage.. multi-level unwrapping for args object, aFunc.apply or aFunc.call).
 part 2: patches: Object.isRegExp, some string.match (done by patching String.prototype.match)
@@ -50,7 +73,7 @@ part 2: patches: Object.isRegExp, some string.match (done by patching String.pro
 \end{itemize}
 
 
-no instanceof trap, Object.instanceOf source transformation 
+
 
 
 
@@ -60,21 +83,104 @@ no instanceof trap, Object.instanceOf source transformation
 
 \section{Returning Proxies For New Objects}
 
-goal: all references to newly created objects need to be version-aware references, i.e. references to proxies instead of references to the (initial version of the) target. 
+As we use proxies as version-aware references while the JavaScript runtime still only provides ordinary references, references that usually would point to objects directly now need to point to proxies instead. 
+References to the same object further need to point to the same proxy for that object.
+This is necessary because identity checks will compare proxies instead of objects.
+Also because, at least in our implementation, proxies actually hold the different versions of their objects as opposed to looking the objects up in a separate data structure, one particular proxy knows the versions of an object.
+Therefore, all references that would normally refer to the object need to refer to the proxy that stands-in for the versions of the objects.
+To achieve this, we create proxies immediately for new objects and return the proxies instead of the objects, so a reference to the proxy gets passed around instead of the reference to the actual object, which instead is captured in the versions dictionary of the proxy.
 
-we rewrite instead of patching them globally, because that's not possibly for all built-in objects.
-also, our implementation is itself in javascript and, therefore, uses built-in data types, too, which should not be proxied.
-for this reasons, we transform the sources of modules loaded after our versioning implementation.
+We need to create proxies for all new mutable state, which in JavaScript comprises of objects, arrays, and functions.
+JavaScript allows to create these kinds of objects through literal expressions, through constructors, and through built-in functions.
+That is, functions are objects and can also have properties in JavaScript.
+Constructors can be built-in as, for example, \lstinline{Array} or literal functions.
+Both create new objects when applied with the \lstinline{new} keyword, however built-in constructors also return new objects when applied without the \lstinline{new} operator.
+Other built-in functions are, for example, \lstinline{eval} or \lstinline{Object.create(..)}.
+To actually create and return proxies from all these three different ways to create objects, our implementation transforms sources before execution.
+The built-in functions could be overwritten globally to return proxies for the new objects, but our implementation of object versioning also uses these built-in data types internally.
+Additionally, at the time of writing, some JavaScript engines do not allow to overwrite particular built-in functions, while we want our implementation of object versioning to work in every JavaScript engine that supports ECMAScript 6 Direct Proxies.
+Therefore, we transform specific literal expressions and specific built-in functions, while custom constructors return proxies through particular proxy trap behavior.
 
-\begin{itemize}
-    \item value of literal expressions: source transformations (objects, arrays, function expressions), examples.. function declarations and hoisting, literal accessor functions in object literals
-    \item return value of custom constructors: construct-trap (..code for the construct / apply traps of the proxies..)
-    \item return value of specific built-in functions and constructors: source transformations (only in the lexical scope of some particular modules, e.g. not for our implementation)
-\end{itemize}
+The source transformations for introducing our proxy-based version-aware references wrap the original expressions into the \lstinline{proxyFor} function, which returns a proxy for an object.
+The transformations of literal objects, arrays, and functions are shown by example in following table.
 
-[what about all other source transformations..??]
+\begin{center}
+    \begin{tabular}{| l | l | l | l |}
+    \hline
+    Type & Original code & Transformed code \\ \hline
+    \emph{Objects} & \lstinline|{name: 'James', age: 24}| & \lstinline|proxyFor(name: 'James', age: 24)| \\ \hline
+    \emph{Arrays} & \lstinline|[person1, person2]| & \lstinline|proxyFor([person1, person2])| \\ \hline
+    \emph{Functions} & \lstinline|function (a, b) {..}| & \lstinline|proxyFor(function (a, b) {..})| \\ \hline
+    \end{tabular}
+\end{center}
 
-% why UglifyJS?: fast, complete, testing alternative grammar rules during parsing is not implemented using execeptions, provides source maps (all in contrast to OMeta)
+Besides straightforward wrapping of literal objects, literal arrays, and function expressions, the source transformations also needs to handle function declarations and accessor functions.
+Function declarations are named functions, where the name is available for recursion in the function itself, but also makes the function accessible by the name in the surrounding scope.
+For this reason, the function declaration get transformed to function expressions that are assigned to matching variable names.
+This way, \lstinline|function funcName(..) {..}| becomes \lstinline|var funcName = function funcName(..) {..}|.
+In addition, because function declarations get hoisted in JavaScript, the source transformation moves the results of transforming function declarations to the beginning of the defining scope, while the order among function declaration is preserved.
+Accessor functions are functions that are executed instead of ordinary read or write access to properties.
+The following example snippet shows the definition of a \lstinline{person} object, where two accessor functions allow reading and writing \lstinline{person.age} while the value is stored under a different name: \\
+\iffalse
+\begin{verbatim}\fi
+\begin{code}{}{}
+var person = {
+    __age: 0,
+    get age() {
+        return this.__age;
+    },
+    set age(val) {
+        this.__age = val;
+    }
+}
+\end{code}
+\iffalse
+\end{verbatim}\fi
+
+Wrapping the two accessor functions in-place into \lstinline{proxyFor} functions does not yield valid JavaScript code.
+Therefore, the source transformations wrap object literals with accessor functions into anonymous functions that are directly applied, create the objects first without accessor functions, and explicitly define the accessor functions using \lstinline{Object.defineProperty}.
+That is, the presented example with accessor functions would be transformed to the following code: \\
+
+\iffalse
+\begin{verbatim}\fi
+\begin{code}{}{}
+var person = function() {
+    var newObject = lively.proxyFor({
+        __age: 0;
+    });
+    Object.defineProperty(newObject, "age", {
+        get: lively.proxyFor(function age() {
+            return this.__age;
+        }),
+        set: lively.proxyFor(function age(val) {
+            this.__age = val;
+        }),
+        enumerable: true,
+        configurable: true
+    });
+    return newObject;
+}();'
+\end{code}
+\iffalse
+\end{verbatim}\fi
+
+Similar to the wrapping of object literals without accessor functions, arrays, and function expressions, the source transformation also wraps specific built-in functions into calls to the \lstinline{proxyFor()} functions.
+For example, \lstinline{Array(100)} becomes \lstinline{proxyFor(Array(100))}.
+As every call to such built-in objects is transformed in this way, the same Object---in this case the \lstinline{Array} function---gets passed to the \lstinline{proxyFor} function multiple times.
+To nevertheless return the same proxy and, therefore, the same identity, we use a map that associates objects with their proxies.
+This \emph{Proxy Table} is a weak-key map and does not prevent neither objects nor proxies from being gargabe collected.
+Therefore, the following statement returns true for an arbitrary object \lstinline{obj}: \lstinline{proxyFor(obj) === proxyFor(obj)}.
+
+When objects get created through applying functions with the \lstinline{new} operator, the new objects also need to be proxied.
+However, as the functions are already proxied through source transformations of function literals and the built-in \lstinline{Function} constructor, our implementation does not transform the applications of the \lstinline{new} operator, but uses the \emph{construct} trap to return proxies from constructor applications.
+The last line of code of the \lstinline{construct} function of our proxy handler is therefore: \lstinline{return this.ensureProxied(newInstance)}.
+This is also true for the \emph{apply} trap, because, for example, the \lstinline{Array} and \lstinline{Object} functions also create objects when called without the \lstinline{new} operator and, for example, the built-in function \lstinline{Object.create(proto)} also returns a new object.
+In fact, with our proxy handler the \emph{get}-trap also makes sure to return always proxy in this fashion.
+So, wrapping \lstinline{Object} is enough to have \lstinline{Object.create(proto)} return a proxy: \lstinline{Object} transforms to \lstinline{proxyFor(Object)}, while getting the property returns a proxy for the \emph{create} function, and applying that in turn also returns a proxy.
+
+The implementation of source transformations uses \emph{UglifyJS}\footnote{\url{http://github.com/mishoo/UglifyJS2}, accessed March 12, 2014} for parsing and AST transformations.
+UglifyJS parses without using JavaScript exceptions for backtracking and, therefore, does not interfere with debugging.
+In addition, UglifyJS also supports Source Maps \todo{footnote with url to Source Maps necessary..}, which allow to view and debug the original code with the browser's developer tools, even though the transformed code is executed.
 
 
 
