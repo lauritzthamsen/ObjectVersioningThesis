@@ -24,25 +24,28 @@ It allows programmers to undo and redo changes and is publicly available\footnot
 \section{Using ECMAScript 6 Direct Proxies}
 
 Our implementation of version-aware references is based on the ECMAScript 6 Direct Proxies.
-These are supposed to stand-in for a particular object, but also can be used as fully virtual objects instead.
+While these are supposed to stand-in for particular objects, they can also be used as fully virtual objects.
 In our case, the proxies represent multiple different versions of an object and do not delegate to any of those by default.
-Instead, they choose a particular version to delegate access to.
-The proxying behavior can be specified in a \emph{Handler} object, which has to be provided when creating proxies.
-Which kind of access is to be handled how is defined in so called \emph{Traps}, methods of the proxy handler that are called for different access.
-For example, when \lstinline{person} is a proxy and \lstinline{person.age} is called, the \emph{get}-trap fires.
-The \emph{get}-trap looks like \lstinline{function get(target, name, receiver)}.
-In our example, the \emph{target} parameter would be irrelevant as we use proxies as virtual objects, not to be associated with any particular object, whereas the \emph{name} would be the property name \'age\' and \emph{receiver} would be the proxy referred to by \emph{person} again.
+Instead, they choose a particular version to delegate to dynamically.
+That is, the direct proxies in our implementation stand-in transparently for multiple versions of an object.
 
-Our proxy handler's \emph{get}-trap  like indicated by the following code snippet, which is simplified and leaves out handling of special cases due to the proxy implementation's shortcomings:
+The behavior of the proxies can be specified in a \emph{Handler} object, which has to be provided when creating proxies.
+The proxy handler can provide \emph{Traps}, methods to specify how specific access to the proxy should be handled.
+For example, when \lstinline{person} is a proxy and \lstinline{person.age} is called, the \emph{get}-trap is called and receives \lstinline{target}, \lstinline{name}, and \lstinline{receiver} as parameters.
+In our implementation, the \emph{target} parameter is irrelevant as we use proxies as virtual objects, not to be associated with any particular target object.
+The other two parameters, however, are relevant and, for the given example, the \emph{name} would be the string \'age\' and \emph{receiver} would be the proxy for \emph{person} again.
+Our proxy handler's \emph{get}-trap is implemented as indicated by the following code snippet, which is, however, simplified in that it leaves out much of the handling of special cases that are due to the shortcomings of the used implementation of direct proxies:
 
 \iffalse
 \begin{verbatim}\fi
 \begin{code}{}{}
 get: function(.., name, receiver) {
+
     var version = this.currentVersion();
     
+    // proxy meta information and other special cases..
     if (name === 'isProxy') {
-    // more special cases...
+    // ...
     
     result = version[name];
     
@@ -52,19 +55,23 @@ get: function(.., name, receiver) {
 \iffalse
 \end{verbatim}\fi
 
-Besides the \emph{get}-trap, our proxy handler similarly provides behavior for all of the traps: \lstinline{set}, \lstinline{apply}, \lstinline{construct}, \lstinline{has}, \lstinline{hasOwn}, \lstinline{defineProperty}, \lstinline{deleteProperty}, \lstinline{getOwnPropertyDescriptor}, \lstinline{getOwnPropertyNames}, \lstinline{getPrototypeOf}, \lstinline{freeze}, \lstinline{seal}, \lstinline{preventExtensions}, \lstinline{isFrozen}, \lstinline{isSealed}, \lstinline{isExtensible}, \lstinline{enumerate}, \lstinline{keys}.
-All these traps fire for specific operators or meta-programming facilities provided by the built-in global \emph{Object}\footnote{\url{http://wiki.ecmascript.org/doku.php?id=harmony:direct_proxies\#api}, accessed March 5, 2014}.
-
-
-Besides these functions, the proxy handler also holds all versions of the objects they represent.
+Besides the \emph{get}-trap, our proxy handler similarly provides behavior for all of the traps and, therefore, all traps delegate to the currently selected version of the object.
+The implemented proxy traps are: \lstinline{set}, \lstinline{apply}, \lstinline{construct}, \lstinline{has}, \lstinline{hasOwn}, \lstinline{defineProperty}, \lstinline{deleteProperty}, \lstinline{getOwnPropertyDescriptor}, \lstinline{getOwnPropertyNames}, \lstinline{getPrototypeOf}, \lstinline{freeze}, \lstinline{seal}, \lstinline{preventExtensions}, \lstinline{isFrozen}, \lstinline{isSealed}, \lstinline{isExtensible}, \lstinline{enumerate}, \lstinline{keys}.
+All these traps fire either when the proxy is accessed with specific JavaScript operators or when it is passed to meta-programming facilities provided by the built-in globals like \emph{Object}\footnote{\url{http://wiki.ecmascript.org/doku.php?id=harmony:direct_proxies\#api}, accessed March 5, 2014}.
+These, however, do not include a trap for the \lstinlince{instanceof} operator.
+Instead, as the implementation of the proxies currently requires one particular \emph{target} object even for proxies intended to be virtual objects, the \lstinlince{instanceof} operator returns the type of that initial target object.
+The type of an object in JavaScript is, however, defined by an object's prototype chain, which may change.
+That is, versions can have different types, which the \lstinlinee{instanceof} operator does not refelct.
+Therefore, we transform JavaScript sources before execution and, in particular, the \lstinline{instanceof} operator.
+These transformations change, for example, \lstinline{anObject instanceof SomeConstructor} to \lstinline{Object.instanceOf(anObject, SomeConstructor)}.
+Besides providing traps, the proxy handler object also holds all versions of the represented object.
 For this, the proxy handler uses an object as dicitionary that associates version identifiers with the different versions of the object.
-
+This version dictionary is also used by the handler's \lstinline{currentVersion} function, which decides which of the versions should be accessed currently.
 
 
 deprecated Harmony Proxy proposal implemented in current chromes
 
 proxy implementation limitations:
-no instanceof trap, Object.instanceOf source transformation
 
 \begin{itemize}
     \item [native code] boundary / primitive functions and objects: setting properties / calling functions leads to errors or has absolutely no effect: part 1: traps (sep-trap: onreadystatechange, apply-trap: any DOM function.., Array.prototype.concat, aWorker.postMessage.. multi-level unwrapping for args object, aFunc.apply or aFunc.call).
