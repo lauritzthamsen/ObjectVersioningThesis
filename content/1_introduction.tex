@@ -7,80 +7,78 @@
 \chapter{Introduction} \label{chapter:INTRODUCTION}
 
 % Background
-Certain programming systems, like Squeak/Smalltalk~\cite{GoldbergRobson83} and REPLs for LISP or Python, allow to adapt programs while those run.
-Changes to programs are immediately effective and programmers can often see or test right away what differences their actions make.
-This way, these systems often provide immediate feedback to programmers.
-A subset of such systems, which includes, for example, Self~\cite{Ungar1987SPS,Ungar2007SEL} and Lively~\cite{Ingalls2008LKS,Krahn2009LWD}, are those built for prototype-based object-oriented languages.
-In these, programmers create and change programs not only at runtime, but also define them using only objects and not, for example, classes.
-Programmers not only inspect and change the state of objects, but also define object-specific behavior.
-The result of such development is, thus, actual objects, not source code that abstractly describes potential objects.
+Certain programming systems, like Squeak/Smalltalk~\cite{GoldbergRobson83} and REPLs for LISP or Python, allow to adapt and develop programs while those run.
+Changes to programs in such environments are effective immediately and programmers can often see or test right away what differences their actions make.
+Thus, these systems often provide immediate feedback to programmers.
+A subset of such systems, including, for example, Self~\cite{Ungar1987SPS,Ungar2007SEL} and Lively~\cite{Ingalls2008LKS,Krahn2009LWD}, are those built around prototype-based object-oriented languages, in which programmers create and change programs not only at runtime, but also only using objects and not necessarily using also classes.
+Programmers can inspect and change the state of particular objects, but also define object-specific behavior.
+The results of such development are actual objects, not source code that abstractly describes potential objects.
 
 Lively was designed to support this kind of object-centric development and focuses, hereby, on graphical objects.
 It provides many tools to directly manipulate the style, the composition, and the scripts of graphical objects.
-Programmers can change the positions and composition directly using the mouse.
-They can edit and try methods directly in the context of those graphical objects, and use temporary workspaces to manipulate one or many objects through ad-hoc code snippets.
-For example, to add new functionality to a graphical application, a programmer might copy an existing button, move the new button to a sensable position, resize it slightly, set a new label, and add a script to the button to be executed on each mouse click.
-The programmer makes all these changes directly to one button object and, for example, how the button fits into the application's interface is visible at all time, while clicking the button allows to test the script directly.
-This way, Lively often provides immediate feedback especially during the development of graphical applications.
+For example, programmers can change the positions and composition directly using the mouse.
+They can edit and try methods directly in the context of those graphical objects, or use temporary workspaces to manipulate one or many objects through ad-hoc code snippets.
+For example, to add new functionality to a graphical application, a programmer might copy an existing button object and then directly modify the newly button object: move the new button to a sensible position, resize it slightly, set a new label, and add a script to the button to be executed on each mouse click.
+The programmer makes all these changes directly to one button object and, for example, how the button fits into the application's interface is visible at all time, while clicking the button allows to directly test the script.
+This way, Lively often provides immediate feedback, especially during the development of graphical applications.
 % Problem
-However, changes can also turn out not to be improvements and still directly affect the objects and, thus, the results of programming.
-Programmers can, for example, accidentally change the positions or connect the wrong objects when manipulating applications directly using the mouse.
-Similarly, they might unexpectedly introduce errors or decrease the performance by changing a script of an object---or they make a mistake in a temporary code snippet that is supposed to manipulate many objects programmatically.
-Less accidental but still problematic, they might try a couple of different alternatives as, for example, different colors and layouts, only to later-on realize that an earlier state was most appealing.
-Other potentially inappropriate changes might be introduced by evaluating code to understand or test the behavior of objects.
-When changes, however, turn out innapropriate as in these examples, the programmer needs to undo them manually.
-Lively does not provide an undo for changes to objects. % that compares to the undo for changes to text other programming systems provide.
-This is especially at odds with Lively's support for trying ideas immediately: Developers are able to make changes directly and receive immediate feedback, but do not get support when those changes turn out to be inappropriate.
+However, changes programmers make to objects---either directly using specific tools or through executing code---can also turn out not to be improvements and still permanently affect objects.
+Programmers can, for example, accidentally change the positions or connect the wrong objects when manipulating applications with mouse interactions or a mistake in a temporary code snippet manipulates many objects slightly differently than intented.
+Similarly, programmers might learn in hindsight that making a promising change to an object's scripts actually introduced an error or a decrease in the application's performance.
+Less accidental but still problematic, they might try a couple of different alternatives as, for example, different colors and layouts, only to realize later that an earlier state was most appealing and should thus be re-established.
+Other potentially inappropriate changes might be introduced when code is evaluated only to understand or test behavior, not to permanently change state.
+When changes, however, do turn out to be innapropriate as in these examples, programmers often need to undo them manually or need to have prepared for potential negative outcomes beforehand.
+That is, Lively does not provide an undo for changes to objects, which is especially at odds with Lively's support for trying ideas right away: Developers are able to make changes directly and receive immediate feedback, but do not get support when those changes turn out to be inappropriate.
 % So what?
-So, when programmers want to recover a previous development state, they need to manually reset the state to how it previously was, often using the same tools the changes were initially made with and potentially involving multiple properties of multiple objects changed by multiple developer actions.
+So, when programmers want to recover a previous development state, they often need to manually reset the state to how it previously was, often using the same tools the changes were initially made with and potentially involving multiple properties of multiple objects changed by multiple developer actions.
 
-Lively does provide a tool to commit and load versions of objects.
-So, in case such commits exist, programmers can load earlier versions of objects to re-establish a previous state.
+Lively does provide a tool to commit and load versions of objects to and from an object repository.
+In case such commits exist, programmers can load earlier versions of objects to re-establish previous states.
 Nevertheless, depending on how far such a commited version is from the actually desired state, manual changes might still be necessary.
-To keep the effort, which is required to re-establish any previous state in this way, low, programmers could preserve many versions.
-However, this requires making many commits---commits not made to share and document work, but to protect it against changes that unexpectedly turn out to be mistakes.
-This would also be effort, especially when the preserved versions should be usable and documented, requiring each preserved state to be tested and accompanied by a helpful description.
-\emph{In summary}, recovering previous state in Lively is currently manual in that programmers either have to manually re-set changed state or to take explicit precautionary actions beforehand. \\
+To keep the effort required to re-establish any previous state low, programmers could commit many versions.
+However, these commits would be made only to preserve intermediate development states, not to share and document work results but to protect against changes that unexpectedly turn out to be mistakes.
+The commits would further also require significant effort, especially when the preserved versions should be usable and documented, requiring states to be tested and [VERB] by a helpful description or else requiring developers to actively clean up repository histories regularly.
+\emph{In summary}, recovering previous states of objects in Lively is currently a significant effort for programmers as they either have to manually re-set changed state or to take explicit precautionary actions.\\
 
-A typical approach to undoing changes to object state is implementing the Command pattern~\cite{GammaHelmJohnsonVlissides95}.
-The command pattern can be used to execute and record a discrete set of actions with rollbacks for each of those.
-This way, actions made by developers could be recorded and undone when necessary.
-This, however, requires developers to provide rollbacks for all possible actions, which would for even just the existing tools yield a rather comprehensive implementation.
-Further, programmers would have to provide application-specific rollbacks for each newly provided kind of direct manipulation, while this approach is entirely unpractical for undoing the effects of arbitrary code evaluation as, for example, done in the temporary workspaces.
+A typical approach to implementing undo for the state changes in an applications is the Command pattern~\cite{GammaHelmJohnsonVlissides95}.
+The command pattern can be used to package changes into actions.
+Executed actions can be recorded and each action can have an undo counterpart to know which changes where made and how to undo them.
+This, however, requires developers to provide specific undos for all possible actions, which even for just the existing tools in Lively would result in a rather comprehensive implementation.
+Programmers would also have to provide application-specific rollbacks for each newly provided kind of direct manipulation and remember to do so.
+Further, this approach is entirely unpractical for undoing the effects of evaluating arbitrary code snippets as, for example, regularly done in Lively's workspaces.
 
-Worlds~\cite{Warth2011Wor} is a more recent approach that, in contrast, provides a language construct for controlling the scope of side-effects from arbitrary code.
+Worlds~\cite{Warth2011Wor} is a more recent approach that provides a language construct for controlling the scope of side-effects from arbitrary code.
 It allows to capture the side-effects of statements into different \emph{worlds}.
-These worlds can be used to run code subsequentely with particular sets of changes.
-Developers could, thus, execute all their actions in separate worlds and discard some of those to return to previous ones when necessary.
-Worlds as such, though, would require developers to explicitly create and discard worlds, and, therefore, still needs the programmer to explicitly take precautionary actions, similar to version control systems.
-In addition, the implementation of Worlds is not yet practical as it, for example, currently prevents garbage collection. \\
+These worlds can be used to subsequentely run code with particular sets of changes being effective.
+Developers could, thus, execute all their actions in separate worlds and discard those when necessary to return to previous ones.
+Worlds as such, though, would require developers to explicitly create as well as merge or discard worlds, and, therefore, still needs the programmer to explicitly take precautionary actions, similar to version control systems.
+In addition, the implementation of Worlds is not yet practical as it, for example, currently prevents garbage collection.\\
 
-Both the command pattern and Worlds still require developers to prepare for negative outcomes explicitly.
-In contrast, CoExist~\cite{Steinert2012COE} provides support for undoing changes without requiring developers to take precautionary actions beforehand.
-CoExist records versions for changes automatically and, thereby, provides a fine-grained history of development states.
-Each change to source code yields a version that programmers can see diff views, test results, and screenshots to, and, more importantly, can re-establish.
-CoExist, however, currently recognizes only changes made to the source code of classes. \\
+Worlds, commiting versions of objects, and the command pattern require developers to anticipte and prepare for negative outcomes manually.
+In contrast, CoExist~\cite{Steinert2012COE} provides automatic recovery support and without requiring developers to take any precautionary actions beforehand.
+For this, CoExist automatically records versions for changes and, thereby, provides a fine-grained history of intermediate development states.
+Each change to source code yields a version to which programmers also can see diff views, test results, and screenshots to, and, more importantly, can re-establish these development states immediately.
+However, CoExist currently recognizes only changes made to the source code of classes.\\
 
 % Solution
-We propose object versioning as basis for similar recovery support in programming systems like Lively, to be able to preserve versions of the entire development state and to re-establish each of those.
+We propose versioning all objects to be able to preserve and re-establish versions of the entire state of the programming runtime and as basis for similar automatic recovery support in programming systems like Lively.
 As in CoExist, such versions could be saved automatically when programmers make changes and Lively could provide tools to find and recover previous states.
 
-This work in particular introduces an approach to object versioning based on using alternative, version-aware references to objects.
-Version-aware references are references that know available versions of objects and resolve transparently to a particular version among those.
-Versions of all objects are part of the application memory and are preserved together, so the version-aware references can resolve to corresponding versions of objects transitively.
-The state of all objects is preserved incrementally, on writes and only for objects that actually change.
-Similarly, to which versions the version-aware references resolve is also changed without significantly interrupting the system.
-The version-aware references decide dynamically to which versions they resolve instead of being hard-wired to specific versions.
-In result, the entire graph of objects can be resolved just like the system was at a particular point.
+This work in particular introduces an approach to object versioning based on using alternative, \emph{version-aware} references to objects.
+Version-aware references are alternative references in that they refer to multiple versions of objects and resolve transparently to a particular version among those.
+Versions of objects are preserved together, so that the version-aware references can be resolved transitively to state as it was at a particular moment.
+For a practical recovery support, versions of objects can be kept in application memory and the state of all objects can be preserved incrementally, on writes and only for objects that actually change.
+Similarly, to which versions the version-aware references resolve can also be changed without significantly interrupting the system:
+The version-aware references can decide dynamically to which versions they resolve instead of being hard-wired to specific versions.
 
-As concrete solution for Lively, we implemented version-aware references in JavaScript on the level of the language: through proxies and source transformations and without requiring adaptions to execution engines.
+As concrete solution for Lively, we implemented version-aware references in JavaScript and on the level of the language, using proxies and source transformations and without requiring adaptions to execution engines.
 Proxies implement version-aware references.
-They stand in for references: conventional references point to them and they delegate all object access--all kinds of reads and writes--to one of many versions of the object they stand in for.
-A combination of proxy behavior and source transformation then allows to introduce and use these proxies consistently for all objects.
+They stand in for references: conventional references point to them and they delegate all object access--all kinds of read and write operations--to one particular of the many versions of the object they can stand in for.
+A combination of proxy behavior and source transformation then allows to introduce and use these proxies consistently for all objects, in case the entire runtime state is to be versioned as necessary for completely generic undo support.
 
 We designed and implemented this approach to object versioning for Lively with the intention to provide CoExist-like recovery support, including continuous versioning.
-Therefore, the approach supports fine-grained histories of development states---many, but still particular versions of the entire runtime that can correspond to developer actions and can be re-established quickly.
-It also allows to enhance preserved development states with further information as, for example, test results, screenshots, and diffs.
+Therefore, this approach supports fine-grained histories of development states---many, but still particular versions of the entire runtime that can correspond to developer actions and can be re-established quickly.
+It also allows to easily enhance preserved development states with further information as, for example, test results, screenshots, and diffs.
 That is, in the future, we want to build upon the presented solution and support developers in efficiently recovering state from continuously preserved, fine-grained histories of development sessions.\\
 
 % Contributions
@@ -88,16 +86,13 @@ The contributions of this thesis are as follows:
 \begin{itemize}
     \item An approach to object versioning for systems like Lively based on alternative, version-aware references that transparently delegate to one of multiple versions of each object (Section~\ref{sec:APPROACH:1}).
     \item A concrete, language-level solution that provides the proposed version-aware references through proxies and source transformations for Lively (Section~\ref{sec:APPROACH:2}).
-    \item An implementation of the concrete solution in JavaScript that can be used to preserve and re-establish development states in Lively (Section~\ref{chapter:IMPLEMENTATION}).\\
+    \item An implementation of the concrete solution in JavaScript that can be used to effectively preserve and re-establish development states in Lively (Section~\ref{chapter:IMPLEMENTATION}).\\
 \end{itemize}
 
 The remainder of this thesis is organized as follows. 
-Chapter~\ref{chapter:BACKGROUND} describes programming in prototype-based systems, CoExist, and Lively.
-Chapter~\ref{chapter:MOTIVATION} illustrates the recovery needs developers have when they directly develop objects in Lively.
+Chapter~\ref{chapter:BACKGROUND} describes programming in prototype-based systems, with CoExist, and in Lively.
+Chapter~\ref{chapter:MOTIVATION} illustrates the recovery needs developers have when they directly work on objects in Lively.
 Chapter~\ref{chapter:APPROACH} introduces our approach to object versioning and describes how proxies can be used for concrete solutions.
 Chapter~\ref{chapter:IMPLEMENTATION} presents our implementation for Lively, which Chapter~\ref{chapter:DISCUSSION} then discusses in terms of functionality and practicability.
 Chapter~\ref{chapter:RELATED_WORK} compares our solution to related work.
-Chapter~\ref{chapter:RELATED_WORK} presents future work, while Chapter~\ref{chapter:RELATED_WORK} concludes this thesis.
-
-
-\todo{robert krahn: ``leads to first-class notion of runtime state..''}
+Chapter~\ref{chapter:FUTURE_WORK} presents future work, while Chapter~\ref{chapter:CONCLUSION} concludes this thesis.
