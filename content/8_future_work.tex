@@ -5,6 +5,7 @@ Speeding up the proxy-based version-aware references seems most important in thi
 In addition, we would like to build upon our approach and implementation.
 The system should preserve meaningful versions of the runtime automatically and support developers in finding relevant previous state in recovery situations.
 
+
 \section{Improving the Performance of Our JavaScript Implementation}
 
 Our current implementation makes JavaScript code execution significantly slower and the development tools in Lively considerably less responsiveness, as presented in Section~\todo{ref to 5.2 performance evaluation..}.
@@ -33,6 +34,7 @@ One example would be a parser implemented in JavaScript that creates lots of obj
 These objects are only necessary during parsing, which often only needs to return a success or a syntax error.
 Additionally, given JavaScript single-threaded and cooperative execution in would not even be possible to switch the version during parsing with our current implementation.
 So, in this parser example, there wont be multiple versions for any of the objects only created as intermediate results, rendering version-aware reference to such temporary objects irrelevant, while they still impede performance.
+
 
 \section{Providing Continuous Object Versioning with Recovery Tools}
 
@@ -77,3 +79,5 @@ Such state could be a particular version of a graphical application part they ar
 For this, we want to support developers in copying particular state up to whole objects from one version of the runtime to another.
 
 All in all, this tool support for recovery should allow developers to find and re-establish versions, to create and delete lines of histories, and to diff and merge changes from one version of the system to another.
+
+\todo{a specific interesting tool would be one that could be used to compare two versions of the state / two states, to not only see differences between two arbitrary states but more importantly to understand the impact/side effects of particular operations.. if i execute this script, what happens (especially besides visible side-effects..)}
