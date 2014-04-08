@@ -49,6 +49,8 @@ Also, while our approach saves new versions incrementally and resolves to differ
 While object versioning introduces a constant execution overhead for resolving version-aware references, Offline Worlds stops the world for both saving and loading versions.
 For this reason, object versioning seems to be more practical for fine-grained versioning.
 
+\todo{while both approaches could store multiple versions of the runtime in memory, serialization and deserialization for preserving and re-establishing versions of the runtime is a stop-the-world approach. one other difference between both approaches is that our approach preserves object identity with proxies (the proxy identities) and it is, therefore, possible to version just parts of the system, while the rest of the system could still refer to any of the versioned objects by references..}
+
 
 \section{Back-in-Time Debugging}
 
@@ -88,6 +90,7 @@ At the same time, COP supports the composition of multiple layers, while object 
 COP further is a language construct that allows to separate heterogeneous cross-cutting concerns, while object versioning is part of the programming system to allow developers to recover previous development states.
 However, \cite{Lincke2012SCS} showed that COP can also allow developers to experiment with changes to a system: developers may implement their proposed changes to behavior in layers, not aiming primarily at modularization, but to not change the system permanently and instead be able to recover easily.
 Though this requires developers to make experiments explicitly---explicitly creating layers and explicitly moving code from layers back to the base system, once experiments are considered successful and changes expected to be permanent, when developers want to maintain the original modularization of the system.
+
 
 \section{ChangeBoxes}
 ChangeBoxes~\cite{Denker2007EEC}
