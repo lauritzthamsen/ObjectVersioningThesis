@@ -1,6 +1,6 @@
 \chapter{Implementation with Proxies} \label{chapter:IMPLEMENTATION}
 
-% additional TODO: .call + .apply
+% additional TODO: .call + .apply, handle special cases also when functions are arguments these native functions..
 % and TODO: [what about all other source transformations..??]
 
 We implemented version-aware references for our approach to object versioning in JavaScript using proxies and source transformations.
@@ -54,85 +54,97 @@ get: function(dummyTarget, name, receiver) {
 \end{verbatim}\fi
 
 First, the current version gets determined using the \lstinline{currentVersion()} function, which is explained in \ref{sec:IMPLEMENTATION:3}.
-Then, multiple special cases are handled, including special properties to allow to determine whether a proxy that otherwise behaves transparently actually actually is a proxy or to allow to unwrap a particular version.
+Then, multiple special cases are handled, including special properties to allow to determine whether a proxy, which otherwise behaves transparently, actually is a proxy or to allow to unwrap the current version from the proxy.
 In the simple scenario that we are only reading a property named \lstinline{age} from an object \lstinline{person} all these special conditions fall through.
 Instead, the trap reads the property from the current version and returns the result.
 The result is passed to the \lstinline{ensureProxied()} function to make sure that mutable objects are proxied.
 When a mutable object that is not wrapped in a proxy is passed to this function, the function returns a proxy instead.
-This is necessary as while application-specific objects properties are expected to be proxied, some built-in objects in JavaScript engines refer to their properties directly and not through proxies, but these properties might be required to be proxied to have versions of these properties and to implement other version-specific behavior.
+This is necessary as, while application-specific objects properties are expected to be proxied, some built-in objects in JavaScript engines refer to their properties directly and not through proxies, but these properties might be required to be proxied to be versioned and to implement version-aware behavior.
 
 Besides the \emph{get}-trap, our proxy handler similarly provides behavior for all other traps, which also delegate to the currently selected version of the object.
-The following table provides an overview over the implemented proxy traps:
+The following table \todo{table caption and refer its ref number} provides an overview over the implemented proxy traps:
 
 \begin{table}[h]
 \begin{tabular}{|l|l|r|}
 \hline
-get: function(dummyTarget, name, receiver) \\ \hline
-set: function(dummyTarget, name, value, receiver) \\ \hline
-apply: function(dummyTarget, suppliedThisArg, suppliedArgs) \\ \hline
-construct: function(dummyTarget, args) \\ \hline
-has: function(dummyTarget, name) \\ \hline
-hasOwn: function(dummyTarget, name) \\ \hline
-defineProperty: function(dummyTarget, name, desc) \\ \hline
-deleteProperty: function(dummyTarget, name) \\ \hline
-getOwnPropertyNames: function(dummyTarget) \\ \hline
-getPrototypeOf: function(dummyTarget) \\ \hline
-freeze: function(dummyTarget) \\ \hline
-seal: function(dummyTarget) \\ \hline
-preventExtensions: function(dummyTarget) \\ \hline
-isFrozen: function(dummyTarget) \\ \hline
-isSealed: function(dummyTarget) \\ \hline
-isExtensible: function(dummyTarget) \\ \hline
-enumerate: function(dummyTarget) \\ \hline
-keys: function(dummyTarget) \\ \hline
+get: function(target, name, receiver) \\ \hline
+set: function(target, name, value, receiver) \\ \hline
+apply: function(target, suppliedThisArg, suppliedArgs) \\ \hline
+construct: function(target, args) \\ \hline
+has: function(target, name) \\ \hline
+hasOwn: function(target, name) \\ \hline
+defineProperty: function(target, name, desc) \\ \hline
+deleteProperty: function(target, name) \\ \hline
+getOwnPropertyNames: function(target) \\ \hline
+getPrototypeOf: function(target) \\ \hline
+freeze: function(target) \\ \hline
+seal: function(target) \\ \hline
+preventExtensions: function(target) \\ \hline
+isFrozen: function(target) \\ \hline
+isSealed: function(target) \\ \hline
+isExtensible: function(target) \\ \hline
+enumerate: function(target) \\ \hline
+keys: function(target) \\ \hline
 \end{tabular}
 \end{table}
 
-All these traps fire either when the proxy is accessed with specific JavaScript operators or when it is passed to meta-programming facilities provided by the built-in globals\footnote{\url{http://wiki.ecmascript.org/doku.php?id=harmony:direct_proxies\#api}, accessed March 5, 2014}.
-For example, the \lstinline{preventExtensions}-trap fires when a proxy is passed to the built-in \lstinline{Object.preventExtensions()} function, which prevents new properties from subsequentely being added to the object passed to this function.
+All these traps fire either when the proxy is accessed with specific JavaScript operators or when it is passed to meta-programming facilities provided by built-in globals\footnote{\url{http://wiki.ecmascript.org/doku.php?id=harmony:direct_proxies\#api}, accessed March 5, 2014}.
+For example, the \lstinline{preventExtensions}-trap fires when a proxy is passed to the built-in \lstinline{Object.preventExtensions()} function, which prevents new properties from subsequentely being added to an object.
 
 There currently is no \lstinline{instanceof} trap to intercept the behavior of the \lstinline{instanceof} operator since the Direct Proxies currently do not provide such a trap.
-The type of an object in JavaScript is, however, defined by an object's prototype chain, which may change at runtime.
-The prototype of an object is also just a property and is, thus, versioned as well, so different versions of an object can have different types.
-However, the \lstinline{instanceof} operator is not trapped and, thus, does not delegate to the current version of the object.
-Therefore, this particular object access needs to be handled by a custom \lstinline{Object.instanceof} function, which is not allowed to alter JavaScript semantics beyond delegating for proxies, and all usage of the \lstinline{instanceof} operator has to be exchanged with using our function instead.
-For this, we transform JavaScript sources before execution.
+However, the type of an object in JavaScript is defined by an object's prototype chain, which may change at runtime.
+So, while the prototype of an object is a property and gets versioned as well, the \lstinline{instanceof} operator does not get trapped and, thus, is not delegated to the current version of the object.
+Therefore, this particular object access needs to be handled by a custom \lstinline{Object.instanceof()} function, which implments the semantics of JacaScript's \lstinline{instanceof} operator but does delegate the necessary checks when a versioning proxy gets passed to it.
+To exchange all usage of the \lstinline{instanceof} operator with application of this custom function, we transform JavaScript sources before execution.
 These transformations change, for example, \lstinline{anObject instanceof SomeConstructor} to \lstinline{Object.instanceOf(anObject, SomeConstructor)}.
 
 The handler object is an ordinary JavaScript object and, thus, can hold arbitrary properties.
-Besides providing traps, our proxy handler objects also hold the versions of the represented object.
+Besides providing the trap methods, our proxy handler objects also hold the versions of the represented object.
 For this, the proxy handler uses an object as dictionary that associates version identifiers with the different versions of the object.
-This version dictionary is used by the handler's \lstinline{currentVersion} function, which decides which of the versions should be accessed currently.
-When a proxy, which is standing for conceptionally one object with all its versions, gets garbage collected, the versions get garbage collected as well.
+This version dictionary is used by the handler's \lstinline{currentVersion} function that decides which of the versions should currently be accessed.
+Having the handler object hold all the versions of conceptionally one object also takes care of garbage collection.
+When a proxy gets garbage collected, all versions get garbage collected as well.
 
-\todo{proxy implementation workarounds.. rework the following part..} 
-% TODO: experimental + shim implementation, limitation workarounds
+Certain workarounds are required to make our proxy-based implementation of version-aware references work, due to the preliminary status of the proxy implementation.
+While the specification of Direct Proxies already progressed from proposal status to being part of the current ECMAScript 6 Draft\footnote{\url{http://people.mozilla.org/~jorendorff/es6-draft.html}, accessed March 5th, 2014}, it is still in draft status and not yet implemented in the JavaScript engines used by the Chrome browser and the Firefox browser.
+These two engines currently both implement two different deprecated proposals for the proxies instead of the most recent ECMAScript 6 Draft.
+The \emph{harmony-reflect} library\footnote{\url{http://github.com/tvcutsem/harmony-reflect}, accessed February 3, 2014, used version 0.0.11}, however, provides the current API of Direct Proxies for recent versions of both Chrome and Firefox, on top of the implementations of the different deprecated proposal states.
+That is, our versioning proxies prinicipally work in both Chrome and Firefox and rely on the \emph{harmony-reflect} shim for this.
+However, even with the shim, three issues need to be addressed with technical workarounds that might no longer be necessary once ECMAScript 6 standard gets finalized and fully implemented by the JavaScript engines: 
 
-The direct proxy specification is preliminary---it already progressed towards the Draft ECMAScript 6\footnote{\url{http://people.mozilla.org/~jorendorff/es6-draft.html}, accessed March 5th, 2014}, which is, however, still a draft and not yet finalized---a few additional workarounds are necessary for our usage of the proxies.
+\begin{enumerate}
+    \item Certain built-in JavaScript functions dont handle proxies correctly.
+    \item The proxies have to be provided with an actual target, even when implementing virtual objects and consistency checks compare return values of traps to the state of the actual target. 
+    \item It is not possible to set the prototype of an object when the current prototype is a proxy due to a bug in Chrome.
+\end{enumerate}
 
-At the time of writing, current versions of both Chrome and Firefox browsers implement deprecated proposals for the proxies and not the Direct Proxies as included in the current draft of the ECMAScript 6 standard.
-The \emph{harmony-reflect} library\footnote{\url{http://github.com/tvcutsem/harmony-reflect}, accessed February 3, 2014, used version 0.0.11}, however, makes the current specification and Direct Proxies available to JavaScript programs in the same recent versions of Chrome and Firefox.
+Some built-in functions react to proxies with actual errors, return wrong results, or otherwise do not provide the usual functionality.
+Therefore, these functions need to be provided with actual objects instead of the proxy.
+This is unproblematic for most cases as, given JavaScript's single-threaded and cooperative execution in browser engines, which version of an object is to be used is not expected to change during the execution of a built-in function.
+Our implementation provides the current version of an object to these built-in functions through proxy handler traps and patched built-in functions.
+The \emph{apply}-trap, called when proxied functions get applied, unwraps all arguments and the \emph{thisContext} object, when the applied function is a built-in functions that does not handle proxies.
+This is for example the case for the functions that provide access to the browser's document model.
+Further, the \emph{set}-trap sometimes needs to unwrap the assigned value when that value is proxied and gets assigned to slots that cannot handle proxies.
+This is for example the case with the \lstinline{onreadystatechange} slot of \emph{XMLHttpRequest} objects.
+This particular slot holds functions as callbacks of asynchronous HTTP requests, which, however, do not get called when these functions are proxies.
+This is particular case is potentially problematic.
+Though JavaScript does get executed with a single thread  using cooperative scheduling by all popular browsers, other concurrent scripts might get executed before a script ends whenever a script is waiting on I/O like, for example, an asynchronous request to finish.
+As this---changing a callback function or its properties while waiting on the response---is unlikely, bad programming style as it introduces dependencies to the timing of network I/O, and is through network communication already at the limit of what object versioning can due in general, our implementation currently does not provide a workaround for this specific case, even though we are aware of this potential problem. 
+In addition to these behavior implemented in traps, there are also certain immutable types that do not get proxied at all in our implemention as, for example, strings.
+However, some methods of, for example, string objects also do not handle proxies correctly and our implementation, therefore, patches those functions to also unwrap proxies before executing the original functions.
 
-Due to the preliminary status of the proxy implementation, certain workarounds are required to make our proxy-based implementation of version-aware references work.
 
 \todo{dummytarget: rework the following part..} 
 % TODO: dummytarget.. say something about our adaptions to harmony-reflect: no-target flag.. to disable consistency checks of configured properties (frozen..etc)
-
 Instead, as the implementation of the proxies currently requires one particular \emph{target} object even for proxies intended to be virtual objects, the \lstinline{instanceof} operator returns the type of that initial target object.
 
-\todo{unwrap for native code: rework the following part..} 
-% TODO: unwrap for native code
 
-First, certain built-in functions in JavaScript currently do not yet handle proxies very well.
-Some of these functions react with actual errors, while others return wrong results or otherwise do not provide the usual functionality.
-Therefore, these functions need to be provided with actual objects instead of the proxy.
-Given JavaScript's single-threaded and cooperative execution in browser engines, which version of an object is to be used is not expected to change during the execution of built-in functions.
-That is, our implementation provides the currently active version of objects to such built-in functions through both proxy handler traps and patched built-in functions.
-The \emph{apply}-trap, called when proxied functions get applied, unwraps all arguments and the \emph{thisContext} object, in case the function is a method of an object for certain functions, including, for example, functions to access to browser's document model.
-The \emph{set}-trap unwraps the assigned value when that value is proxied and gets assigned to particular slots that cannot handle proxies as, for example, the \lstinline{onreadystatechange} property of \emph{XMLHttpRequest} objects does not handle proxied functions well.
-In addition to these trap behavior, instances of certain immutable types do not get proxied in our implemention as, for example, strings.
-However, some methods of, for example, string objects also do not handle proxies well and our implementation, therefore, patches all those functions to also unwrap proxies.
+
 \todo{Second, proxies as prototypes (relation cant be changed.. traps of proto fire when inheriting object is accessed.. problem is Chrome and only the proto case...)... protoProxy property on objects..}
+\todo{maybe explain the design decisions behind the protoID}
+% firing proto traps, except when using the new Reflect API, but can't use Reflect.setPrototype in recent Chromes, where Lively runs best..
+
+
 
 
 
