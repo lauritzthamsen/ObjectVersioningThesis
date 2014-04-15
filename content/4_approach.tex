@@ -183,24 +183,18 @@ Proxies hold multiple versions of an object.
 They can transparently delegate access to one particular amony many versions.
 They are also referred to consistently instead of the object.
 This allows to have and use particular versions of particular objects.
-However, to enable programmers to undo and redo arbitrary changes to the entire development state, our solution needs to preserve and choose versions of all objects in a coordinated way.
-Our solution to this is declaring versions of the runtime, preserving relationships between those versions, and annotating versions of objects with the version of the runtime they are part of.
+However, to enable programmers to undo and redo arbitrary changes to the entire development state, our solution needs to preserve and choose versions of all objects in a coordinated way and, thereby, be able to establish particular versions of the entire runtime instead of single objects.
+Our solution to this is declaring versions of the runtime and annotating versions of objects with the version of the runtime they are part of.
 
-Our proxies hold available versions of an object and associate each version of the object with the version of the runtime it belongs to.
-When a proxy is created for an object, the object is preserved as the version of the object that belongs to the current version of the runtime.
-On writes, the proxies copy the latest version of the object and then do the write on the copy instead.
-The copy gets marked with the identifier of the new version of the runtime.
-When the proxies now choose a particular version of the object they stand-in for, they all use the version associated with the current version of the runtime or of a previous versions.
+These information are used to decide to which particular versions of objects proxies are to delegate at any moment.
+Given which version of the runtime is currently active, the proxies can choose the corresponding version of the object.
+
+
 This way, the proxies transitively all delegate to objects that accurately represent the state of the entire runtime as it was at a particular moment---when the version of the runtime was last active.
 To preserve a development state, the version of the runtime just has to be changed.
 
+
+
+
 The version of the runtime can be global in JavaScript as JavaScript engines use only a single thread and cooperative scheduling.
 There is, therefore, no way to change which version of each object should be used while a path through an object graph is already partly resolved.
-The version also may have a predecessor and a successor.
-This way, for undo and redo the current version of the runtime only has to be set on the predecessor or the successor.
-Preserving the predecessor also allows to preserve versions of objects only on writes as, when objects have not changed in versions, the first available previous version of the object can be read.
-
-% Besides this copy-on-write optimization, another optimization would be to not copy objects completely, but to only store changes.
-% this could, for example, also apply prototypical inheritance to have versions that delegate to previous versions and only express the differences between versions.
-
-% further, as the proxies already hold all versions, they also create new versions of objects in our solution, copies, when indicated by the programming system.
