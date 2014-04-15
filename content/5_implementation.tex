@@ -257,28 +257,20 @@ The implementation of source transformations uses \emph{UglifyJS}\footnote{\url{
 UglifyJS parses without relying on JavaScript exceptions for, for example, backtracking and, therefore, does not interfere with debugging.
 In addition, UglifyJS also supports Source Maps \todo{footnote with url to Source Maps}, which allow to view and debug the original code with the browser's developer tools, even though the transformed code is executed.
 
+\todo{add something about when the versioning source transformations are done and what objects are versioned currently}
+% TODO: source transformations enabled right after the object versioning code, i.e. the implementation of the proxies and the source transformation, which are both themselves implemented using ordinary javascript code, gets loaded. by patching the eval that is used for evaluated modules that get loaded with an eval(transformSource.. so modules are not versioned, but classes / layers / traits are.. e.g. a class is versioned, so in different versions there might be different class-side state... so, for example, modules are currently in our implementation the roots of the version-aware reference graphs that prevent garbage collection, 
+
 
 \section{Providing Simple Global Versions for Undo and Redo} \label{sec:IMPLEMENTATION:3}
 
-JS execution: single-threaded, cooperative scheduling 
+global versions (JS execution: single-threaded, cooperative scheduling), linear versioning (for now), data structure is an version object with a predecessor and a successor
 
-\begin{itemize}
-    \item global versions, linear versioning, data structure is an version object with a predecessor and a successor
-    \item copy-on-write for versions of objects (set-trap, apply-trap for some array methods), shallow copy
-\end{itemize}
-
-
-However, some additional logic is required to update state that is not part of the runtime state as, for example, the HTML document presented by browsers.
-
+version dictionary: version identifier (runtime version) -> version object
 
 The version also may have a predecessor and a successor.
 This way, for undo and redo the current version of the runtime only has to be set on the predecessor or the successor.
 Preserving the predecessor also allows to preserve versions of objects only on writes as, when objects have not changed in versions, the first available previous version of the object can be read.
 
-% Besides this copy-on-write optimization, another optimization would be to not copy objects completely, but to only store changes.
-% this could, for example, also apply prototypical inheritance to have versions that delegate to previous versions and only express the differences between versions.
-
-The association proxies associate all available versions of an object with a version of the runtime.
 
 
 When a proxy is created for an object, the object is preserved as the version of the object that belongs to the current version of the runtime.
@@ -286,20 +278,15 @@ On writes, the proxies copy the latest version of the object and then do the wri
 The copy gets marked with the identifier of the new version of the runtime.
 When the proxies now choose a particular version of the object they stand-in for, they all use the version associated with the current version of the runtime or of a previous versions.
 
-
-\begin{itemize}
-    \item source transformations enabled right after the object versioning code, i.e. the implementation of the proxies and the source transformation, which are both themselves implemented using ordinary javascript code, gets loaded. by patching the eval that is used for evaluated modules that get loaded with an eval(transformSource.. so modules are not versioned, but classes / layers / traits are.. e.g. a class is versioned, so in different versions there might be different class-side state... so, for example, modules are currently in our implementation the roots of the version-aware reference graphs that prevent garbage collection, 
-\end{itemize}
-
-
-\begin{itemize}
-    \item undo / redo implementation, example situation
-    \item redraw of the world as DOM objects / DOM relations are not part of the object versioning in JavaScript: DOM redrawing on undo / redo: DOM is out of versioning scope, doesn’t use version-aware references, has to be changed / redrawn on undo/redo explicitly
-    
-\end{itemize}
+copy-on-write for versions of objects: set-trap, apply-trap for some array methods
+shallow copy
+Besides this copy-on-write optimization, another optimization would be to not copy objects completely, but to only store changes.
+this could, for example, also apply prototypical inheritance to have versions that delegate to previous versions and only express the differences between versions.
 
 
 
+some additional logic is required to update state that is not part of the runtime state as, for example, the HTML document presented by browsers.
+redraw of the world as DOM objects / DOM relations are not part of the object versioning in JavaScript: DOM redrawing on undo / redo: DOM is out of versioning scope, doesn’t use version-aware references, has to be changed / redrawn on undo/redo explicitly
 
 
 
@@ -307,7 +294,7 @@ When the proxies now choose a particular version of the object they stand-in for
 
 \section{Limitations of the Implementation}
 
-
+% limitations of our implementation that are not directly related to the state of the preliminary implementation of the proxies.. except for the general limitation that these proxies have to be available, e.g. experimental javascript enabled in chrome
 
 
 % \subsection{Limitations for Concurrent JavaScript}
