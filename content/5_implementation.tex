@@ -263,6 +263,8 @@ In addition, UglifyJS also supports Source Maps \todo{footnote with url to Sourc
 
 \section{Providing Simple Global Versions for Undo and Redo} \label{sec:IMPLEMENTATION:3}
 
+\todo{write text from the following notes}
+
 global versions (JS execution: single-threaded, cooperative scheduling), linear versioning (for now), data structure is an version object with a predecessor and a successor
 
 version dictionary: version identifier (runtime version) -> version object
@@ -294,35 +296,32 @@ redraw of the world as DOM objects / DOM relations are not part of the object ve
 
 \section{Limitations of the Implementation}
 
-% limitations of our implementation that are not directly related to the state of the preliminary implementation of the proxies.. except for the general limitation that these proxies have to be available, e.g. experimental javascript enabled in chrome
+\todo{write text from the following notes}
+
+% content: limitations of our implementation that are not directly related to the state of the preliminary implementation of the proxies.. except for the general limitation that these proxies have to be available, e.g. experimental javascript enabled in chrome
+
+our implementation is based on and requires the ECMAScript 6 Direct Proxies to be available.
+however, as these are at the moment only part of the next draft of ECMAScript and not yet finalized, the implementation only works when the nevertheless are available, which is currently.. recent versions of Chrome with experimental JavaScript explicitly enabled and in recent versions of Firefox
 
 
-% \subsection{Limitations for Concurrent JavaScript}
-
+% TODO: Limitations for Concurrent JavaScript
 
 single-threaded and cooperative scheduling, but setTimeout / setInterval... stop asynchronous actions from following versions when undoing... source transformations, which scripts belongs to which version
 
 
-% \subsection{Limitations in the Execution Environment}
 
-\begin{itemize}
-    \item  the proxies are not fully implemented in all browsers, yet, and some built-in browser tools for developers also do not support them entirely.
-    only works in recent Chromes, with experimental JavaScript / or Firefox (without adaption)... ECMAScript 6 Direct Proxies not yet fully implemented, not yet stable..
-.. own adaptions to the shim library, to bridge the gap between the current version of the shim and information from the Spec draft (pass null for the target of a proxy)... fully virtual objects vs. consistency checks.. adapted library to fit spec draft (pass null as target of a fully virtual object, then no trap-return-value-consistency-with-target checks)
-\end{itemize}
-    
+% TODO: Usability: Impact on Debugging
 
-% \subsection{Usability: Impact on Debugging}
+adds lots of low-level frames due to the partly native but also partly shim implementation of proxies..
 
-\begin{itemize}
-    \item adds lots of low-level frames, dev tools don’t handle proxies well (hovering, labels, stepping into), but we have at least source maps, so developers can debug the original code and not the result of our source transformation
-    \item debugging: interference with Chrome's developer tools, which don’t handle proxies well (hovering, labels, stepping into)
-\end{itemize}
-
-
-Besides impacting code execution, the current implementation of object versioning for Lively also  with certain programming tasks.
+dev tools don’t yet handle proxies well (hovering, labels, stepping into), but we have at least source maps, so developers can debug the original code and not the result of our source transformation
+Besides impacting code execution, the current implementation of object versioning for Lively also with certain programming tasks.
 Though the version-aware references should be transparent to programmers, in the current proxy-based implementation proxies show during debugging.
 However, the developer tools show the original source code, despite the implementation's transformations of the sources.
+
+
+
+
 
 Nevertheless, our implementation is functional and integrated with Lively.
 It allows programmers to undo and redo changes and is publicly available\footnote{\url{http://github.com/LivelyKernel/LivelyKernel/commit/858aca8c5ac0f203061823f463fda9b434131636}}.
