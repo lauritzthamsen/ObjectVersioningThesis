@@ -1,12 +1,11 @@
 \chapter{Background} \label{chapter:BACKGROUND}
 
-Our approach, as described in Chapter~\ref{chapter:APPROACH}, provides object versioning for prototype-based programming systems.
-Prototype-based programming uses objects as building blocks for applications.
-One particular example of such a system is Lively, a self-supporting web-based programming system with tools to directly edit graphical objects.
-Lively is also the system for which we implemented our approach.
+Our goal is to provide generic recovery support for prototype-based programming systems, which use objects as building blocks for applications.
+One particular example of such a system is Lively, a self-supporting web-based programming system with tools to directly manipulate graphical objects and also the system for which we implemented our approach.
 
-A key motivation for our approach is CoExist.
+Another important part of the background of this work is CoExist as our the approach and implementation presented in this thesis is intended provide the foundations for CoExist-like automatic recovery support.
 CoExist applies continuous versioning to provide recovery support automatically: programmers have access to a fine-grained history of development states without having to take any explicit precautionary actions themselves.
+
 
 \section{Prototype-based Programming}
 
@@ -32,7 +31,6 @@ Similarly to the previous examples, many end-user programming systems, including
 In addition, programmers manipulate objects at runtime in these end-user programming systems and many general-purpose prototype-based programming systems, like Lively, Self, and Kevo.
 These also provide tools for manipulating graphical objects directly, where graphical elements range from simple objects like primitive shapes over interactive widgets to applications that are more directly useful like presentation software or programming tools.
 In general, development at runtime, prototype-based programming, and direct manipulation of graphical elements seem properties of programming systems that suit each other.
-
 
 
 \section{The Lively Kernel}
@@ -85,7 +83,6 @@ Another tool related to morphs, though not available from a halo button, is Live
 Morphs saved to the Parts Bin are called \emph{parts} to emphasize the ability to reuse any one of the morphic implementations stored in the Parts Bin in another application.
 Figure~\ref{fig:PartsBin} shows the Parts Bin and, in particular, a group of tools that the Parts Bin contains, which also includes both the Style Editor and the Object Editor.
 Both these tools are examples for graphical applications developed from available parts, with their logic expressed in scripts, and saved to the Parts Bin.
-
 
 
 \section{CoExist}
