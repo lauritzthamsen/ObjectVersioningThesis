@@ -1,8 +1,5 @@
 \chapter{Implementation with Proxies} \label{chapter:IMPLEMENTATION}
 
-% additional TODO: .call + .apply, handle special cases also when functions are arguments these native functions..
-% and TODO: [what about all other source transformations..??]
-
 We implemented version-aware references for our approach to object versioning in JavaScript using proxies and source transformations.
 This way, our prototype does not require changes to JavaScript engines, but only a certain JavaScript language feature.
 In particular, it requires the Direct Proxies\footnote{\url{http://wiki.ecmascript.org/doku.php?id=harmony:direct_proxies}, accessed February 3rd, 2014} as proposed with Version 6 of ECMAScript, the standard that JavaScript follows.
@@ -93,10 +90,11 @@ For example, the \lstinline{preventExtensions}-trap fires when a proxy is passed
 
 There currently is no \lstinline{instanceof} trap to intercept the behavior of the \lstinline{instanceof} operator since the Direct Proxies currently do not provide such a trap.
 However, the type of an object in JavaScript is defined by an object's prototype chain, which may change at runtime.
-So, while the prototype of an object is a property and gets versioned as well, the \lstinline{instanceof} operator does not get trapped and, thus, is not delegated to the current version of the object.
-Therefore, this particular object access needs to be handled by a custom \lstinline{Object.instanceof()} function, which implments the semantics of JacaScript's \lstinline{instanceof} operator but does delegate the necessary checks when a versioning proxy gets passed to it.
+So, while the prototype of an object is a property and gets versioned as well, the \lstinline{instanceof} operator does not get trapped and, thus, is not delegated to the current version of the object when used on a proxy.
+When creating a proxy a \emph{target} object can be provided to be linked from the proxy and the \lstinline{instanceof} operator would follow this link to report the target's type, but as the target link cannot be changed later on, while proxies stand-in for multiple versions with potentially different types, this is not an option.
+Therefore, the \lstinline{instanceof} access needs to be handled by a custom \lstinline{Object.instanceof()} function, which implments the semantics of JacaScript's \lstinline{instanceof} operator but does delegate the necessary checks when a versioning proxy gets passed to it.
 To exchange all usage of the \lstinline{instanceof} operator with application of this custom function, we transform JavaScript sources before execution.
-These transformations change, for example, \lstinline{anObject instanceof SomeConstructor} to \lstinline{Object.instanceOf(anObject, SomeConstructor)}.
+These transformations change, for example, \lstinline{anObject instanceof SomeConstructor} to \lstinline{Object.instanceof(anObject, SomeConstructor)}.
 
 The handler object is an ordinary JavaScript object and, thus, can hold arbitrary properties.
 Besides providing the trap methods, our proxy handler objects also hold the versions of the represented object.
@@ -110,12 +108,12 @@ While the specification of Direct Proxies already progressed from proposal statu
 These two engines currently both implement two different deprecated proposals for the proxies instead of the most recent ECMAScript 6 Draft.
 The \emph{harmony-reflect} library\footnote{\url{http://github.com/tvcutsem/harmony-reflect}, accessed February 3, 2014, used version 0.0.11}, however, provides the current API of Direct Proxies for recent versions of both Chrome and Firefox, on top of the implementations of the different deprecated proposal states.
 That is, our versioning proxies prinicipally work in both Chrome and Firefox and rely on the \emph{harmony-reflect} shim for this.
-However, even with the shim, three issues need to be addressed with technical workarounds that might no longer be necessary once ECMAScript 6 standard gets finalized and fully implemented by the JavaScript engines: 
+However, even with the shim, two issues need to be addressed with technical workarounds that might no longer be necessary once ECMAScript 6 standard gets finalized and fully implemented by the JavaScript engines: 
 
 \begin{enumerate}
     \item Certain built-in JavaScript functions dont handle proxies correctly.
     \item The proxies have to be provided with an actual target, even when implementing virtual objects and consistency checks compare return values of traps to the state of the actual target. 
-    \item It is not possible to set the prototype of an object when the current prototype is a proxy due to a bug in Chrome.
+    % \item When the prototype of an object is a proxy, it cannot be changed due to a bug in Chrome.
 \end{enumerate}
 
 Some built-in functions react to proxies with actual errors, return wrong results, or otherwise do not provide the usual functionality.
@@ -133,19 +131,29 @@ As this---changing a callback function or its properties while waiting on the re
 In addition to these behavior implemented in traps, there are also certain immutable types that do not get proxied at all in our implemention as, for example, strings.
 However, some methods of, for example, string objects also do not handle proxies correctly and our implementation, therefore, patches those functions to also unwrap proxies before executing the original functions.
 
+Using the \emph{harmony-reflect} shim in a recent Chrome, proxies require an actual \emph{target} object even though the current ECMAScript 6 draft says otherwise\footnote{\url{http://people.mozilla.org/~jorendorff/es6-draft.html\#sec-proxy-object-internal-methods-and-internal-slots}, accessed April 15, 2014}.
+When an actual target object is, however, provided when creating a proxy, the internal link between proxy and target object cannot be changed at runtime.
+Therefore, in our use case of the proxies, in which proxies stand-in for a dynamically chosen version object among a group of different versions of one conceptionally one object, the proxy is now linked to a particular object or even particular version and delegates to that one by default.
+Further, the Direct Proxies are designed to ensure certain invariants~\cite{Cutsem2013TRP} between an objects properties and the return values of traps when the object properties get accessed.
+For example, one invariant is that a proxy's \lstinline{get}-trap has to return the fixed value for a property of an object that is configured to be immutable.
+That is, in our case, when a versioning proxy is linked to a particular object as its target and that target cannot be changed after creating the proxy, configuring any property as immutable would effectively declare that property immutable for all versions.
+Additionally, in this scenario, reading the property in a version where the value of this property is different from what it is in the immutable target would raise incosistency errors.
+For this reason, we adapted our copy of the \emph{harmony-reflect} library.
+In particular, we added a boolean flag to the Proxy constructor function that indicates whether a proxy is standing in for one target object or is a virtual object.
+This boolean flag is then used to disable all consistency checks whenever a proxy is meant to be a virtual object.
+Therefore, we provide the flag when creating versioning proxies.
+The proxy constructor still requires an actual object as \emph{target} object, but this target object is only used for the \lstinline{typeof} operator for the virtual object-kind of proxies.
+The \lstinline{typeof} operator returns only a distinction between a certain set of types in JavaScript, while our versioning proxies also stand-in only for certain mutable types.
+In fact, the only necessary difference for the \lstinline{typeof} operator is that a proxy representing the versions of an object or array is an object has an object as target, while a proxy representing the versions of a function needs to have a function as target.
+This difference in the type of supplied target objects is also necessary as the \emph{apply}- and \emph{construct}-trap are also only called on proxies with functions as targets.
 
-\todo{dummytarget: rework the following part..} 
-% TODO: dummytarget.. say something about our adaptions to harmony-reflect: no-target flag.. to disable consistency checks of configured properties (frozen..etc)
-Instead, as the implementation of the proxies currently requires one particular \emph{target} object even for proxies intended to be virtual objects, the \lstinline{instanceof} operator returns the type of that initial target object.
-
-
-
-\todo{Second, proxies as prototypes (relation cant be changed.. traps of proto fire when inheriting object is accessed.. problem is Chrome and only the proto case...)... protoProxy property on objects..}
-\todo{maybe explain the design decisions behind the protoID}
-% firing proto traps, except when using the new Reflect API, but can't use Reflect.setPrototype in recent Chromes, where Lively runs best..
-
-
-
+% chrome bug was fixeeeeeeed :) 
+% https://github.com/tvcutsem/harmony-reflect/issues/18
+% https://code.google.com/p/v8/issues/detail?id=2804
+% 
+% \todo{Second, proxies as prototypes (relation cant be changed.. traps of proto fire when inheriting object is accessed.. problem is Chrome and only the proto case...)... protoProxy property on objects..}
+% \todo{maybe explain the design decisions behind the protoID}
+% % firing proto traps, except when using the new Reflect API, but can't use Reflect.setPrototype in recent Chromes, where Lively runs best..
 
 
 \section{Returning Proxies For New Objects}
