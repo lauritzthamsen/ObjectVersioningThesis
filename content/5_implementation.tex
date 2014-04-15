@@ -3,38 +3,31 @@
 % additional TODO: .call + .apply
 % and TODO: [what about all other source transformations..??]
 
-
-We implemented version-aware references for object versioning in JavaScript, using proxies and source transformations.
-That is, our prototype does not require changes to the JavaScript engines, but only a certain JavaScript language feature.
-In particular, it requires the Direct Proxies\footnote{\url{http://wiki.ecmascript.org/doku.php?id=harmony:direct_proxies}, accessed February 3rd, 2014} feature proposed with the Version 6 of ECMAScript, the standard that JavaScript follows, which is already partly available in multiple browsers at the time of writing.
-
-These proxies can handle all kinds of access with specific behavior, which we used to delegate the access to a particular version of the object the proxy stands-in for.
-To have these proxies intercept access to all mutable objects, for which multiple versions may exist, a combination of source transformations and proxy behavior ensures that proxies are returned instead of objects whenever new objects are created.
-The proxies also preserve and choose versions of their object corresponding to a global version identifier.
-This version identifier effectively establishes a particular state of the programming runtime and programmers can undo and redo all kinds of changes by changing the identifier.
-However, some additional logic is required to update state that is not part of the runtime state as, for example, the HTML document presented by browsers.
-
-As the direct proxy specification is preliminary---already progressed towards the Draft ECMAScript 6\footnote{\url{http://people.mozilla.org/~jorendorff/es6-draft.html}, accessed March 5th, 2014}, which is, however, still in draft status and not yet finalized---a few additional workarounds are necessary for our use case of the proxies.
-Further, the proxies are not fully implemented in all browsers, yet, and some built-in browser tools for developers also do not support them entirely.
-Nevertheless, our implementation is functional and integrated with Lively.
-It allows programmers to undo and redo changes and is publicly available\footnote{\url{http://github.com/LivelyKernel/LivelyKernel/commit/858aca8c5ac0f203061823f463fda9b434131636}}.
-
+We implemented version-aware references for our approach to object versioning in JavaScript using proxies and source transformations.
+This way, our prototype does not require changes to JavaScript engines, but only a certain JavaScript language feature.
+In particular, it requires the Direct Proxies\footnote{\url{http://wiki.ecmascript.org/doku.php?id=harmony:direct_proxies}, accessed February 3rd, 2014} as proposed with Version 6 of ECMAScript, the standard that JavaScript follows.
+These proxies can implement specific behavior to handle various kinds of access to them.
+In our implementation, these proxies are used to delegate all access to a particular version of the object they stand in for.
+To have these proxies intercept access to all mutable objects for which versions should be preserved, our prototype uses a combination of source transformations and proxy behavior.
+In particular, the moment such mutable objects get created, our proxies get created for the new objects and references to these proxies are returned instead of references to the actual objects.
+The proxies then preserve and choose versions of their object corresponding to a global version identifier.
+This version identifier effectively declares one particular state of the programming runtime, consisting of those versions of objects that are associated with that runtime state, to be read and written.
+Therefore, to change the entire runtime state as, for example, an undo and redo would require only the global version identifier needs to be changed.
 
 
 \section{Using ECMAScript 6 Direct Proxies}
 
 Our implementation of version-aware references is based on the ECMAScript 6 Direct Proxies.
-While these are supposed to stand-in for particular objects, they can also be used as fully virtual objects.
+While these are supposed to stand-in for particular objects, their \emph{targets}, they can also be used as fully virtual objects.
 In our case, the proxies represent multiple different versions of an object and do not delegate to any of those by default.
-Instead, they choose a particular version to delegate to dynamically.
-That is, the Direct Proxies in our implementation stand-in transparently for multiple versions of an object.
+Instead, they choose one of potentially many versions of an object to delegate to dynamically.
+Further, the Direct Proxies in our implementation also stand-in transparently for the multiple versions of an object.
+That is, the proxies always do behave---except for some specific introspection cases---as if they were a specific version of an object and programmers should not have to be aware about the versioning proxies.
 
-At the time of writing current versions of both Chrome and Firefox browsers implement deprecated proposals for the proxies and not the Direct Proxies as included in the current draft of the ECMAScript 6 standard.
-The \emph{harmony-reflect} library\footnote{\url{http://github.com/tvcutsem/harmony-reflect}, accessed February 3, 2014, used version 0.0.11}, however, makes the current specification and Direct Proxies available to JavaScript programs in the same recent versions of Chrome and Firefox.
-
-The behavior of the proxies can be specified in a \emph{Handler} object, which has to be provided when creating proxies.
-The proxy handler can provide \emph{Traps}, methods to specify how specific access to the proxy should be handled.
-For example, when \lstinline{person} is a proxy and \lstinline{person.age} is called, the \emph{get}-trap is called and receives \lstinline{target}, \lstinline{name}, and \lstinline{receiver} as parameters.
+The behavior of the proxies can be specified in \emph{Traps}, methods to specify how exactly specific access to the proxy should be handled, which are bundled in a \emph{Handler} object that is supplied when creating the proxies.
+Our implementation of version-aware references using proxies is, thus, defined by our specific proxy handlers that provide the necessary delegation behavior through the traps.
+Specific traps are called for specific access. 
+For example, when \lstinline{person} is a proxy and \lstinline{person.age} is called, the \emph{get}-trap is called and receives \lstinline{target}, \lstinline{name}, and \lstinline{receiver} as arguments.
 In our implementation, the \emph{target} parameter is irrelevant as we use proxies as virtual objects, not to be associated with any particular target object.
 The other two parameters, however, are relevant and, for the given example, the \emph{name} would be the string \'age\' and \emph{receiver} would be the proxy for \emph{person} again.
 Our proxy handler's \emph{get}-trap is implemented as indicated by the following code snippet, which is, however, simplified in that it leaves out much of the handling of special cases that are due to the shortcomings of the used implementation of Direct Proxies:
@@ -42,12 +35,14 @@ Our proxy handler's \emph{get}-trap is implemented as indicated by the following
 \iffalse
 \begin{verbatim}\fi
 \begin{code}{}{}
-get: function(.., name, receiver) {
+get: function(dummyTarget, name, receiver) {
 
     var version = this.currentVersion();
     
     // proxy meta information and other special cases..
     if (name === 'isProxy') {
+    // ...
+    if (name === 'proxyTarget') {
     // ...
     
     result = version[name];
@@ -58,20 +53,76 @@ get: function(.., name, receiver) {
 \iffalse
 \end{verbatim}\fi
 
-Besides the \emph{get}-trap, our proxy handler similarly provides behavior for all of the traps and, therefore, all traps delegate to the currently selected version of the object.
-The implemented proxy traps are: \lstinline{set}, \lstinline{apply}, \lstinline{construct}, \lstinline{has}, \lstinline{hasOwn}, \lstinline{defineProperty}, \lstinline{deleteProperty}, \lstinline{getOwnPropertyDescriptor}, \lstinline{getOwnPropertyNames}, \lstinline{getPrototypeOf}, \lstinline{freeze}, \lstinline{seal}, \lstinline{preventExtensions}, \lstinline{isFrozen}, \lstinline{isSealed}, \lstinline{isExtensible}, \lstinline{enumerate}, \lstinline{keys}.
-All these traps fire either when the proxy is accessed with specific JavaScript operators or when it is passed to meta-programming facilities provided by the built-in globals like \emph{Object}\footnote{\url{http://wiki.ecmascript.org/doku.php?id=harmony:direct_proxies\#api}, accessed March 5, 2014}.
-These, however, do not include a trap for the \lstinline{instanceof} operator.
-Instead, as the implementation of the proxies currently requires one particular \emph{target} object even for proxies intended to be virtual objects, the \lstinline{instanceof} operator returns the type of that initial target object.
-The type of an object in JavaScript is, however, defined by an object's prototype chain, which may change.
-That is, versions can have different types, which the \lstinline{instanceof} operator does not refelct.
-Therefore, we transform JavaScript sources before execution and, in particular, the \lstinline{instanceof} operator.
+First, the current version gets determined using the \lstinline{currentVersion()} function, which is explained in \ref{sec:IMPLEMENTATION:3}.
+Then, multiple special cases are handled, including special properties to allow to determine whether a proxy that otherwise behaves transparently actually actually is a proxy or to allow to unwrap a particular version.
+In the simple scenario that we are only reading a property named \lstinline{age} from an object \lstinline{person} all these special conditions fall through.
+Instead, the trap reads the property from the current version and returns the result.
+The result is passed to the \lstinline{ensureProxied()} function to make sure that mutable objects are proxied.
+When a mutable object that is not wrapped in a proxy is passed to this function, the function returns a proxy instead.
+This is necessary as while application-specific objects properties are expected to be proxied, some built-in objects in JavaScript engines refer to their properties directly and not through proxies, but these properties might be required to be proxied to have versions of these properties and to implement other version-specific behavior.
+
+Besides the \emph{get}-trap, our proxy handler similarly provides behavior for all other traps, which also delegate to the currently selected version of the object.
+The following table provides an overview over the implemented proxy traps:
+
+\begin{table}[h]
+\begin{tabular}{|l|l|r|}
+\hline
+get: function(dummyTarget, name, receiver) \\ \hline
+set: function(dummyTarget, name, value, receiver) \\ \hline
+apply: function(dummyTarget, suppliedThisArg, suppliedArgs) \\ \hline
+construct: function(dummyTarget, args) \\ \hline
+has: function(dummyTarget, name) \\ \hline
+hasOwn: function(dummyTarget, name) \\ \hline
+defineProperty: function(dummyTarget, name, desc) \\ \hline
+deleteProperty: function(dummyTarget, name) \\ \hline
+getOwnPropertyNames: function(dummyTarget) \\ \hline
+getPrototypeOf: function(dummyTarget) \\ \hline
+freeze: function(dummyTarget) \\ \hline
+seal: function(dummyTarget) \\ \hline
+preventExtensions: function(dummyTarget) \\ \hline
+isFrozen: function(dummyTarget) \\ \hline
+isSealed: function(dummyTarget) \\ \hline
+isExtensible: function(dummyTarget) \\ \hline
+enumerate: function(dummyTarget) \\ \hline
+keys: function(dummyTarget) \\ \hline
+\end{tabular}
+\end{table}
+
+All these traps fire either when the proxy is accessed with specific JavaScript operators or when it is passed to meta-programming facilities provided by the built-in globals\footnote{\url{http://wiki.ecmascript.org/doku.php?id=harmony:direct_proxies\#api}, accessed March 5, 2014}.
+For example, the \lstinline{preventExtensions}-trap fires when a proxy is passed to the built-in \lstinline{Object.preventExtensions()} function, which prevents new properties from subsequentely being added to the object passed to this function.
+
+There currently is no \lstinline{instanceof} trap to intercept the behavior of the \lstinline{instanceof} operator since the Direct Proxies currently do not provide such a trap.
+The type of an object in JavaScript is, however, defined by an object's prototype chain, which may change at runtime.
+The prototype of an object is also just a property and is, thus, versioned as well, so different versions of an object can have different types.
+However, the \lstinline{instanceof} operator is not trapped and, thus, does not delegate to the current version of the object.
+Therefore, this particular object access needs to be handled by a custom \lstinline{Object.instanceof} function, which is not allowed to alter JavaScript semantics beyond delegating for proxies, and all usage of the \lstinline{instanceof} operator has to be exchanged with using our function instead.
+For this, we transform JavaScript sources before execution.
 These transformations change, for example, \lstinline{anObject instanceof SomeConstructor} to \lstinline{Object.instanceOf(anObject, SomeConstructor)}.
-Besides providing traps, the proxy handler object also holds all versions of the represented object.
-For this, the proxy handler uses an object as dicitionary that associates version identifiers with the different versions of the object.
-This version dictionary is also used by the handler's \lstinline{currentVersion} function, which decides which of the versions should be accessed currently.
+
+The handler object is an ordinary JavaScript object and, thus, can hold arbitrary properties.
+Besides providing traps, our proxy handler objects also hold the versions of the represented object.
+For this, the proxy handler uses an object as dictionary that associates version identifiers with the different versions of the object.
+This version dictionary is used by the handler's \lstinline{currentVersion} function, which decides which of the versions should be accessed currently.
+When a proxy, which is standing for conceptionally one object with all its versions, gets garbage collected, the versions get garbage collected as well.
+
+\todo{proxy implementation workarounds.. rework the following part..} 
+% TODO: experimental + shim implementation, limitation workarounds
+
+The direct proxy specification is preliminary---it already progressed towards the Draft ECMAScript 6\footnote{\url{http://people.mozilla.org/~jorendorff/es6-draft.html}, accessed March 5th, 2014}, which is, however, still a draft and not yet finalized---a few additional workarounds are necessary for our usage of the proxies.
+
+At the time of writing, current versions of both Chrome and Firefox browsers implement deprecated proposals for the proxies and not the Direct Proxies as included in the current draft of the ECMAScript 6 standard.
+The \emph{harmony-reflect} library\footnote{\url{http://github.com/tvcutsem/harmony-reflect}, accessed February 3, 2014, used version 0.0.11}, however, makes the current specification and Direct Proxies available to JavaScript programs in the same recent versions of Chrome and Firefox.
 
 Due to the preliminary status of the proxy implementation, certain workarounds are required to make our proxy-based implementation of version-aware references work.
+
+\todo{dummytarget: rework the following part..} 
+% TODO: dummytarget.. say something about our adaptions to harmony-reflect: no-target flag.. to disable consistency checks of configured properties (frozen..etc)
+
+Instead, as the implementation of the proxies currently requires one particular \emph{target} object even for proxies intended to be virtual objects, the \lstinline{instanceof} operator returns the type of that initial target object.
+
+\todo{unwrap for native code: rework the following part..} 
+% TODO: unwrap for native code
+
 First, certain built-in functions in JavaScript currently do not yet handle proxies very well.
 Some of these functions react with actual errors, while others return wrong results or otherwise do not provide the usual functionality.
 Therefore, these functions need to be provided with actual objects instead of the proxy.
@@ -82,6 +133,7 @@ The \emph{set}-trap unwraps the assigned value when that value is proxied and ge
 In addition to these trap behavior, instances of certain immutable types do not get proxied in our implemention as, for example, strings.
 However, some methods of, for example, string objects also do not handle proxies well and our implementation, therefore, patches all those functions to also unwrap proxies.
 \todo{Second, proxies as prototypes (relation cant be changed.. traps of proto fire when inheriting object is accessed.. problem is Chrome and only the proto case...)... protoProxy property on objects..}
+
 
 
 \section{Returning Proxies For New Objects}
@@ -187,7 +239,7 @@ In addition, UglifyJS also supports Source Maps \todo{footnote with url to Sourc
 
 
 
-\section{Providing Simple Global Versions for Undo and Redo}
+\section{Providing Simple Global Versions for Undo and Redo} \label{sec:IMPLEMENTATION:3}
 
 JS execution: single-threaded, cooperative scheduling 
 
@@ -197,8 +249,27 @@ JS execution: single-threaded, cooperative scheduling
 \end{itemize}
 
 
+However, some additional logic is required to update state that is not part of the runtime state as, for example, the HTML document presented by browsers.
+
+
+The version also may have a predecessor and a successor.
+This way, for undo and redo the current version of the runtime only has to be set on the predecessor or the successor.
+Preserving the predecessor also allows to preserve versions of objects only on writes as, when objects have not changed in versions, the first available previous version of the object can be read.
+
+% Besides this copy-on-write optimization, another optimization would be to not copy objects completely, but to only store changes.
+% this could, for example, also apply prototypical inheritance to have versions that delegate to previous versions and only express the differences between versions.
+
+The association proxies associate all available versions of an object with a version of the runtime.
+
+
+When a proxy is created for an object, the object is preserved as the version of the object that belongs to the current version of the runtime.
+On writes, the proxies copy the latest version of the object and then do the write on the copy instead.
+The copy gets marked with the identifier of the new version of the runtime.
+When the proxies now choose a particular version of the object they stand-in for, they all use the version associated with the current version of the runtime or of a previous versions.
+
+
 \begin{itemize}
-    \item source transformations enabled right after the object versioning code, i.e. the implementation of the proxies and the source transformation, which are both themselves javascript code, gets loaded. by patching the eval that is used for evaluated modules that get loaded with an eval(transformSource.. so modules aren’t versioned, but classes / layers / traits are.. e.g. a class is versioned, so in different versions there might be different class-side state... so, for example, modules are currently in our implementation the roots of the version-aware reference graphs that prevent garbage collection, 
+    \item source transformations enabled right after the object versioning code, i.e. the implementation of the proxies and the source transformation, which are both themselves implemented using ordinary javascript code, gets loaded. by patching the eval that is used for evaluated modules that get loaded with an eval(transformSource.. so modules are not versioned, but classes / layers / traits are.. e.g. a class is versioned, so in different versions there might be different class-side state... so, for example, modules are currently in our implementation the roots of the version-aware reference graphs that prevent garbage collection, 
 \end{itemize}
 
 
@@ -213,7 +284,11 @@ JS execution: single-threaded, cooperative scheduling
 
 
 
+
+
 \section{Limitations of the Implementation}
+
+
 
 
 % \subsection{Limitations for Concurrent JavaScript}
@@ -225,14 +300,11 @@ single-threaded and cooperative scheduling, but setTimeout / setInterval... stop
 % \subsection{Limitations in the Execution Environment}
 
 \begin{itemize}
-    \item only works in recent Chromes, with experimental JavaScript / or Firefox (without adaption)... ECMAScript 6 Direct Proxies not yet fully implemented, not yet stable..
+    \item  the proxies are not fully implemented in all browsers, yet, and some built-in browser tools for developers also do not support them entirely.
+    only works in recent Chromes, with experimental JavaScript / or Firefox (without adaption)... ECMAScript 6 Direct Proxies not yet fully implemented, not yet stable..
 .. own adaptions to the shim library, to bridge the gap between the current version of the shim and information from the Spec draft (pass null for the target of a proxy)... fully virtual objects vs. consistency checks.. adapted library to fit spec draft (pass null as target of a fully virtual object, then no trap-return-value-consistency-with-target checks)
 \end{itemize}
     
-
-
-
-
 
 % \subsection{Usability: Impact on Debugging}
 
@@ -245,3 +317,6 @@ single-threaded and cooperative scheduling, but setTimeout / setInterval... stop
 Besides impacting code execution, the current implementation of object versioning for Lively also  with certain programming tasks.
 Though the version-aware references should be transparent to programmers, in the current proxy-based implementation proxies show during debugging.
 However, the developer tools show the original source code, despite the implementation's transformations of the sources.
+
+Nevertheless, our implementation is functional and integrated with Lively.
+It allows programmers to undo and redo changes and is publicly available\footnote{\url{http://github.com/LivelyKernel/LivelyKernel/commit/858aca8c5ac0f203061823f463fda9b434131636}}.
