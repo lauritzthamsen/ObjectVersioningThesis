@@ -189,7 +189,7 @@ While the return value of that function also potentially needs to be a reference
 Therefore, in the specific case of eval, we proxy eval's result but in addition also pass the string argument of \lstinline{eval()} through the source transformations before actually providing it for evaluation.
 
 
-\subsection{Versions of the Lively Runtime} % how the proxies / version-aware references now allow to switch and create versions of the runtime.
+\subsection{Versions of the Lively Runtime} \label{subsec:APPROACH:2:3} % how the proxies / version-aware references now allow to switch and create versions of the runtime.
 
 Proxies hold multiple versions of an object.
 They can transparently delegate access to one particular among many versions.

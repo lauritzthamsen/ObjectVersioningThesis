@@ -1,37 +1,42 @@
+% add how and what we tested and that we tested in Chrome to evaluate functionality their as Lively runs best in Chrome..
+
 \chapter{Discussion} \label{chapter:DISCUSSION}
 
-We tested the implementation with two JavaScript benchmark suites and our target programming system, the Lively Kernel.
-The proxies, which implement version-aware references, behave like the respective versions of objects in all situations exhibited.
-The linear global runtime versions allows to re-establish previous development states in Lively.
+We tested the implementation of version-aware references with two JavaScript benchmark suites and with running the target programming system, the Lively Kernel.
+The proxies, which implement version-aware references, behave like the respective versions of objects in the situations exhibited.
+Further, the linear global runtime versions allows to re-establish previous development states in Lively.
 That is, all references to relevant objects appear to be version-aware references in the tested situations.
 
 The memory overhead of our implementation appears to be practical, while the execution overhead of the current implementation does not.
 The measured execution overhead is in the range of three orders of magnitude for popular JavaScript benchmarks and typical user interactions in Lively.
-Direct comparisons of just the version-aware references and direct references show slow downs of four orders of magnitude.
+Direct comparisons of just the version-aware references and direct references in a microbenchmark even show slow downs of four orders of magnitude.
 In analyzing these results, we gained the impression that only one order of magnitude is due to the specific proxy behavior, while most of the overhead can be ascribed to the Direct Proxies as currently available in the Chrome browser.
-In fact, a comparable indirection can be implemented considerably faster with ordinary JavaScript and further source transformations, promising more practical implementations.
+In fact, a comparable indirection can be implemented considerably faster with ordinary JavaScript.
+Using such a custom JavaScript indirection and further source transformations, thus, promises a practical implementation.
 
-All measurements were done on a Macbook Air, with an 2 GHz Intel Core i7, 8 GB main memory, using Mac OS X 10.9.1 and the stable Chrome release 32.0.1700.107.
-All presented results are averages over three runs.
+All measurements were done on a Macbook Air, with an 2 GHz Intel Core i7, 8 GB main memory, using Mac OS X 10.9.1 and the stable Chrome release 32.0.1700.107, on February 18, 2014.
+All presented results are averages over five runs.
 
 
 \section{Functionality: Undo and Redo for the Lively Kernel}
 
-\todo{should we add a link to a published demo screencast for this? or screenshots? and describe the tested undo/redo scenarios a bit more..?}
+\todo{should we add a link to a published demo screencast for this? and describe the tested undo/redo scenarios a bit more..?}
 
-Besides testing the behavior of our proxies and our source transformations with isolated test cases, we also used a benchmark suite to check our implementation.
-In particular, the system works for all benchmarks from the Octance benchmark suite\footnote{\url{http://code.google.com/p/octane-benchmark/}, accessed February 3, 2014, at version 26}, which is also used to evaluate v8, the JavaScript engine used for Google's Chrome browser.
-For each individual benchmark, we transform the source code using our source transformations and, thereby, execute the benchmark code with version-aware references.
-All benchmarks run without errors and return the same results as when executed without any source transformations.
-That is, at least for these tests, our source transformations produce working source code and our proxy-based version-aware references behave as intended where used.
-For the questions whether version-aware references are used consistently for all mutable objects are and whether the version-aware references correctly delegate to one particular version---all in all, whether the source transformations and proxies allow to preserve and re-establish versions of Lively's JavaScript runtime---we tested the simple linear runtime versioning explained in \todo{3.2.3..}:
-When we pass Lively's source code modules to our source transformations during the bootstrap, we were able to preserve and re-establish the particular runtime state of multiple example scenarios, including the state of graphical applications of, for example, text editors and other developer tools.
+Besides testing the behavior of our proxies and our source transformations in isolated test cases that cover important JavaScript language features and syntax, we also used a benchmark suite.
+First, to test whether our source transformations yield syntactically correct JavaScript code for the benchmarks.
+Second, to test whether the proxy-based implementation of version-aware references, inserted by the source transformations, allows to run the benchmarks without errors and with the same results as when running the benchmarks without our implementation.
+For these tests, we used the Octance benchmark suite\footnote{\url{http://code.google.com/p/octane-benchmark/}, accessed February 3, 2014, at version 26}, which is also used to evaluate \emph{v8}, the JavaScript engine that the Chrome browser uses.
+All benchmarks in this suite run without errors and return the same results as when executed without any source transformations.
+That is, at least for these tests, our source transformations produce working source code and our proxy-based version-aware references behave as the objects they refer to.
 
-In summary, at least for the scenarios we tested, our approach and our proxy-based JavaScript implementation of it provide fine-grained object versioning for the Lively Kernel.
-
-\todo{we tested the functionality in Chrome as Lively runs best in Chrome..}
-
-
+Given these results, we further tested whether the version-aware references are also used consistently for all mutable objects and whether the version-aware references correctly delegate to particular versions.
+For this, we tested the simple linear global undo/redo that we built for Lively, as explained in \ref{subsec:APPROACH:2:3}, through various simple examples and with this, whether the source transformations and proxies together allow to preserve and re-establish versions of Lively's JavaScript runtime in practice.
+Here, we were able to preserve and re-establish the particular runtime state of multiple example scenarios, including the state of simple morphs, morph compositions, and more complicated graphical applications as, for example, text editors and developer tools.
+While most of the tested functionality of the Lively---including the entire bootstrap process, rendering graphical objects, loading parts from Lively's Parts Bin, and using Lively's halo controls---work as expected, certain specific parts are not yet working correctly or even yield errors.
+The remaining issues here are expected to be problems related to built-in functions that do not handle proxies correctly.
+Our implementation already unwraps proxies for many built-in functions, as explained in \ref{sec:IMPLEMENTATION:1}, but the configuration appears to not cover all problematic built-in functions, yet.
+However, the used proxies are currently an experimental JavaScript feature in Chrome, not yet fully supported, and we expect these issues not to be problems once the proxies get fully supported by JavaScript engines.
+\emph{In summary}, except for a few known cases, our proxy-based JavaScript implementation of our approach allows to practically preserve and re-establish the entire runtime state of the Lively Kernel.
 
 
 \section{Practicability: Impact on Performance}
@@ -56,7 +61,7 @@ However, while the system creates proxies for most objects, it does not use prox
 
 In contrast to the memory overhead for the version-aware references, the memory consumption for different versions of the runtime does not increase linearly with the number of proxied objects or even with the number of versions:
 Our implementation does not copy all objects for each version, but only creates copies when objects change between versions, effectively storing only diffs on the granularity of objects.
-Therefore, the memory required for new versions of the runtime depends on how many objects change and how big those objects are. 
+Therefore, the memory required for new versions of the runtime depends on how many objects change and how big those objects are.
 It is, subsequentely, not possible to present this memory overhead independent of concrete usage scenarios.
 
 
@@ -118,4 +123,4 @@ In fact, such an indirection would only take twice the time to read a property f
 All this suggests that the performance of EcmaScript 6 Direct Proxies in Chrome might improve in the future.
 At the same time, as suggested in Section \todo{future work, source transformation section}, we might also decide to base our version-aware references on source transformations and custom indirections instead of proxies altogether.
 
-\todo{another performance related question to discuss would be whether preserving versions of the runtime by copying objects on write also impedes the responsiveness of the Lively tools much..}
+\todo{another performance related question to discuss would be whether copy-on-write on changes in new versions impedes the responsiveness of the Lively tools much..}
