@@ -94,61 +94,61 @@ This way, programmers could also always undo every actions, regardless of whethe
 Using user actions as granularity also allows developers to undo and redo the changes associated with specific and rememberable actions.
 The resulting histories can be fine-grained as for each version only changed objects need to be copied.
 Further, creating many versions is not expected to interrupt the programmers workflow as the execution costs of preserving a version is spread accross changes: Instead of copying all objects when a version is preserved, objects are only copied when and in the moment they are subsequentely changed.
-In general, the approach distributes the cost for object versioning: besides incrementally saving a version, switching the active version is also not interruptive as the version-aware references resolve to versions dynamically.
-Switching the active version is also inexpensive due to the fact that all versions of objects and, thus, all versions of the runtime are kept in the application memory.
+In general, the approach distributes the cost for object versioning: besides incrementally saving a version, switching the active version is also not interruptive as the version-aware references resolve to versions dynamically and all versions reside as objects in application memory.
 
 
 \section{Object Versioning for the Lively Kernel} \label{sec:APPROACH:2}
 
-Our approach for providing object versioning in JavaScript, built in and for the Lively Kernel, uses proxies to implement version-aware references.
-Instead of accessing mutable objects directly, proxies are accessed.
-In fact, our implementation exchanges ordinary references to objects with references to proxies, which then manage and delegate to different versions of the objects.
-This exchange is accomplished by returning proxies whenever a new object is created.
-For this, sources are transformed to proxy object literals and any constructor functions.
-Further, the proxies return proxies when they are used as constructors.
-Also, through proxy behavior and some global versioning management, we provide basic recovery support---simple undo and redo---for the single-threaded Lively Kernel programming system.
+For a concrete solution in JavaScript and for the Lively Kernel, we propose to use proxies for version-aware references.
+These versioning proxies manage the different versions of an object and can delegate object access to one of these.
+The references that usually refer to objects then need to refer to the proxies for these objects instead. 
+This is accomplished by returning proxies directly when an object is created.
+For this, we transform sources to proxy object literals and constructor functions.
+Proxies for functions then return objects always proxied when used as constructors or otherwise to create new objects.
+When these proxy-based version-aware references can know the versions of an object and are used consistently to access mutable objects, the proxies only need to know which versions to choose at a given moment and when to copy current versions to preserve particular runtime states.
+For this, the runtime is enhanced with a global version identifier representing the current version, which the proxies use to annotate newly proxied objects or new versions of objects with and also to choose the correspondingly annotated versions when accessing proxies.
+This then is enough to provide a simple undo/redo for Lively.
 
 
 \subsection{Proxies as Version-aware References}
 
 Proxies allow a language-level implementation of alternative references in JavaScript:
 Without requiring adaptions to the virtual execution engines, proxies can be inserted to stand-in for objects---so references that usually point directly to objects point to proxies instead---and these proxies can provide versioning information and behavior.
-These proxies are then an alternative to using ordinary references directly to point to objects.
-That is, some objects can, potentially, still be referred to directly, while state that should be preserved should be proxied.
-In our solution for Lively, nearly all objects are only accessed through proxies, except for some particular \emph{root objects} that are not required to be versioned but do refer to other objects via version-aware references.
+These proxies are, thus, an alternative to using ordinary references to directly refer to objects.
+That is, some objects can, potentially, still be referred to directly, while objects that should be versioned should be accessed only though proxies.
+In our solution for Lively, nearly all objects are only accessed through proxies, except for some particular \emph{root objects} that are not required to be versioned but potentially do refer to other objects via version-aware references.
 
-The proxies required for our solution are virtual-object proxies, not associated especially with a particular version of an object.
-Instead when such a fully virtual object proxy is created for an object, the original object is just taken as one version, the inital version.
-The proxies then need to be able to intercept and arbitrarily handle all kinds of access transparently.
+The proxies required for our solution are virtual-object proxies, proxies that can intercept and response arbitrarily on access.
+Such proxies are usually not associated with a particular object or, in our case, version of an object.
+When such a fully virtual object proxy is created for an exisiting or new object, the object needs to be just one among potentially many different versions of an object that the proxy might need to forward access to.
+The proxies need to be able to intercept and arbitrarily handle all kinds of access transparently.
 In fact, the proxies need to fulfill at least three responsibilities:
 \begin{enumerate}
     \item They need to know which versions are available for a particular object.
-    \item They need to choose one particular version among all available dynamically according to context information.
+    \item They need to choose one particular version among all available dynamically using context information.
     \item They need to delegate object access transparently to a chosen version.
 \end{enumerate}
 
-In our solution, we used the proxy objects also to hold all versions of the object they stand-in for.
+In our solution, we used the proxies also to hold all versions of the object they stand-in for.
 This way, when the proxy is no longer reachable and, thus, eventually garbage collected, all versions of the objects are also collected.
-For example, in the following code snippet, there would temporarily exist a version-aware reference---a proxy---connecting the \emph{Person} object to an \emph{Address} object, but the reference gets deleted before a version of the person is preserved.
-Thus, nothing prevents the garbage collector from claiming the proxy for the address object right with the single existing version of it.
+For example, in the following code snippet, there would temporarily exist a version-aware reference---a proxy---connecting the \emph{Person} object to an \emph{Address} object, but the reference gets deleted before a version of the person is preserved:
+
+
 \iffalse
 \begin{verbatim}\fi
 \begin{code}[lst:example]{}{float,numbers=left}
     var person = {name: "Lauritz"};
-    \\ preserve version
- person.currentAddress = {street: "Friedrichstrasse",
+    \\ preserve first version
+    person.currentAddress = {street: "Friedrichstrasse",
                          number: "112b",
                          city: "Berlin"};
     delete person.currentAddress;
-    \\ preserve version
+    \\ preserve second version
 \end{code}
 \iffalse
 \end{verbatim}\fi
-% person.currentAddress = {street: % "Friedrichstraße",
-%                         number: % "112b",
-%                         city: % "Berlin"};
-This way, starting from each root object, the version-aware references span a graph with potentially multiple available versions for each object, required to follow different paths that correspond to different versions of the graph.
 
+That is, the address object is not required to re-establish either \emph{Version 1} or \emph{Version 2} and, thus, nothing should prevent the garbage collector from claiming the proxy for the address object and the address object itself.
 
 
 \subsection{Proxies For All Mutable Objects}
@@ -156,11 +156,11 @@ This way, starting from each root object, the version-aware references span a gr
 % This ensures that references to proxies are used consistently instead of direct references to objects and that such proxies are used for every object.
 
 When proxies are supposed to provide a kind of alternative references, ordinary references that usually point directly to an object now need to point to an object's proxy instead, which then can refer to one or multiple versions of the object.
-To have all references refer to proxies instead of actual objects, proxies are created and returned for each new object.
+To have all references refer to proxies instead of actual objects, proxies are created and returned for each new object when objects are created.
 The only reference to the actual object---or, more precisely, the initial version of an object---remains inside the proxy, while the reference to the proxy gets passed around instead.
-Therefore, all access goes through the proxy and it can ensure that a particular version of an object is used.
-Also, all references that would usually point to the same object now point to the same proxy, which, thereby, provides object identity.
-Checks that would usually compare the object with potentially other objects now compare the proxy with potentially other proxies.
+Therefore, all access goes through the proxy and the proxy forwards the access to a particular version of an object.
+Also, all references that would usually point to the same object now point to the same proxy, so that proxies provide object identity.
+Checks that would usually compare an object with other objects now compare a proxy with other proxies.
 
 For this solution, all expressions that create new objects need to return proxies for those instead.
 In JavaScript, there are three different ways to create an object: 
@@ -170,33 +170,37 @@ In JavaScript, there are three different ways to create an object:
     \item calling specific built-in functions: e.g. \lstinline|Object.create(prototype, {age: 12})|
 \end{itemize}
 
-We use source transformations to wrap literal expressions consistently into a \emph{proxy} function.
-That function takes an object as parameter and returns a proxy for that object.
-Besides objects arrays and functions are also mutable objects in JavaScript.
+We use source transformations to wrap literal expressions consistently into a \emph{proxyFor()} function.
+That function takes an object as parameter and returns a proxy for it.
+Besides objects, arrays and functions are also mutable objects in JavaScript.
 Therefore, we wrap the literal forms of objects, arrays, and functions.
 For exampe, \lstinline{[aPerson, aCompany]} becomes \lstinline{proxyFor([aPerson, aCompany])}.
 
 In JavaScript, all functions can be constructors and create new objects when called with the \emph{new} operator.
-Functions expressed as function literals already get proxied with the previous source transformations and the proxies we use for version-aware references intercept different object access differently.
-That is, proxies for functions can have constructor behavior that always returns proxies for newly created objects.
+Functions expressed as function literals already get proxied with the previous source transformations and the proxies we use for version-aware references intercept different object access differently, so proxies for functions can have a specific constructor-behavior that always returns proxies for newly created objects.
 
 For the functions that create new objects but are built-in and, thus, are not created from literal form, the transformation of literals and proxy behavior is not enough.
 One category of such built-in functions are built-in constructors.
-For example, the built-in data types like objects and arrays can be created by calling \lstinline{new Object()} or \lstinline{new Array()}.
-We transform these built-in constructor functions explicity, wrapping each into the proxying function.
+For example, the built-in data types like objects and arrays can be created by evaluating \lstinline{new Object()} and \lstinline{new Array()}, but also by evaluating just \lstinline{Object()} or \lstinline{Array()}.
+We transform these built-in constructor functions explicity, wrapping each into the proxying function, and also specify the proxies' apply-behavior to also always return proxies.
 Besides these built-in constructors, there are also very specific built-in functions, that we transform separately to specific alternatives.
-One example for such functions is the global eval function.
-While the return value of that function also potentially needs to be a reference to a proxy instead of an ordinary object, eval takes arbitrary code which might express an arbitrary object structure and which might require multiple references to point to proxies.
-Therefore, in the specific case of eval, we proxy eval's result, but also let the string argument to the eval function pass through the source transformations beforehand.
+One example for such functions is the global \lstinline{eval()} function.
+While the return value of that function also potentially needs to be a reference to a proxy instead of an ordinary object, eval takes arbitrary code which might express an arbitrary object structure and which might, therefore, require multiple references to go through proxies.
+Therefore, in the specific case of eval, we proxy eval's result but in addition also pass the string argument of \lstinline{eval()} through the source transformations before actually providing it for evaluation.
+
 
 \subsection{Versions of the Lively Runtime} % how the proxies / version-aware references now allow to switch and create versions of the runtime.
 
 Proxies hold multiple versions of an object.
-They can transparently delegate access to one particular amony many versions.
+They can transparently delegate access to one particular among many versions.
 They are also referred to consistently instead of the object.
 This allows to have and use particular versions of particular objects.
-However, to enable programmers to undo and redo arbitrary changes to the entire development state, our solution needs to preserve and choose versions of all objects in a coordinated way and, thereby, be able to establish particular versions of the entire runtime instead of single objects.
-Our solution to this is declaring versions of the runtime and annotating versions of objects with the version of the runtime they are part of.
+However, to enable programmers to undo and redo arbitrary changes to the entire development state, our solution needs to preserve and choose versions of all objects in a coordinated way and be able to establish particular versions of the entire runtime instead of just of single objects.
+Our solution to this is declaring versions of the runtime and, then, annotating versions of objects with the version of the runtime they are part of.
+
+
+\todo{continue here: write this subsection.. and figure out what details to explain here and which as part of the implementation...}
+
 
 These information are used to decide to which particular versions of objects proxies are to delegate at any moment.
 Given which version of the runtime is currently active, the proxies can choose the corresponding version of the object.
