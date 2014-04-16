@@ -37,14 +37,16 @@ In general, programming at runtime, prototype-based programming, and direct mani
 \section{The Lively Kernel}
 
 Lively, also referred to as the \emph{Lively Kernel}, is a browser-based programming system in the tradition of both Smalltalk and Self.
-It incorporates tools and techniques to be completely self-sufficient.
-Development in Lively happens at runtime, and programmers can create and save new version of the Lively Kernel itself.
+Development in Lively happens at runtime and it incorporates tools and techniques to be completely self-sufficient.
+Thus, pogrammers can create versions of the Lively Kernel with the Lively Kernel.
 
 Lively is based in the JavaScript programming language.
 Therefore, the system and applications are expressed in a prototype-based object-oriented language that also provides prototypical inheritance.
-At the same time, Lively also provides a class system for JavaScript and considerable parts of the system itself are expressed using classes.
+At the same time, Lively also provides a class system for JavaScript and considerable parts of the system itself are expressed using this class system.
 One of these parts expressed through classes is an implementation of Morphic~\cite{Maloney1995Mor}, a framework for developing graphical applications.
-Programmers can alter graphical objects of this framework, which are called \emph{Morphs}, using direct manipulation and through a number of tools.
+Programmers can alter graphical objects of this framework, which are called \emph{Morphs}, using direct manipulation and through a number of dedicated tools.
+While the framework and other parts of the core system are expressed using classes, these morphs are an example of objects that are often edited directly and not through adapting existing or creating new classes.
+Though each morph does have a class, it can have not only its own state, but object-specific behavior---thus Lively effectively mixes the prototype-based and the class-based flavors of object-oriented programming.
 
 \begin{figure}[h]
     \centering
@@ -53,17 +55,18 @@ Programmers can alter graphical objects of this framework, which are called \emp
     \label{fig:Halos}
 \end{figure}
 
-Programmers can change the position of morph objects by dragging and the composition by an alternative dragging, which is called \emph{grabbing}.
-A composition of morphs is also contained in a morph---a morph with submorphs---and this way, morphs are not limited to to be basic shapes or simple widgets, but can be the entire user interface of arbitrary applications.
-Lively further provides a set of manipulation tools, called \emph{Halos}, as shown in Figure~\ref{fig:Halos}, that developers can bring up directly at morphs.
+Programmers can change the position of morphs by dragging and the composition by an alternative dragging, which is called \emph{grabbing}.
+That is, the composition of morphs is also part of Morphic and a morph can have submorphs.
+This way, morphs are not limited to to be basic shapes or simple widgets, but can be entire user interfaces of arbitrary applications.
+Lively provides a set of manipulation tools, called \emph{Halos}, as shown in Figure~\ref{fig:Halos}, that developers can bring up directly at morphs.
 The different halo buttons allow, for example, to resize~\textcircled{R}, rotate~\textcircled{T}, and copy~\textcircled{C} morphs.
-The copy operation does not establish a prototypical inheritance relationship between the copy and the original, but copies entire state, including of which class the copy is an instance.
+The copy operation does not establish a prototypical inheritance relationship between the copy and the original, but instead copies the entire state, including of which class the copy is an instance.
 Other halo buttons open specific tools, which are shown in Figure~\ref{fig:LivelyTools} to further manipulate the morphs:
 
 \begin{enumerate}
-    \item The \emph{Inspector}~\textcircled{1} presents all the values that make up a morph's state. It also has a small code pane at the bottom, intended to be used to manipulate the state programmatically.
+    \item The \emph{Inspector}~\textcircled{1} presents all the values that make up a morph's state. It also has a small code pane at the bottom, which is intended to be used to manipulate the state programmatically.
     \item The \emph{Style Editor}~\textcircled{2} allows to manipulate certain aspects of a morph's visual appearance. Programmers can use it to, for example, change a morphs color, border width, or the layout of its submorphs.
-    \item The \emph{Object Editor}~\textcircled{3} is a tool dedicated to the object-specific behavior of morphs, which are called \emph{scripts} in Lively. It shows all scripts of a particular morph, but also can add and adapt scripts to that.
+    \item The \emph{Object Editor}~\textcircled{3} is a tool dedicated to the object-specific behavior of morphs, which are called \emph{scripts} in Lively. It shows all scripts of a particular morph, but also can add and adapt scripts.
 \end{enumerate}
 
 \begin{figure}[h]
@@ -80,10 +83,10 @@ Other halo buttons open specific tools, which are shown in Figure~\ref{fig:Livel
     \label{fig:PartsBin}
 \end{figure}
 
-Another tool related to morphs, though not available from a halo button, is Lively's \emph{Parts Bin}~\cite{Lincke2012LPC}, an object repository to save and load specific versions of morphs.
-Morphs saved to the Parts Bin are called \emph{parts} to emphasize the ability to reuse any one of the morphic implementations stored in the Parts Bin in another application.
-Figure~\ref{fig:PartsBin} shows the Parts Bin and, in particular, a group of tools that the Parts Bin contains, which also includes both the Style Editor and the Object Editor.
-Both these tools are examples for graphical applications developed from available parts, with their logic expressed in scripts, and saved to the Parts Bin.
+Another tool related to morphs, though not available from a halo button, is Lively's \emph{Parts Bin}~\cite{Lincke2012LPC}, an object repository to commit and load specific versions of morphs.
+Morphs saved to the Parts Bin are called \emph{parts} to emphasize the ability to reuse any one of the morphic applications stored in the Parts Bin for other applications.
+Figure~\ref{fig:PartsBin} shows the Parts Bin and, in particular, a group of tools that the Parts Bin contains, which includes both the Style Editor and the Object Editor.
+Both these tools are examples for graphical applications developed from available parts, with their logic expressed in scripts, and available to users through the Parts Bin.
 
 
 \section{CoExist}
