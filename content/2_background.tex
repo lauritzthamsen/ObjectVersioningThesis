@@ -91,11 +91,11 @@ Both these tools are examples for graphical applications developed from availabl
 
 \section{CoExist}
 
-CoExist\footnote{\url{http://www.bastiansteinert.org/coexist.html}, accessed February 28, 2014} supports programmers through automatic and continuous versioning.
-The IDE extension preserves each indermediate development state with its respective source code and associated runtime information.
+The CoExist system\footnote{\url{http://www.bastiansteinert.org/coexist.html}, accessed February 28, 2014} and approach supports programmers through automatic and continuous versioning.
+CoExist preserves each indermediate development state with its respective source code and associated runtime information.
 The states are recorded as separate version in their original order and along with change summaries, associated test results, and screenshots of the development environment.
 Programmers can review their development sessions, inspect the impact each individual change had on test cases, and recover previous development states.
-They can completely withdraw withdraw changes or only re-visit a previous state to recover information as, for example, the source code for a specific method.
+They can completely withdraw withdraw changes or only re-visit a previous state to recover partial information as, for example, the source code for a specific method.
 
 \begin{figure}[h]
     \centering
@@ -105,51 +105,22 @@ They can completely withdraw withdraw changes or only re-visit a previous state 
 \end{figure}
 
 CoExist provides tools to help programmers benefit from the preserved development histories, shown in Figure~\ref{fig:CoExist}.
-CoExist adds a timeline tool to the bottom of the development environment.
-It presents each intermediate version through a small rectangle that indicates the impact on test cases: the bottom of the rectangle shows how many test cases passed and failed totally, while the top half highlights only test results that changed for this version.
-Hovering above such a version rectangle also indicates what has changed---which method of which class.
+A timeline tool at the bottom of the development environment presents each intermediate version through a small rectangle that indicates the impact on test cases: the bottom of the rectangle shows how many test cases passed and failed absolutely, while the top half highlights only test results affected by the changes of this particular version.
+Hovering above such a version rectangle indicates what exactly changed in terms of methods and classes.
 Clicking a version provides access to its source code and more information on test results, but also allows to re-establish the version.
-Besides this timeline of all changes, a Version Browser tool shows changes to different modules separately.
-It presents the same information on test cases, but in addition offers diffs and how the development environment appeared in each version.
-The two tools support programmers in re-tracing their steps, understanding the impact of their actions in retrospect, and in recovering information from previous development states.
+Besides this timeline of versions, a Version Browser tool shows changes in a different structure, also chronological, but separately for different source code modules.
+It presents the same information on test cases, but in addition also offers diffs and how the development environment appeared visually in each version through providing screenshots.
+The two tools support programmers in re-tracing their steps, understanding the impact of their actions, and in recovering information from previous development states.
 
-This way, CoExist is intented to reduce the effort that programmers usually put into recovery, either into actual compensational actions or into precautionary actions.
-To re-establish a previous development state---because of, for example, unintentionally introduced errors, decreased performance, or harmed design---programmers can manually repair improperly changed code or load a previously commited version of the sources.
-Programmers can preserve specific versions to be able to easily withdraw changes, and, thus, reduce the cost of recovery by anticipating recovery needs beforehand.
+CoExist is intented to reduce the effort that programmers usually put into recovery, either into actual compensational actions or into precautionary actions, and, thereby, also to help programmers to overcome any aversions to try new ideas.
+To re-establish a previous development state---because of, for example, unintentionally introduced errors, decreased performance, or harmed program design---programmers can manually repair improperly changed code or load a previously commited version of the sources.
+Programmers can preserve specific versions to be able to easily withdraw changes, and, thereby, reduce the cost of recovery by anticipating recovery needs beforehand.
 However, preserving versions manually is also an effort and especially so when revision histories are expected to be well-documented and immediately useful.
-For that, programmers need to assemble changes to meaningful increments, test these, and write version descriptions.
-Testing each one directly also helps to find introduced problems early on intead of analyzing longer lists of changes that all could have introduced a problem.
+For that, programmers need to assemble changes to meaningful increments, test these, and write helpful commit messages.
+Testing each one directly is also advocated as it can help to find introduced problems directly intead of later analyzing long lists of changes that all could potentially have introduced a problem.
+With CoExist, developers do not have to take these explicit precautionary actions, but still have access to a fine-grained history of development states and even test results for each individual state.
+Instead of worrying about negative consequences when trying ideas, programmers can focus on their actual programming tasks and rely on CoExist to help in case any action unexpectedly needs to be undone.
 
-With CoExist, developers do not have to take explicit precautionary actions, but still have access to a fine-grained history of development states and even to test results for each individual state.
-This is intended to encourage programmers to try ideas without worrying about negative consequences.
-They can focus on implementing new ideas and their actual programming tasks, and rely on CoExist to help in case any action unexpectedly needs to be undone.
+% \todo{Structured: not just like auto-save (google docs), but structured: associated with particular actions and the static structure of programs... class>>method (add/delete/modify).. and also cross-document}
 
-
-\todo{Structured: not just like auto-save (google docs), but structured: associated with particular actions and the static structure of programs... class>>method (add/delete/modify).. and also cross-document}
-
-
-% In contrast to having developers manually preserve particular versions of their code and run the appropriate set of test cases for such, CoExist provides automatic recovery support.
-% Every change made to source code yields a version for which CoExist also captures test results and a screenshot of the development state.
-% Thus, developers have access to a fine-grained and rich history of development states when they need to recover previous situations.
-% 
-% CoExist allows developers to recover previous versions of the code without having to take precautionary actions manually.
-% For each of those versions CoExists then automatically also captures test results and screenshots of the development environment, helping developers in finding relevant versions when recovery is necessary.
-% 
-% % Developers do not have to manually create commits or run tests for development states that seem important.
-% 
 % % sometimes easier to make the changes and experience the results than to anticipate the changes beforehand...)… 
-% automatic and continuous versioning of the system code whenever code changes, whenever a user interacts/saves/changes code.
-% allows to concentrate on implementing ideas… while a fine-grained versioning history, which can also be enriched with test results and screenshots to support finding relevant versions, is there for every change that turns out inappropriate.. programmers can always just make changes and concentrate fully on implementing them without too much thought and effort going into precautionary actions… because the coexist tool / tool support records all changes and their effect on test case outcomes… 
-
-
-
-% This is supposed to reduce both the time spent on and the errors made in manually precautionary actions.
-% Without CoExist, developers explicitly save explicit versions of the code and write short summaries, often in form of commit messages.
-% Developers also run tests to understand the impact of their changes.
-% While running all tests of the system can take a long time, deciding which takes are helpful in evaluating the recent changes also is often a difficult decision.
-% As those two tasks are, thus, cumbersome, developers often do not do both for every single change, but aim to save interesting versions, creating a new version for every meaningful increment.
-% However, estimating which changes might be risky and, thus, 
-% 
-% planning and deciding which groups of changes also pose an effort to developers, who need to estimate which 
-
-% motivation for CoExist: explicit precautionary actions like saving versions is laborious and/or error-prone. saving each intermediate version is not practical (writing up some version comment, running all necessary tests, in the case of lively saving all objects takes a moment, often also no distinction between a private temporary snapshot and a meaningful increment that’s to be published and shared), while saving particular important versions is error-prone (not clear which version to save, risk assessment very difficult… reasons for recovery needs mostly unanticipated… recovery often necessary because of a mistake, because something wasn’t considered or anticipated… this risk assessment whether a change will be an actual increment is difficult… 
