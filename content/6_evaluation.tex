@@ -14,7 +14,10 @@ In fact, a comparable indirection can be implemented considerably faster with or
 All measurements were done on a Macbook Air, with an 2 GHz Intel Core i7, 8 GB main memory, using Mac OS X 10.9.1 and the stable Chrome release 32.0.1700.107.
 All presented results are averages over three runs.
 
+
 \section{Functionality: Undo and Redo for the Lively Kernel}
+
+\todo{should we add a link to a published demo screencast for this? or screenshots? and describe the tested undo/redo scenarios a bit more..?}
 
 Besides testing the behavior of our proxies and our source transformations with isolated test cases, we also used a benchmark suite to check our implementation.
 In particular, the system works for all benchmarks from the Octance benchmark suite\footnote{\url{http://code.google.com/p/octane-benchmark/}, accessed February 3, 2014, at version 26}, which is also used to evaluate v8, the JavaScript engine used for Google's Chrome browser.
@@ -26,9 +29,10 @@ When we pass Lively's source code modules to our source transformations during t
 
 In summary, at least for the scenarios we tested, our approach and our proxy-based JavaScript implementation of it provide fine-grained object versioning for the Lively Kernel.
 
-\todo{should we add a link to a published demo screencast for this? or screenshots? and describe the tested undo/redo scenarios a bit more..?}
+\todo{we tested the functionality in Chrome as Lively runs best in Chrome..}
 
-\todo{tested in CHROME.. as Lively runs best in Chrome..}
+
+
 
 \section{Practicability: Impact on Performance}
 
@@ -75,6 +79,8 @@ On average the slowdown is 187.5 times.
     \caption{Execution overhead for proxy-based version-aware references in 100\% overhead compared to ordinary JavaScript references.}
     \label{fig:ExecutionOverhead}
 \end{figure}
+
+\todo{maybe show the execution overhead differently as it might be hard to understand that the unit is 100\% overhead and that like 2 means twice the time is necessary.. and that, therefore, each bar compares with-versioning to original performance..}
 
 While object versioning could be used to implement application-specific undo and redo, it is primalary itented to support development and similar explorative tasks.
 That could, conceivably, be an argument for providing object versioning only during development and not when programs should run at full speed.
