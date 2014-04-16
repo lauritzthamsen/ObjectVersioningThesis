@@ -3,11 +3,8 @@
 In Lively, programmers can create applications by manipulating and composing simpler parts.
 These graphical objects can be edited using a variety of direct manipulation tools.
 When programmers do edit these parts directly, they often see the effects of their actions immediately.
-However, not all effects are positive and sometimes programmers want to undo recent changes or recover a previous situation.
-
-In this chapter, the development of parts in Lively and potentially resulting recovery needs are shown by example.
-The example focuses on adding a new functionality to an existing tool in Lively.
-
+However, not all these effects are improvements and sometimes programmers want to undo recent changes and recover previous situations.
+The development of parts in Lively and conceivable recovery needs are shown by the example of adding a new functionality to an existing tool in Lively.
 
 
 \section{Part Development In Lively}
@@ -27,7 +24,6 @@ Besides manipulating the state of the button, image, and editor objects---using 
 First, we can add scripts to the button that while the mouse cursor hovers above it, a translucent rectangle is layed over the current target, highlighting the morph that is currently being edited.
 
 \todo{add screenshots to the magnifier example, }
-
 
 
 \section{Recovery Needs When Developing Parts}
@@ -50,33 +46,5 @@ While such code evaluation might help to understand the effects of particular co
 
 In essence, there are many situations in which developers might want to undo some of their operations.
 They might want to recover a previous development state or just withdraw particular changes to particular objects.
-
 Developers can save particular versions of objects and those can be restored later-on by, for example, using Lively's Parts Bin.
 However, explicitly saving particular versions of objects has several drawbacks.
-
-
-% have to remember to make commits
-% 
-% commits take some effort: combining changes into meaningful increments, making sure the current version passes test cases, where test cases also take time, writing helpful commit messages
-% 
-% for this reason, not a commit for every single change, but deciding when to commit, assessing the risks of changes and planning changes to a point where grouping changes into consistent steps, which each should be commited separately, is also time-consuming and error-prone
-% 
-% explicitly creating versions as precautionary actions / for potential recovery needs, when ideas work out less well as expected, seems laborious and error-prone.
-% publishing versions explicitly for sharing and documentation, however, is a different topic.
-
-
-
-
-% \section{Continuous Object Versioning for the Lively Kernel}
-% 
-% coexist provides convenient recovery automatically, but recognizes and tracks only changes to source code, not to the state of objects, but automatically having a fine-grained history of the runtime would be greeeeaaaat 
-% 
-% versioning objects.. multiple versions of the objects of the runtime, with the ability to establish each of those versions of the runtime functionally
-% 
-% % the usage we intend for the object versioning: 
-% but implicit versioning of the object state, not on every change to object but corresponding to user interactions, manipulating user interaction.. saving scripts, directly manipulating state through halo buttons or drag and drop composition, evaluating do-it snippets
-% fine-grained object versioning as foundation for continuous object versioning
-% 
-% state of the complete runtime, including state of the runtime that is not persisted (global variables.. config..)
-% 
-% % goal: full recovery support for lively/javascript similar to the one Coexist provides for Squeak/Smalltalk: fine-grained versioning of state and behavior, on each manipulating user interaction, to be able to recover previous development states when necessary, without explicitly preparing versions that might or might not be useful later-on, allows to concentrate on implementing ideas and supports an explorative approach to programming, changing things just to see/experience the outcome immediately..
