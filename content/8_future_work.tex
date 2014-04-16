@@ -13,7 +13,7 @@ The system should preserve meaningful versions of the runtime automatically and 
 
 \section{Improving the Performance of Our JavaScript Implementation} \label{sec:FUTURE_WORK:1}
 
-Our current implementation makes JavaScript code execution significantly slower and the development tools in Lively considerably less responsiveness, as presented in Section~\todo{ref to 5.2 performance evaluation..}.
+Our current implementation makes JavaScript code execution significantly slower and the development tools in Lively considerably less responsiveness, as presented in Section~\ref{sec:DISCUSSION:2}.
 
 Our proxy-based version-aware references select dynamically to which version of an object any access should be delegated.
 They also decide dynamically create new versions of an object, when it is changed after having been commited with a version.
@@ -24,11 +24,11 @@ There will be overhead for incrementally copying objects on writes, when new ver
 Thus, when we want to speed-up the execution of JavaScript code and, thereby, also the responsiveness of Lively's tools, we need to reduce the time it takes to resolve a version-aware references, which in the current implementation is done by the proxies.
 
 We use the Direct Proxies that the EcmaScript 6 standard will add to the JavaScript language.
-As shown in Section~\todo{ref to 5.2 performance evaluation..}, our specific proxy behavior---delegate to a changing version of an essentially unrelated object---is currently only five times slower than the default behavior---delegate the access unchanged to the proxy's constant target; two orders of magnitude are introduced just by using proxies independent of any version-awareness.
+As shown in Section~\ref{sec:DISCUSSION:2}, our specific proxy behavior---delegate to a changing version of an essentially unrelated object---is currently only five times slower than the default behavior---delegate the access unchanged to the proxy's constant target; two orders of magnitude are introduced just by using proxies independent of any version-awareness.
 At the time of writing the EcmaScript 6 specification is still only a draft.
 We are able to use these proxies already because the Chrome browser implements an earlier, now deprecated specification of the proxies as an experimental feature and because there is a library that provides the currently specified proxies on top of the deprecated style of proxies.
 However, given that the proxies are marked as experimental feature and also are currently partly implemented as JavaScript library---on language level instead by the virtual machine---on top of the deprecated variant, it seems reasonable to expect performance gains once the EcmaScript 6 gets finished and implemented by the browser vendors.
-Another indicator that proxies could be faster is that equivalent indirections as provided with the proxy handler traps are significantly faster when they are provided manually through ordinary JavaScript functions, also as presented in Section~\todo{ref to 5.2 performance evaluation..}.
+Another indicator that proxies could be faster is that equivalent indirections as provided with the proxy handler traps are significantly faster when they are provided manually through ordinary JavaScript functions, also as presented in Section~\ref{sec:DISCUSSION:2}.
 This suggests an implementation that is alternative to using the Direct Proxies.
 We could still use objects as stand-ins for a multiplicity of versions, but implement the delegation behavior currently provided in proxy traps with ordinary JavaScript functions, which we could use consistently instead of direct object access through further source transformations.
 Instead of, for example, \lstinline{anObject.aFunctionProperty()} the system would execute something similar to \lstinline{apply(anObject, get(anObject, aProperty))}.
@@ -44,7 +44,8 @@ So, in this parser example, there wont be multiple versions for any of the objec
 \section{Providing Continuous Object Versioning with Recovery Tools}
 
 Our implementation allows to preserve and to re-establish versions of the Lively runtime, but these versions need to be currently created explicitly.
-Developers still need to preserve particular versions, which is error-prone and effortful, as explained in Section \todo{refer to code exist section}. Developers might forget to preserve versions, or they underestimate the risk of changes and decide not to preserve a version.
+Developers still need to preserve particular versions, which is a significant effort.
+Developers might forget to preserve versions, or they underestimate the risk of changes and decide not to preserve a version.
 At the same time, it takes effort to assess the risk of upcoming changes, to run appropriate tests to check the current state, and to commit a version.
 For these reasons and as suggested by CoExist, we want the system to provide a fine-grained history continuously.
 Developers should be able to recover versions that they have not explicitly preserved previously.
