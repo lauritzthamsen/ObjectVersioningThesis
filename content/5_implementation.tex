@@ -12,7 +12,7 @@ This version identifier effectively declares one particular state of the program
 Therefore, to change the entire runtime state as, for example, an undo and redo would require only the global version identifier needs to be changed.
 
 
-\section{Using ECMAScript 6 Direct Proxies}
+\section{Using ECMAScript 6 Direct Proxies} \label{sec:IMPLEMENTATION:1}
 
 Our implementation of version-aware references is based on the ECMAScript 6 Direct Proxies.
 While these are supposed to stand-in for particular objects, their \emph{targets}, they can also be used as fully virtual objects.
@@ -256,6 +256,7 @@ So, wrapping \lstinline{Object} is enough to have \lstinline{Object.create(proto
 The implementation of source transformations uses \emph{UglifyJS}\footnote{\url{http://github.com/mishoo/UglifyJS2}, accessed March 12, 2014} for parsing and for all AST transformations.
 UglifyJS parses without relying on JavaScript exceptions for, for example, backtracking and, therefore, does not interfere with debugging.
 In addition, UglifyJS also supports Source Maps \todo{footnote with url to Source Maps}, which allow to view and debug the original code with the browser's developer tools, even though the transformed code is executed.
+
 
 \todo{add something about when the versioning source transformations are done and what objects are versioned currently}
 % TODO: source transformations enabled right after the object versioning code, i.e. the implementation of the proxies and the source transformation, which are both themselves implemented using ordinary javascript code, gets loaded. by patching the eval that is used for evaluated modules that get loaded with an eval(transformSource.. so modules are not versioned, but classes / layers / traits are.. e.g. a class is versioned, so in different versions there might be different class-side state... so, for example, modules are currently in our implementation the roots of the version-aware reference graphs that prevent garbage collection, 
