@@ -11,10 +11,20 @@ The development of parts in Lively and conceivable recovery needs are shown by t
 
 To exemplify how developers change objects directly in Lively, we will add a new feature to Lively's Object Editor.
 The editor itself has been been developed by composing and editing simple graphical objects like buttons, text fields, and lists.
-For this reason, we do not have to adapt any source code modules to change the editor, but rather manipulate and save a concrete editor object.
-The new feature we choose for this example is a magnifier button that can show the editor's current target, meaning the object the editor currently shows scripts for.
+For this reason, we do not have to adapt any source code modules to change the editor, but rather manipulate and save the concrete editor object.
+The new feature we add in this example is a magnifier button that can show the editor's current target.
+The target is the object to which the Object Editor currently presents scripts to and allows to manipulate.
+This requires to create and add a new button morph to the editor, as shown in Figure TODO.
+Subsequentely, the magnifier button also needs some behavior.
+The magnifier feature helps to accomplish two specific tasks: First, when a programmer hovers over the button, the Object Editor's current target object is highlighted through a blue and transparent overlay. Second, when a programmer clicks the button, the current target selection is revoked and the programmer can visually select the new target of the editor.
+This example covers the first of these two behaviors, which is also visible in Figure TODO.
 
-A first step towards this new feature could be copying an existing button object or loading a button object from Lively's Parts Bin.
+\todo{add a before-and-after-screenshots figure and one figure that shows how the magnifier works ()}
+
+
+\todo{add a bit more details in to the following text and a Figure that shows the various steps of this example,.. refer to the steps in the text.. also add more details to how the scripts work..}
+
+The first step is copying an existing button object or loading a button object from Lively's Parts Bin.
 We then can use the button's halos, in particular the resize tool, to give the button a smaller and square extent.
 Next, we can load an image showing a magnifier.
 Using drag and drop we can add the image to the button and the button to the editor.
@@ -23,20 +33,20 @@ That is, moving the editor around will also move the button with its image accor
 Besides manipulating the state of the button, image, and editor objects---using mouse interactions to set their extents, their positions, and connect them---we would probably next add some object-specific behavior.
 First, we can add scripts to the button that while the mouse cursor hovers above it, a translucent rectangle is layed over the current target, highlighting the morph that is currently being edited.
 
-\todo{add screenshots to the magnifier example, }
 
 
 \section{Recovery Needs When Developing Parts}
 
-While manipulating objects directly, developers might make changes that turn out to be inappropriate.
+\todo{this whole section needs to be more concrete and actually present situations from the previously introduced example. e.g. explain how parts of the script to can be evaluated to test whether the overlay works, but even when that works as intented there is then just wrong state (an overlay added to some morph in the world..)}
 
-In the previously summarized exemplary development session developers might, for example, developers might accidentally move the new button after carefully positioning it.
-Or they might accidentally drop the button into an existing layout, thereby undesirebly repositioning multiple unrelated morphs.
+While manipulating objects directly, developers might make changes to object state that they subsequentely want to undo.
+In the previously summarized example developers might, for example, developers might accidentally move the new button after carefully positioning it.
+Or they might accidentally drop the button into an existing layout, thereby undesirably repositioning multiple unrelated morphs.
 An extreme example for such an accidental inappropriate change is closing a morph that had meaningful, but unsaved changes.
 
-In constrast to those undesired accidental, well intentioned changes can also result in the desire to recover a previous development state.
+In constrast to those clearly undesired, accidental changes, well-intentioned changes can also result in the desire to recover a previous development state.
 For example, when fine-tuning the visual appearance of a morph, a developer might make many changes to the sizes, the positions, and the colors of morphs, only to decide later-on that a particular intermediate version was most appealing.
-Or developers change a script only to learn that introduced an an error or a decrease of performance.
+Or developers edit a script only to learn that the change introduced an an error or a decrease in performance.
 Further, developers can change objects not only through direct manipulation, but also could write a code snippet that makes changes to the state or behavior of an objects.
 Such a snippet could of course change any number of properties of many objects at once, so re-establishing a previous situation would be a laborious task.
 
