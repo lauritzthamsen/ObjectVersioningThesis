@@ -1,5 +1,3 @@
-% add how and what we tested and that we tested in Chrome to evaluate functionality their as Lively runs best in Chrome..
-
 \chapter{Discussion} \label{chapter:DISCUSSION}
 
 We tested the implementation of version-aware references with two JavaScript benchmark suites and with running the target programming system, the Lively Kernel.
@@ -14,8 +12,9 @@ In analyzing these results, we gained the impression that only one order of magn
 In fact, a comparable indirection can be implemented considerably faster with ordinary JavaScript.
 Using such a custom JavaScript indirection and further source transformations, thus, promises a practical implementation.
 
-All measurements were done on a Macbook Air, with an 2 GHz Intel Core i7, 8 GB main memory, using Mac OS X 10.9.1 and the stable Chrome release 32.0.1700.107, on February 18, 2014.
-All presented results are averages over five runs.
+All tests and measurements were done on a Macbook Air, with an 2 GHz Intel Core i7, 8 GB main memory, using Mac OS X 10.9.1 and the stable Chrome release 32.0.1700.107, on February 18, 2014.
+We used Chrome for all these experiments as Lively currently works best in Chrome.
+All presented measurement results were averaged over five runs.
 
 
 \section{Functionality: Undo and Redo for the Lively Kernel}
@@ -45,12 +44,12 @@ The version-aware references have an impact on memory consumption and on the pro
 
 \subsection{Memory Overhead}
 
-In our proxy-based implementation, the system uses a proxy for each reachable object, and all references that would usually point directly to the object point to the proxy instead.
+In our proxy-based implementation, the system uses a proxy for each reachable mutable object and all references that would usually refer directly to the object refer to the proxy instead.
 These proxies require additional space.
 That is, even without preserving multiple versions for any object, the system requires more space when all mutable state is referred to only through proxies.
 As shown in Figure~\ref{fig:MemoryOverhead}, loading an empty Lively world requires three times more space with proxies than without proxies.
-For each proxied object the system now also has a proxy, which comprises of an internal proxy object, a proxy handler object that implements the proxy's behavior, an ordinary JavaScript object as dictionary for all versions, and, currently, boolean flags to, for example, save whether a proxy should preserve versions or not.
-However, while the system creates proxies for most objects, it does not use proxies for, for example, objects for Lively's source code modules, objects created before our language-level implementation of object versioning is loaded, and all objects used for implementing the versioning itself. 
+For each proxied object the system now also has a proxy, which comprises of an internal proxy object, a proxy handler object that implements the proxy's behavior, an ordinary JavaScript object as dictionary for all available versions of the object the proxy stands-in for, and boolean flags to, for example, indicate whether a proxy should preserve versions at all or not.
+While the system creates proxies for most objects, it does not use proxies for, for example, all objects created before our language-level implementation of object versioning is loaded and all objects used for implementing the versioning itself.
 
 \begin{figure}[h]
     \centering
@@ -59,24 +58,23 @@ However, while the system creates proxies for most objects, it does not use prox
     \label{fig:MemoryOverhead}
 \end{figure}
 
-In contrast to the memory overhead for the version-aware references, the memory consumption for different versions of the runtime does not increase linearly with the number of proxied objects or even with the number of versions:
+In contrast to the memory overhead for the version-aware references, the memory consumption for preserving different versions of the runtime does not increase linearly with the number of proxied objects or even with the number of versions.
 Our implementation does not copy all objects for each version, but only creates copies when objects change between versions, effectively storing only diffs on the granularity of objects.
 Therefore, the memory required for new versions of the runtime depends on how many objects change and how big those objects are.
-It is, subsequentely, not possible to present this memory overhead independent of concrete usage scenarios.
+Thus, the memory overhead for preserving multiple versions of the Lively runtime depends highly on concrete usage scenarios.
 
 
 \subsection{Execution Overhead}
 
-In general, the experienced slow down is independent of the number of versions available for the system, but dependent on how many version-aware references have to be resolved during the execution of particular code.
+In general, the experienced slow down does not depend as much on the number of preserved versions as it is dependent on how many version-aware references have to be resolved during the execution of particular code.
 As versions of objects are created only when objects change between versions, preserving a version of the runtime happens incrementally and not at a single moment in time.
-Additionally, changing a version also does not take any relevant time as the version-aware references are not updated, but dynamically delegate differently the next time they are resolved.
-
-To give an impression on how our implementation of object versioning impacts the execution speed, we compared using the proxies to not using the proxies for both the Octane benchmark suite and a few particular typical user interactions in Lively.
+Additionally, changing a version also does not take significant time as the version-aware references are not updated but dynamically delegate differently the next time they are resolved.
+To give an impression on how the version-aware references, however, impact the execution speed in general, we compared using the proxies to not using the proxies for both the Octane benchmark suite and a few particular typical user interactions in Lively.
 Additionally, a microbenchmark shows how much more time is necessary to resolve a single proxy-based version-aware reference.
 
-Figure~\ref{fig:ExecutionOverhead} shows how much more time the Octane benchmarks\footnote{Note: We reduced the input size to the Splay benchmark by an order of magnitude to prevent the browser from prompting for user input during the benchmarks execution. This prompt is a reaction to the long time required to run the benchmark, cannot be disabled beforehand, and would influence the benchmark result.} take when their source is transformed before execution and references are, therefore, version-aware.
+Figure~\ref{fig:ExecutionOverhead} shows how much more time the Octane benchmarks\footnote{Note: We reduced the input size to the Splay benchmark by an order of magnitude to prevent the browser from prompting for user input during the benchmarks execution. This prompt is a reaction to the long time required to run the benchmark, cannot be disabled, and would influence the benchmark result.} take when their source is transformed before execution and references are, therefore, version-aware.
 Executing the benchmarks takes between 90 and 405 times longer with version-aware references than without.
-On average the slowdown is 187.5 times.
+On average the slowdown of a single benchmark is, thus, a 187.5 times.
 
 \begin{figure}[h]
     \centering
@@ -85,15 +83,14 @@ On average the slowdown is 187.5 times.
     \label{fig:ExecutionOverhead}
 \end{figure}
 
-\todo{maybe show the execution overhead differently as it might be hard to understand that the unit is 100\% overhead and that like 2 means twice the time is necessary.. and that, therefore, each bar compares with-versioning to original performance..}
+\todo{maybe show the execution overhead differently...it might be hard to understand that the unit is 100\% overhead and that like 2 means twice the time is necessary.. and that, therefore, each bar compares with-versioning to original performance..}
 
-While object versioning could be used to implement application-specific undo and redo, it is primalary itented to support development and similar explorative tasks.
+While object versioning could be used for undo and redo in a specific application, it is primalary itented to support development and similar explorative tasks.
 That could, conceivably, be an argument for providing object versioning only during development and not when programs should run at full speed.
 However, besides having the disadvantage of introducing distinct usage modes, this still requires the version-aware references to resolve fast enough to not impede development significantly.
-
-Therefore, in addition to measuring the execution of general JavaScript programs, we also timed typical user interactions in Lively.
-Figure \ref{fig:LivelyInteractionsOverhead} shows a direct comparison between using proxies and not using proxies for three selected user interactions: bringing up the halo buttons on a particular morph, opening the world's menu, and opening a new System Code Browser.
-The three presented interactions are among the most obviously slowed interactions compared to, for example, interactions that are more interactive or browser-supported such as dragging a morph around.
+Therefore, in addition to measuring the execution of general JavaScript programs, we also measured the overhead for typical user interactions in Lively.
+Figure \ref{fig:LivelyInteractionsOverhead} shows a direct comparison between using proxies and not using proxies for three selected user interactions: bringing up the halo buttons on a particular morph, opening the world's menu, and opening Lively's System Code Browser.
+The three presented interactions are among the more impacted interactions compared to, for example, interactions are more browser-supported such as dragging a morph around.
 All three interaction trigger code from multiple different modules, including event handling code, rendering code, and tool-specific code.
 
 \begin{figure}[h]
@@ -104,23 +101,23 @@ All three interaction trigger code from multiple different modules, including ev
 \end{figure}
 
 Another performance related question specific to Lively is how long it takes to load a world.
-This includes requesting all required modules from Lively's server, but also client-side code to resolve dependencies among modules, evaluating all loaded modules, and deserializing a Lively world.
-In addition, in case version-aware references should be used, all required modules also need to be transformed.
-The difference between providing object versioning and not is here a factor of around eight for loading a world: instead of around 4 seconds, the bootstrap takes around 32 seconds.
+This includes requesting the required modules from Lively's server, but also client-side code to resolve dependencies among modules, evaluating all loaded modules, and deserializing a Lively world.
+In addition, in the case that version-aware references should be used, all required modules also need to be transformed.
+The difference between providing object versioning and not is here a factor of around eight for loading a world: instead of around 4 seconds, the user would have to wait around 32 seconds until the requested Lively world reacts on user interactions.
 
 In summary, the current implementation slows down the JavaScript execution considerably: the benchmark programs need two to three orders of magnitude more time to finish, while particular typical user interactions in Lively also take two orders of magnitude more time.
 As this slowdown is due to the proxy-based version-aware references, we also implemented microbenchmarks to analyze exactly how long it takes to resolve such a reference.
-When two objects are either connected by a proxy-based version-aware or a direct reference and this connection is resolved a million times to call a simple function, the microbenchmark using our version-aware references takes three orders of magnitude more time: instead of on average ten milliseconds the test requires on average about 11000 milliseconds.
-When we exchange the proxy-based version-aware reference for this benchmark with just a proxy---a proxy prodiving the default proxy behavior and not our versioning behavior---the difference is an order of magnitude less: using a direct reference still results in around 10 milliseconds, while placing a proxy in-between both objects results in on avg close to 2000 milliseconds.
+When two objects are either connected by a proxy-based version-aware or a direct reference and this connection is resolved a million times to call a simple function, the microbenchmark takes three orders of magnitude more time when using the version-aware references: instead of on average ten milliseconds the test requires on average about 11000 milliseconds.
+When we exchange the proxy-based version-aware reference for this benchmark with just a proxy, which then falls back on the default proxy behavior and not our specific versioning behavior, the difference is an order of magnitude less: using a direct reference still requires around 10 milliseconds, while placing a proxy in-between both objects requires close to 2000 milliseconds.
 That is, even without our specific proxy behavior, the proxies slow down the microbenchmark close to 200 times.
 
-As explained in Section \todo{section for harmony shim proxies..}, the proxies are currently implemented using a shim library that relies on an implementation of a previous, deprecated draft of the proxy specification.
-The proxies are also part of a EcmaScript specification that has not yet been finalized and completely implemented.
-Further, similar indirections of object access as the default proxy handler provide could also be implemented in JavaScript.
+As explained in Section~\ref{sec:IMPLEMENTATION:1}, the proxies are currently implemented using a library that relies on an experimental implementation of a previous, deprecated draft of the proxy specification.
+The proxies are also part of a ECMAScript specification that has not yet been finalized and completely implemented.
+Further, similar indirections of object access as the default proxy handler provide could be implemented in JavaScript.
 Instead of using a proxy for an object, we could still refer only to a stand-in, but implement the proxy behavior in an ordinary JavaScript function to which we would transform the source code: instead of \lstinline{obj.prop} we could execute something similar to \lstinline{get(obj, \"name\")}, where \lstinline{get} could implement the behavior previously implemented by respective the proxy trap.
-Measuring the performance of such a manually provided indirection reveals a much lower performance decrease for the previously described benchmark setup.
-In fact, such an indirection would only take twice the time to read a property from a specific target in such a \lstinline{get}-function compared to reading a property directly. 
-All this suggests that the performance of EcmaScript 6 Direct Proxies in Chrome might improve in the future.
-At the same time, as suggested in Section \todo{future work, source transformation section}, we might also decide to base our version-aware references on source transformations and custom indirections instead of proxies altogether.
+Measuring the performance of such a manually provided indirection results in a much lower performance decrease for the previously described microbenchmark setup.
+In fact, such an indirection would only take twice the time to read a property from a specific target using such a \lstinline{get}-function as it takes when reading a property directly. 
+All this suggests that the performance of the ECMAScript 6 Direct Proxies in Chrome might improve in the future.
+At the same time, as suggested in Section~\ref{sec:FUTURE_WORK:1}, we might also decide to base our version-aware references on source transformations and custom indirections instead of proxies in the future.
 
 \todo{another performance related question to discuss would be whether copy-on-write on changes in new versions impedes the responsiveness of the Lively tools much..}
