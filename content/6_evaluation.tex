@@ -1,4 +1,4 @@
-\chapter{Discussion} \label{chapter:DISCUSSION}
+\chapter{Evaluation} \label{chapter:EVALUATION}
 
 We tested the implementation of version-aware references with two JavaScript benchmark suites and with running the target programming system, the Lively Kernel.
 The proxies, which implement version-aware references, behave like the respective versions of objects in the situations exhibited.
@@ -12,15 +12,12 @@ In analyzing these results, we gained the impression that only one order of magn
 In fact, a comparable indirection can be implemented considerably faster with ordinary JavaScript.
 Using such a custom JavaScript indirection and further source transformations, thus, promises a practical implementation.
 
-All tests and measurements were done on a Macbook Air, with an 2 GHz Intel Core i7, 8 GB main memory, using Mac OS X 10.9.1 and the stable Chrome release 32.0.1700.107, on February 18, 2014.
-We used Chrome for all these experiments as Lively currently works best in Chrome.
-All presented measurement results were averaged over five runs.
-
 
 \section{Functionality: Undo and Redo for the Lively Kernel} \label{sec:DISCUSSION:1}
 
-\todo{should we add a link to a published demo screencast for this? and describe the tested undo/redo scenarios a bit more..?}
+% TODO: one-sentence subsection intro
 
+% TODO: distinct paragraphs for approach / method (what was done? why / to test what?), results, discussion
 Besides testing the behavior of our proxies and our source transformations in isolated test cases that cover important JavaScript language features and syntax, we also used a benchmark suite.
 First, to test whether our source transformations yield syntactically correct JavaScript code for the benchmarks.
 Second, to test whether the proxy-based implementation of version-aware references, inserted by the source transformations, allows to run the benchmarks without errors and with the same results as when running the benchmarks without our implementation.
@@ -28,6 +25,7 @@ For these tests, we used the Octance benchmark suite\footnote{\url{http://code.g
 All benchmarks in this suite run without errors and return the same results as when executed without any source transformations.
 That is, at least for these tests, our source transformations produce working source code and our proxy-based version-aware references behave as the objects they refer to.
 
+% TODO: distinct paragraphs for approach / method (what was done? why / to test what?), results, discussion
 Given these results, we further tested whether the version-aware references are also used consistently for all mutable objects and whether the version-aware references correctly delegate to particular versions.
 For this, we tested the simple linear global undo/redo that we built for Lively, as explained in \ref{subsec:APPROACH:2:3}, through various simple examples and with this, whether the source transformations and proxies together allow to preserve and re-establish versions of Lively's JavaScript runtime in practice.
 Here, we were able to preserve and re-establish the particular runtime state of multiple example scenarios, including the state of simple morphs, morph compositions, and more complicated graphical applications as, for example, text editors and developer tools.
@@ -42,8 +40,18 @@ However, the used proxies are currently an experimental JavaScript feature in Ch
 
 The version-aware references have an impact on memory consumption and on the program execution.
 
+\subsection{Measurement Setup}
+
+All tests and measurements were done on a Macbook Air, with an 2 GHz Intel Core i7, 8 GB main memory, using Mac OS X 10.9.1 and the stable Chrome release 32.0.1700.107, on February 18, 2014.
+We used Chrome for all these experiments as Lively currently works best in Chrome.
+All presented measurement results were averaged over five runs.
+
+
 \subsection{Memory Overhead}
 
+% TODO: one-sentence subsection intro
+
+% TODO: distinct paragraphs for approach / method (what was done? why / to test what?), results, discussion
 In our proxy-based implementation, the system uses a proxy for each reachable mutable object and all references that would usually refer directly to the object refer to the proxy instead.
 These proxies require additional space.
 That is, even without preserving multiple versions for any object, the system requires more space when all mutable state is referred to only through proxies.
@@ -66,6 +74,9 @@ Thus, the memory overhead for preserving multiple versions of the Lively runtime
 
 \subsection{Execution Overhead}
 
+% TODO: one-sentence subsection intro
+
+% TODO: distinct paragraphs for approach / method (what was done? why / to test what?), results, discussion
 In general, the experienced slow down does not depend as much on the number of preserved versions as it is dependent on how many version-aware references have to be resolved during the execution of particular code.
 As versions of objects are created only when objects change between versions, preserving a version of the runtime happens incrementally and not at a single moment in time.
 Additionally, changing a version also does not take significant time as the version-aware references are not updated but dynamically delegate differently the next time they are resolved.
@@ -110,6 +121,8 @@ As this slowdown is due to the proxy-based version-aware references, we also imp
 When two objects are either connected by a proxy-based version-aware or a direct reference and this connection is resolved a million times to call a simple function, the microbenchmark takes three orders of magnitude more time when using the version-aware references: instead of on average ten milliseconds the test requires on average about 11000 milliseconds.
 When we exchange the proxy-based version-aware reference for this benchmark with just a proxy, which then falls back on the default proxy behavior and not our specific versioning behavior, the difference is an order of magnitude less: using a direct reference still requires around 10 milliseconds, while placing a proxy in-between both objects requires close to 2000 milliseconds.
 That is, even without our specific proxy behavior, the proxies slow down the microbenchmark close to 200 times.
+
+% the following is a discussion!!
 
 As explained in Section~\ref{sec:IMPLEMENTATION:1}, the proxies are currently implemented using a library that relies on an experimental implementation of a previous, deprecated draft of the proxy specification.
 The proxies are also part of a ECMAScript specification that has not yet been finalized and completely implemented.

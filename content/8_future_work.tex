@@ -11,7 +11,7 @@ Speeding up the proxy-based version-aware references seems most important in thi
 In addition, we would like to build upon our approach and implementation.
 The system should preserve meaningful versions of the runtime automatically and support developers in finding relevant previous state in recovery situations.
 
-\section{Improving the Performance of Our JavaScript Implementation} \label{sec:FUTURE_WORK:1}
+\section{Improving the Performance of Our Implementation} \label{sec:FUTURE_WORK:1}
 
 Our current implementation makes JavaScript code execution significantly slower and the development tools in Lively considerably less responsiveness, as presented in Section~\ref{sec:DISCUSSION:2}.
 Our proxy-based version-aware references select dynamically to which version of an object any access should be delegated.
@@ -39,7 +39,7 @@ Given JavaScript's single-threaded and cooperative execution it would not even b
 So, there wont, for example, be multiple versions for any of the objects only created as intermediate results of a parser, rendering version-aware reference to such temporary objects irrelevant, while they, however, currently still impede performance significantly.
 
 
-\section{Providing Continuous Object Versioning with Recovery Tools}
+\section{Providing Recovery Tools}
 
 Our implementation allows to preserve and to re-establish versions of the Lively runtime, but these versions need currently to be created explicitly.
 Developers still need to preserve particular versions, which developers might, however, forget or deliberately decide against after underestimating the risk of a change.
