@@ -2,13 +2,16 @@
 
 \todo{section intro for related work}
 
-\todo{is Johnson and Duggan’s GL programming language related work? (see worlds paper)}
-\todo{are Morrisett sub-stores related work? (see worlds papers)}
+% TODO STRUCTURE TODO
 
-\todo{maybe also add a section for contextual values}
+% recovery of previous versions / recovery support: CoExist, Offline Worlds, Back-in-time Debugging
+
+% scoping changes / adaptions: Worlds, Context-oriented Programming, Lienhard-Aliases
 
 
-\section{CoExist}
+\section{Recovery of Previous States}
+
+\subsection{Continuous Versioning / CoExist}
 
 \cite{Steinert2012COE}
 CoExist provides recovery support through continuous versioning in Squeak/Smalltalk.
@@ -24,21 +27,7 @@ However, CoExist already records versions continuously on the granularity of cha
 In contrast to CoExist, our system not only preserves code, but also the state of objects and, thus, is primarily intended for programming systems that allow to manipulate objects directly.
 
 
-\section{Worlds}
-
-Worlds are a language construct to capture and control the scope of side-effects: changes to the state of objects are by default only effective in the world in which the changes occurred.
-Worlds are first-class values, to be used to execute statements in a particular world.
-A new world can be spawned from an existing world, which establishes a child-parent relationships between the two worlds.
-Developers can commit changes contained in a child world to its parent world, thereby extending the scope of the captured side-effects.
-For this, the Worlds approach further includes conditions to prevent inconsistencies as result of commits.
-
-In comparison, Worlds provides a language construct to support explicitly experimenting with different states of the runtime, while object versioning provides versions of the runtime intented to be created implicitly and continuously: Our approach does not include extensions to existing programming languages with versions as first-class values and no conditions under which versions of the runtime should be merged into their predecessors.
-
-That said, worlds could, potentially, also be used as a basis for continuous object versioning.
-However, out of practical considerations---currently, Worlds, for example, provides no garbage collection and also does not work for all possible JavaScript code---we decided not to build upon worlds, but to implement object versioning as explained in Section~\ref{sec:IMPLEMENTATION}.
-
-
-\section{Offline Worlds}
+\subsection{Offline Worlds}
 
 Offline Worlds~\cite{Czuchra2012OfW} is an approach to implementing automatic saving of Lively worlds as protection against system failures.
 The world is saved automatically in a fixed time interval to be able to re-establish the latest saved version of the world in case of unexpected crashes, or network or server outages.
@@ -53,7 +42,7 @@ For this reason, object versioning seems to be more practical for fine-grained v
 \todo{while both approaches could store multiple versions of the runtime in memory, serialization and deserialization for preserving and re-establishing versions of the runtime is a stop-the-world approach. one other difference between both approaches is that our approach preserves object identity with proxies (the proxy identities) and it is, therefore, possible to version just parts of the system, while the rest of the system could still refer to any of the versioned objects by references..}
 
 
-\section{Back-in-Time Debugging}
+\subsection{Back-in-Time Debugging}
 
 Back-in-time Debuggers~\cite{Lewis2003BIT}, also known as Omniscient Debuggers, allow developers to inspect previous program states and step backwards in the control flow to effectively undo the effects of statements.
 For this, approaches are either based on logging or replay: either the debugger records previous states to be able to recreate a particular previous situations, requiring mainly space for all the different states, or the debugger re-executes the program up to a particular previous situation, requiring mainly time to run the program again.
@@ -64,20 +53,24 @@ It also allows to re-establish a previous situation through preserving previous 
 However, back-in-time debuggers need to be able to undo the effects of every statement separately, while our system's versioning granularity is arbitrarily and can, for example, correspond to developer interaction with the live system.
 In general, back-in-time debuggers support a particular development task---debugging--- and, thus, are also often only active when a program is started in separate debugging mode, while the purpose of object versioning is more comprehensive and we expect it to be active at least during all development tasks, but possibly even be always enabled.
 
-A concrete and particularly related work is Practical Object-oriented Back-in-Time Debugging~\cite{Lienhard2008POB}, a logging-based approach that also preserves the history for each object using alternative references.
-As in our approach, these alternative references, called Aliases, are actually also objects, part of the application memory, and contain information about the history and origin of the values stored in objects.
-Aliases are, however, never passed around, but new aliases are created for each read or write of an object field or an array and for each reference passed as parameter.
-Each of these aliases refers to an actual value, but also to an alias for the value the variable previously referred to---its predecessor---and to the alias that was used to create this new alias from---its origin.
-An alias and its origin both refer to the same value, but provide different information as their creation context, which always is a particular method.
-That is, the origin link can be used to follow the object's ``flow'' through the program, and, because each alias also records a timestamp when created, the predecessor link can be followed while comparing timestamps to read a value as it were at a particular moment in time.
 
-In comparison to our approach, there is not just one alias object for every mutable object, but potentially many---as many as references to that object, while there is only one version-aware reference.
-Further, an alias object has predecessors for every value stored in a variable such as an object field, while our version-aware references hold a subset of the different state the same object had, corresponding to particular discrete versions of the runtime, which may or may not have been commited automatically.
-That is, with the presented debugging approach its possible to recreate all states the system was in and also retrace the flow of all values, while our system stores only meaningful versions that, for example, might correspond to developer actions.
-Another difference lies in the in the expected usage extent: the alias references are intended to be used only for explicit debugging sessions, while our version-aware reference are intended to be used always, at least completely during all development activities.
+\section{Scoping Changes / Multiple Versions Of the Runtime}
+
+\subsection{Worlds}
+
+Worlds are a language construct to capture and control the scope of side-effects: changes to the state of objects are by default only effective in the world in which the changes occurred.
+Worlds are first-class values, to be used to execute statements in a particular world.
+A new world can be spawned from an existing world, which establishes a child-parent relationships between the two worlds.
+Developers can commit changes contained in a child world to its parent world, thereby extending the scope of the captured side-effects.
+For this, the Worlds approach further includes conditions to prevent inconsistencies as result of commits.
+
+In comparison, Worlds provides a language construct to support explicitly experimenting with different states of the runtime, while object versioning provides versions of the runtime intented to be created implicitly and continuously: Our approach does not include extensions to existing programming languages with versions as first-class values and no conditions under which versions of the runtime should be merged into their predecessors.
+
+That said, worlds could, potentially, also be used as a basis for continuous object versioning.
+However, out of practical considerations---currently, Worlds, for example, provides no garbage collection and also does not work for all possible JavaScript code---we decided not to build upon worlds, but to implement object versioning as explained in Section~\ref{sec:IMPLEMENTATION}.
 
 
-\section{Context-oriented Programming}
+\subsection{Context-oriented Programming}
 
 Context-oriented Programming~\cite{Hirschfeld2008COP} adds dedicated language constructs for dynamic behavior adaptions to object-oriented programs.
 Depending on context information, COP allows to enable and disable layers, which contain variations to be executed instead or around methods of the object-oriented base program, at runtime.
@@ -93,7 +86,7 @@ However, \cite{Lincke2012SCS} showed that COP can also allow developers to exper
 Though this requires developers to make experiments explicitly---explicitly creating layers and explicitly moving code from layers back to the base system, once experiments are considered successful and changes expected to be permanent, when developers want to maintain the original modularization of the system.
 
 
-\section{ChangeBoxes}
+\subsection{ChangeBoxes}
 ChangeBoxes~\cite{Denker2007EEC}
 
 \todosec{Missing Section: ChangeBoxes}
@@ -101,9 +94,22 @@ ChangeBoxes~\cite{Denker2007EEC}
 Class-boxes? \todo{what about Alexandre Bergel's Class-boxes.. and other boxes by the SCG?}
 
 
+\subsection{Aliases / Practical Object-oriented Back-in-Time Debugging}
+
+A concrete and particularly related work is Practical Object-oriented Back-in-Time Debugging~\cite{Lienhard2008POB}, a logging-based approach that also preserves the history for each object using alternative references.
+As in our approach, these alternative references, called Aliases, are actually also objects, part of the application memory, and contain information about the history and origin of the values stored in objects.
+Aliases are, however, never passed around, but new aliases are created for each read or write of an object field or an array and for each reference passed as parameter.
+Each of these aliases refers to an actual value, but also to an alias for the value the variable previously referred to---its predecessor---and to the alias that was used to create this new alias from---its origin.
+An alias and its origin both refer to the same value, but provide different information as their creation context, which always is a particular method.
+That is, the origin link can be used to follow the object's ``flow'' through the program, and, because each alias also records a timestamp when created, the predecessor link can be followed while comparing timestamps to read a value as it were at a particular moment in time.
+
+In comparison to our approach, there is not just one alias object for every mutable object, but potentially many---as many as references to that object, while there is only one version-aware reference.
+Further, an alias object has predecessors for every value stored in a variable such as an object field, while our version-aware references hold a subset of the different state the same object had, corresponding to particular discrete versions of the runtime, which may or may not have been commited automatically.
+That is, with the presented debugging approach its possible to recreate all states the system was in and also retrace the flow of all values, while our system stores only meaningful versions that, for example, might correspond to developer actions.
+Another difference lies in the in the expected usage extent: the alias references are intended to be used only for explicit debugging sessions, while our version-aware reference are intended to be used always, at least completely during all development activities.
 
 
-\section{Software Transactional Memory}
+\subsection{Software Transactional Memory}
 Software Transactional Memory~\cite{Shavit1995STM}
 
 \todosec{Missing Section: Software Transactional Memory}
