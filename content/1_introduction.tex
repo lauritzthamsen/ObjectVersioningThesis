@@ -7,7 +7,7 @@
 \chapter{Introduction} \label{chapter:INTRODUCTION}
 
 % Background
-Certain programming systems, like Squeak/Smalltalk~\cite{GoldbergRobson83} and REPLs for LISP or Python, allow to adapt and develop programs while those run.
+Programming systems such as Squeak/Smalltalk~\cite{GoldbergRobson83} or REPLs for LISP or Python allow to adapt and develop programs while those run.
 Changes to programs in such environments are effective immediately and programmers can often see or test right away what differences their actions make.
 Thus, these systems often provide immediate feedback to programmers.
 A subset of such systems, which includes, for example, Self~\cite{Ungar1987SPS,Ungar2007SEL} and Lively~\cite{Ingalls2008LKS,Krahn2009LWD}, are those built around prototype-based object-oriented languages, in which programmers create applications using objects and without having to define classes first.
@@ -79,7 +79,12 @@ Therefore, this approach supports fine-grained histories of development states--
 It also allows to easily enhance preserved development states with further information as, for example, test results, screenshots, and diffs.
 That is, in the future, we want to build upon the presented solution and support developers in efficiently recovering state from continuously preserved, fine-grained histories of development sessions.\\
 
-% Contributions
+
+\section{Contributions}
+
+\todo{add one section intro sentence: the main goal of our work is ... for Lively }
+\todo{use paragraphs for the contributions and say more than sentence for each}
+
 The contributions of this thesis are as follows:
 \begin{itemize}
     \item An approach to object versioning for systems like Lively based on alternative, version-aware references that transparently delegate to one of multiple versions of an object (Section~\ref{sec:APPROACH:1}).
@@ -87,10 +92,13 @@ The contributions of this thesis are as follows:
     \item An implementation of the concrete solution in JavaScript that can be used to effectively preserve and re-establish development states in Lively (Section~\ref{chapter:IMPLEMENTATION}).\\
 \end{itemize}
 
+
+\section{Thesis Structure}
+
 The remainder of this thesis is organized as follows. 
 Chapter~\ref{chapter:BACKGROUND} describes prototype-based programming systems, CoExist, and Lively.
 Chapter~\ref{chapter:MOTIVATION} illustrates the recovery needs developers have when they directly work on objects in Lively.
 Chapter~\ref{chapter:APPROACH} introduces our approach to object versioning and describes how proxies can be used for concrete solutions.
-Chapter~\ref{chapter:IMPLEMENTATION} presents our implementation for Lively, which Chapter~\ref{chapter:DISCUSSION} then discusses in terms of functionality and practicability.
+Chapter~\ref{chapter:IMPLEMENTATION} presents our implementation for Lively, which Chapter~\ref{chapter:EVALUATION} then evaluates in terms of functionality and practicability.
 Chapter~\ref{chapter:RELATED_WORK} compares our solution to related work.
 Chapter~\ref{chapter:FUTURE_WORK} presents future work, while Chapter~\ref{chapter:CONCLUSION} concludes this thesis.

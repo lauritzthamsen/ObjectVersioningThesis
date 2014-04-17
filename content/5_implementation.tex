@@ -1,4 +1,4 @@
-\chapter{Implementation with Proxies} \label{chapter:IMPLEMENTATION}
+\chapter{Implementation} \label{chapter:IMPLEMENTATION}
 
 We implemented version-aware references for our approach to object versioning in JavaScript using proxies and source transformations.
 This way, our prototype does not require changes to JavaScript engines, but only a certain JavaScript language feature.
@@ -10,6 +10,19 @@ In particular, the moment mutable objects get created, proxies get created for t
 The proxies then preserve and choose versions of their object corresponding to a global version identifier.
 This version identifier effectively declares one particular state of the programming runtime, consisting of those versions of objects that are associated with that runtime state, to be read and written.
 Therefore, to change the entire runtime state as, for example, an undo and redo would require only the global version identifier needs to be changed.
+
+% TODO CHAPTER STRUCTURE TODO
+
+% proxy behavior: traps + forwarding
+% selecting versions: currentVersion + global version identifier
+
+% JS concurrency
+
+% source transformations: basic cases + func exps vs. decls, accessor funcs
+
+% workarounds / ES 6 issues: virtual object proxies + native code / built-in functions
+
+% limitations / ES 6 implications: proxies have to be available, lots of low-level frames and dev tool issues
 
 
 \section{Using ECMAScript 6 Direct Proxies} \label{sec:IMPLEMENTATION:1}
@@ -156,7 +169,7 @@ This difference in the type of supplied target objects is also necessary as the 
 % % firing proto traps, except when using the new Reflect API, but can't use Reflect.setPrototype in recent Chromes, where Lively runs best..
 
 
-\section{Returning Proxies For New Objects}
+\section{Using Proxies For All Mutable Objects}
 
 As we use proxies as version-aware references while the JavaScript runtime still only provides ordinary references, references that usually would point to objects directly now need to point to proxies instead. 
 References to the same object need to point to the same proxy for that object as the identity of proxies will be compared instead of the identity of the original objects.
