@@ -1,22 +1,23 @@
 % TODO: is the following incorporated somewhere?
-% state of the complete runtime, including state of the runtime that is not persisted with commiting particular objects or entire Lively worlds (global variables.. config..)
+% state of the complete runtime, including state of the runtime that is not persisted with commiting particular objects or entire Lively worlds (global variables.. config..).. and that, in Lively, classes are also objects and, thus, also preserved
 
 
 \chapter{Object Versioning} \label{chapter:APPROACH}
 
-When programmers unexpectedly introduce problems to the functionality, performance, or design of their applications, they might want to recover a previous development state.
-In programming systems like Lively, where programmers often work at runtime on objects, a development state consists of the state of objects, which includes object-specific behavior.
-To be able to recover such a development state, comprehensive recovery support for Lively must, therefore, preserve versions of objects.
+% When programmers unexpectedly introduce problems to the functionality, performance, or design of their applications, they might want to recover a previous development state.
+% In programming systems like Lively, where programmers often work at runtime on objects, a development state consists of the state of objects, which includes object-specific behavior.
+% To be able to recover such a development state, comprehensive recovery support for Lively must, therefore, preserve versions of objects.
+% 
+% Our approach for this is based on alternative, version-aware references that manage versions of objects transparently.
+% That is, objects are referred to by references that dynamically and transparently choose one particular version of the objects as they were at a particular moment.
+% When these references are then used for all mutable objects of a runtime, the entire runtime state can be preserved and re-established.
+% 
+% Our concrete solution for implementing this in JavaScript and for the Lively Kernel relies on proxies and source transformations.
+% Using proxies and source transformations allows a language-level solution for alternative references.
+% Versions of objects are also just JavaScript objects and, thus, also in memory.
+% The proxies, in this solution, also contain the versions of the object they stand-in for.
+% This way, when a proxy, which stands in for all versions of conceptually one object, is no longer referred to from anywhere, all versions of an objects are reclaimed by the ordinary JavaScript gargage collector.
 
-Our approach for this is based on alternative, version-aware references that manage versions of objects transparently.
-That is, objects are referred to by references that dynamically and transparently choose one particular version of the objects as they were at a particular moment.
-When these references are then used for all mutable objects of a runtime, the entire runtime state can be preserved and re-established.
-
-Our concrete solution for implementing this in JavaScript and for the Lively Kernel relies on proxies and source transformations.
-Using proxies and source transformations allows a language-level solution for alternative references.
-Versions of objects are also just JavaScript objects and, thus, also in memory.
-The proxies, in this solution, also contain the versions of the object they stand-in for.
-This way, when a proxy, which stands in for all versions of conceptually one object, is no longer referred to from anywhere, all versions of an objects are reclaimed by the ordinary JavaScript gargage collector.
 
 \section{Version-aware References} \label{sec:APPROACH:1}
 
@@ -125,6 +126,17 @@ Preserving a new version of the runtime also happens incrementally.
 Instead of saving versions of all objects that make up the runtime, when the development state is to be preserved, new versions of objects can be created only when objects subsequentely change.
 Before such writes the previous object states continue to reflect the current state and can, thus, be read for following versions until written.
 This way, as \emph{objects} are copied on writes, versioning happens automatically on the granularity of objects.
+
+
+
+
+
+
+
+
+
+
+
 
 
 
