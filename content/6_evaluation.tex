@@ -24,6 +24,9 @@ For this evaluation, we used a standard JavaScript benchmark suite and our targe
 
 \section{Test Setup}
 
+
+% TODO: ++ guied through benchmarks and Lively, learned about all necessary workarounds..
+
 \subsubsection{The Octane JavaScript Benchmark Suite}
 
 % what?
@@ -83,6 +86,7 @@ All benchmarks in this suite run without errors and return the same results as w
 That is, at least for these tests, our source transformations produce working source code and our proxy-based version-aware references behave as the objects they refer to.
 
 \paragraph{Discussion}
+% TODO: ++ lessons learned from running the benchmarks with our version-aware references
 ??
 
 
@@ -100,6 +104,7 @@ but not all scenarios..
 except for a few known cases, our proxy-based JavaScript implementation of our approach allows to practically preserve and re-establish the entire runtime state of the Lively Kernel.
 
 \paragraph{Discussion}
+% TODO: ++ lessons learned from letting Lively run with our version-aware references
 While most of the tested functionality of the Lively---including the entire bootstrap process, rendering graphical objects, loading parts from Lively's Parts Bin, and using Lively's halo controls---work as expected, certain specific parts are not yet working correctly or even yield errors.
 The remaining issues here are expected to be problems related to built-in functions that do not handle proxies correctly.
 Our implementation already unwraps proxies for many built-in functions, as explained in \ref{sec:IMPLEMENTATION:1}, but the configuration appears to not cover all problematic built-in functions, yet.
@@ -148,7 +153,7 @@ Therefore, the memory required for new versions of the runtime depends on how ma
 Thus, the memory overhead for preserving multiple versions of the Lively runtime depends highly on concrete usage scenarios.
 
 
-
+\todo{present a heap measurement for a particular scenario, where multiple commits can be marked in the graph to show that for the versions only relatively little memory needs to be reserved / maybe also compared to the memory needed for opening a system code browser (or similar) in the same graph..}
 
 
 
