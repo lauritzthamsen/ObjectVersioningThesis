@@ -257,7 +257,7 @@ In addition, UglifyJS also supports Source Maps \todo{footnote with url to Sourc
 
 
 
-\section{Workarounds for this Usage of the Current State of the Proxies}
+\section{Workarounds for the Current State of the Proxies}
 
 Certain workarounds are required to make our proxy-based implementation of version-aware references work, due to the preliminary status of the proxy implementation.
 While the specification of Direct Proxies already progressed from proposal status to being part of the current ECMAScript 6 Draft\footnote{\url{http://people.mozilla.org/~jorendorff/es6-draft.html}, accessed March 5th, 2014}, it is still in draft status and not yet implemented in the JavaScript engines used by the Chrome browser and the Firefox browser.
@@ -267,18 +267,21 @@ That is, our versioning proxies prinicipally work in both Chrome and Firefox and
 However, even with the shim, two issues need to be addressed with technical workarounds that might no longer be necessary once ECMAScript 6 standard gets finalized and fully implemented by the JavaScript engines: 
 
 \begin{enumerate}
-    \item The proxies have to be provided with an actual target, even when implementing virtual objects and consistency checks compare return values of traps to the state of the actual target. 
+    \item The proxies have to be provided with an actual target, even when implementing virtual objects, and consistency invariants compare return values of traps to the state of the actual target. 
     \item Certain built-in JavaScript functions dont handle proxies correctly.
 \end{enumerate}
 
 \todo{add the missing instanceof operator trap}
 
 
-\subsection{Fixed Target Objects for Proxies}
+\subsection{Disabling Target Object Invariants}
 
 Using the \emph{harmony-reflect} shim in a recent Chrome, proxies require an actual \emph{target} object even though the current ECMAScript 6 draft says otherwise\footnote{\url{http://people.mozilla.org/~jorendorff/es6-draft.html\#sec-proxy-object-internal-methods-and-internal-slots}, accessed April 15, 2014}.
 When an actual target object is, however, provided when creating a proxy, the internal link between proxy and target object cannot be changed at runtime.
 Therefore, in our use case of the proxies, in which proxies stand-in for a dynamically chosen version object among a group of different versions of one conceptionally one object, the proxy is now linked to a particular object or even particular version and delegates to that one by default.
+
+\todo{add a Figure that adds this (dummy-)target link to the existing proxy+proxy handler (with traps) and link to versions.. where the target obviously is out of place + redundant}
+
 Further, the Direct Proxies are designed to ensure certain invariants~\cite{Cutsem2013TRP} between an objects properties and the return values of traps when the object properties get accessed.
 For example, one invariant is that a proxy's \lstinline{get}-trap has to return the fixed value for a property of an object that is configured to be immutable.
 That is, in our case, when a versioning proxy is linked to a particular object as its target and that target cannot be changed after creating the proxy, configuring any property as immutable would effectively declare that property immutable for all versions.
@@ -291,8 +294,6 @@ The proxy constructor still requires an actual object as \emph{target} object, b
 The \lstinline{typeof} operator returns only a distinction between a certain set of types in JavaScript, while our versioning proxies also stand-in only for certain mutable types.
 In fact, the only necessary difference for the \lstinline{typeof} operator is that a proxy representing the versions of an object or array is an object has an object as target, while a proxy representing the versions of a function needs to have a function as target.
 This difference in the type of supplied target objects is also necessary as the \emph{apply}- and \emph{construct}-trap are also only called on proxies with functions as targets.
-
-\todo{add a Figure that adds this (dummy-)target link to the existing proxy+proxy handler (with traps) and link to versions.. where the target obviously is out of place + redundant}
 
 
 
