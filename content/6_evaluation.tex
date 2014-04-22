@@ -66,9 +66,9 @@ We used Chrome for all these experiments as Lively currently works best in Chrom
 
 
 
-\section{Functionality: Undo and Redo for the Lively Kernel} \label{sec:DISCUSSION:1}
+\section{Functionality: Versions of the Lively Kernel Runtime} \label{sec:DISCUSSION:1}
 
-% TODO: one-sentence subsection intro
+% TODO: one-sentence section intro
 
 \subsection{Testing with Benchmarks}
 
@@ -111,10 +111,14 @@ Our implementation already unwraps proxies for many built-in functions, as expla
 However, the used proxies are currently an experimental JavaScript feature in Chrome, not yet fully supported, and we expect these issues not to be problems once the proxies get fully supported by JavaScript engines.
 
 
-\section{Practicability: Impact on Memory Consumption} \label{sec:DISCUSSION:2}
+\section{Practicability: Additional Memory Consumption} \label{sec:DISCUSSION:2}
+
+% TODO: one-sentence section intro
+
+\subsection{Constant Memory Overhead for Version-aware References}
 
 The version-aware references have an impact on memory consumption
-performance overhead of version-aware references, not of having multiple versions.. + why this? constant overhead for references, overhead for multiple versions dependent on the different versions.. but version-aware ref overhead a prerequisite for versions.. overhead of versions is also out of the scope of this thesis
+focus on performance overhead of version-aware references, not of having multiple versions.. + why this? constant overhead for references, overhead for multiple versions dependent on the different versions.. but version-aware ref overhead a prerequisite for versions.. overhead of versions is also out of the scope of this thesis
 
 % overhead ist erwartbar, aber die Frage, die sich stellt: ist der overhead vertretbar / das System mit version-aware references noch nutzbar / responsive?
 
@@ -145,19 +149,24 @@ While the system creates proxies for most objects, it does not use proxies for, 
 
 
 
-\subsubsection{Memory Requirements of Preserving Multiple Versions}
+\subsection{Memory Used for Preserving Versions}
 
+\paragraph{Method}
+
+\paragraph{Results}
+
+\todo{present a heap measurement for a particular scenario, where multiple commits can be marked in the graph to show that for the versions only relatively little memory needs to be reserved / maybe also compared to the memory needed for opening a system code browser (or similar) in the same graph..}
+
+\paragraph{Discussion}
 In contrast to the memory overhead for the version-aware references, the memory consumption for preserving different versions of the runtime does not increase linearly with the number of proxied objects or even with the number of versions.
 Our implementation does not copy all objects for each version, but only creates copies when objects change between versions, effectively storing only diffs on the granularity of objects.
 Therefore, the memory required for new versions of the runtime depends on how many objects change and how big those objects are.
 Thus, the memory overhead for preserving multiple versions of the Lively runtime depends highly on concrete usage scenarios.
 
 
-\todo{present a heap measurement for a particular scenario, where multiple commits can be marked in the graph to show that for the versions only relatively little memory needs to be reserved / maybe also compared to the memory needed for opening a system code browser (or similar) in the same graph..}
 
 
-
-\section{Practicability: Slowdown of Execution Speed} \label{sec:DISCUSSION:3}
+\section{Practicability: Impact on Execution Speed} \label{sec:DISCUSSION:3}
 
 % TODO: one-sentence subsection intro
 
