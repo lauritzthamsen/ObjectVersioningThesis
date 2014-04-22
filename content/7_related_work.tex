@@ -3,12 +3,12 @@
 \todo{chapter intro for related work}
 
 
-\section{Recovery of Previous States}
+\section{Automatic Access to Previous States}
 
 \todo{section intro for this group of related work: recovery of previous versions / automatic versioning}
 
 
-\subsection{Continuous Versioning / CoExist}
+\subsection{Continuous Versioning}
 
 \cite{Steinert2012COE}
 CoExist provides recovery support through continuous versioning in Squeak/Smalltalk.
@@ -51,7 +51,7 @@ However, back-in-time debuggers need to be able to undo the effects of every sta
 In general, back-in-time debuggers support a particular development task---debugging--- and, thus, are also often only active when a program is started in separate debugging mode, while the purpose of object versioning is more comprehensive and we expect it to be active at least during all development tasks, but possibly even be always enabled.
 
 
-\section{Scoping Changes / Multiple Versions Of the Runtime}
+\section{Multiple Versions Of the Runtime}
 
 \todo{section intro for this group of related work: first-class changes / dynamic scoping of adaptions..}
 
@@ -93,7 +93,9 @@ ChangeBoxes~\cite{Denker2007EEC}
 Class-boxes? \todo{what about Alexandre Bergel's Class-boxes.. and other boxes by the SCG?}
 
 
-\subsection{Aliases / Practical Object-oriented Back-in-Time Debugging}
+\subsection{Aliases}
+
+\todo{cite Lienhard's diss and make it more focused on aliases than POoBiTDebugging}
 
 A concrete and particularly related work is Practical Object-oriented Back-in-Time Debugging~\cite{Lienhard2008POB}, a logging-based approach that also preserves the history for each object using alternative references.
 As in our approach, these alternative references, called Aliases, are actually also objects, part of the application memory, and contain information about the history and origin of the values stored in objects.
