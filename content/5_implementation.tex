@@ -25,6 +25,7 @@ Therefore, to change the entire runtime state as, for example, an undo and redo 
 % limitations / ES 6 implications: proxies have to be available, lots of low-level frames and dev tool issues
 
 
+
 \section{ECMAScript 6 Proxies as Version-aware References} \label{sec:IMPLEMENTATION:1}
 
 Our implementation of version-aware references is based on the ECMAScript 6 Direct Proxies.
@@ -105,14 +106,6 @@ keys: function(target) \\ \hline
 All these traps fire either when the proxy is accessed with specific JavaScript operators or when it is passed to meta-programming facilities provided by built-in globals\footnote{\url{http://wiki.ecmascript.org/doku.php?id=harmony:direct_proxies\#api}, accessed March 5, 2014}.
 For example, the \lstinline{preventExtensions}-trap fires when a proxy is passed to the built-in \lstinline{Object.preventExtensions()} function, which prevents new properties from subsequentely being added to an object.
 
-There currently is no \lstinline{instanceof} trap to intercept the behavior of the \lstinline{instanceof} operator since the Direct Proxies currently do not provide such a trap.
-However, the type of an object in JavaScript is defined by an object's prototype chain, which may change at runtime.
-So, while the prototype of an object is a property and gets versioned as well, the \lstinline{instanceof} operator does not get trapped and, thus, is not delegated to the current version of the object when used on a proxy.
-When creating a proxy a \emph{target} object can be provided to be linked from the proxy and the \lstinline{instanceof} operator would follow this link to report the target's type, but as the target link cannot be changed later on, while proxies stand-in for multiple versions with potentially different types, this is not an option.
-Therefore, the \lstinline{instanceof} access needs to be handled by a custom \lstinline{Object.instanceof()} function, which implments the semantics of JacaScript's \lstinline{instanceof} operator but does delegate the necessary checks when a versioning proxy gets passed to it.
-To exchange all usage of the \lstinline{instanceof} operator with application of this custom function, we transform JavaScript sources before execution.
-These transformations change, for example, \lstinline{anObject instanceof SomeConstructor} to \lstinline{Object.instanceof(anObject, SomeConstructor)}.
-
 The handler object is an ordinary JavaScript object and, thus, can hold arbitrary properties.
 Besides providing the trap methods, our proxy handler objects also hold the versions of the represented object.
 For this, the proxy handler uses an object as dictionary that associates version identifiers with the different versions of the object.
@@ -121,7 +114,9 @@ Having the handler object hold all the versions of conceptionally one object als
 When a proxy gets garbage collected, all versions get garbage collected as well.
 
 
-\section{Providing Simple Global Versions for Undo and Redo} \label{sec:IMPLEMENTATION:3}
+
+
+\section{Runtime Versions for Global Undo and Redo} \label{sec:IMPLEMENTATION:3}
 
 \todo{write a text from the following notes}
 
@@ -152,7 +147,8 @@ redraw of the world as DOM objects / DOM relations are not part of the object ve
 
 
 
-\section{Using Proxies For All Mutable Objects}
+
+\section{Proxies For All Mutable JavaScript Objects}
 
 As we use proxies as version-aware references while the JavaScript runtime still only provides ordinary references, references that usually would point to objects directly now need to point to proxies instead. 
 References to the same object need to point to the same proxy for that object as the identity of proxies will be compared instead of the identity of the original objects.
@@ -254,14 +250,14 @@ UglifyJS parses without relying on JavaScript exceptions for, for example, backt
 In addition, UglifyJS also supports Source Maps \todo{footnote with url to Source Maps}, which allow to view and debug the original code with the browser's developer tools, even though the transformed code is executed.
 
 
-\todo{add something about when the versioning source transformations are done and what objects are versioned currently}
+\todo{add something about when the versioning source transformations are done and which parts of the system are currently versioned}
 % TODO: source transformations enabled right after the object versioning code, i.e. the implementation of the proxies and the source transformation, which are both themselves implemented using ordinary javascript code, gets loaded. by patching the eval that is used for evaluated modules that get loaded with an eval(transformSource.. so modules are not versioned, but classes / layers / traits are.. e.g. a class is versioned, so in different versions there might be different class-side state... so, for example, modules are currently in our implementation the roots of the version-aware reference graphs that prevent garbage collection, 
 
 
 
 
 
-\section{ES 6 Direct Proxies.. Workarounds}
+\section{Workarounds for this Usage of the Current State of the Proxies}
 
 Certain workarounds are required to make our proxy-based implementation of version-aware references work, due to the preliminary status of the proxy implementation.
 While the specification of Direct Proxies already progressed from proposal status to being part of the current ECMAScript 6 Draft\footnote{\url{http://people.mozilla.org/~jorendorff/es6-draft.html}, accessed March 5th, 2014}, it is still in draft status and not yet implemented in the JavaScript engines used by the Chrome browser and the Firefox browser.
@@ -273,8 +269,12 @@ However, even with the shim, two issues need to be addressed with technical work
 \begin{enumerate}
     \item The proxies have to be provided with an actual target, even when implementing virtual objects and consistency checks compare return values of traps to the state of the actual target. 
     \item Certain built-in JavaScript functions dont handle proxies correctly.
-    % \item When the prototype of an object is a proxy, it cannot be changed due to a bug in Chrome.
 \end{enumerate}
+
+\todo{add the missing instanceof operator trap}
+
+
+\subsection{Fixed Target Objects for Proxies}
 
 Using the \emph{harmony-reflect} shim in a recent Chrome, proxies require an actual \emph{target} object even though the current ECMAScript 6 draft says otherwise\footnote{\url{http://people.mozilla.org/~jorendorff/es6-draft.html\#sec-proxy-object-internal-methods-and-internal-slots}, accessed April 15, 2014}.
 When an actual target object is, however, provided when creating a proxy, the internal link between proxy and target object cannot be changed at runtime.
@@ -294,6 +294,10 @@ This difference in the type of supplied target objects is also necessary as the 
 
 \todo{add a Figure that adds this (dummy-)target link to the existing proxy+proxy handler (with traps) and link to versions.. where the target obviously is out of place + redundant}
 
+
+
+\subsection{Unwrapping Versions for Native Code}
+
 Some built-in functions react to proxies with actual errors, return wrong results, or otherwise do not provide the usual functionality.
 Therefore, these functions need to be provided with actual objects instead of the proxy.
 This is unproblematic for most cases as, given JavaScript's single-threaded and cooperative execution in browser engines, which version of an object is to be used is not expected to change during the execution of a built-in function.
@@ -308,6 +312,20 @@ Though JavaScript does get executed with a single thread  using cooperative sche
 As this---changing a callback function or its properties while waiting on the response---is unlikely, bad programming style as it introduces dependencies to the timing of network I/O, and is through network communication already at the limit of what object versioning can due in general, our implementation currently does not provide a workaround for this specific case, even though we are aware of this potential problem. 
 In addition to these behavior implemented in traps, there are also certain immutable types that do not get proxied at all in our implemention as, for example, strings.
 However, some methods of, for example, string objects also do not handle proxies correctly and our implementation, therefore, patches those functions to also unwrap proxies before executing the original functions.
+
+\todo{add something on our way to detect native code}
+
+
+\subsection{Forwarding the \emph{Instanceof} Operator}
+
+There currently is no \lstinline{instanceof} trap to intercept the behavior of the \lstinline{instanceof} operator since the Direct Proxies currently do not provide such a trap.
+However, the type of an object in JavaScript is defined by an object's prototype chain, which may change at runtime.
+So, while the prototype of an object is a property and gets versioned as well, the \lstinline{instanceof} operator does not get trapped and, thus, is not delegated to the current version of the object when used on a proxy.
+When creating a proxy a \emph{target} object can be provided to be linked from the proxy and the \lstinline{instanceof} operator would follow this link to report the target's type, but as the target link cannot be changed later on, while proxies stand-in for multiple versions with potentially different types, this is not an option.
+Therefore, the \lstinline{instanceof} access needs to be handled by a custom \lstinline{Object.instanceof()} function, which implments the semantics of JacaScript's \lstinline{instanceof} operator but does delegate the necessary checks when a versioning proxy gets passed to it.
+To exchange all usage of the \lstinline{instanceof} operator with application of this custom function, we transform JavaScript sources before execution.
+These transformations change, for example, \lstinline{anObject instanceof SomeConstructor} to \lstinline{Object.instanceof(anObject, SomeConstructor)}.
+
 
 
 \section{Limitations of the Implementation}
