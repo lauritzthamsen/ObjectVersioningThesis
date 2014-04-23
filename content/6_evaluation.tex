@@ -115,7 +115,7 @@ Further, the current implementation already allows to re-establish many preserve
 
 
 
-\section{Practicability: Effect on Memory Consumption} \label{sec:DISCUSSION:2}
+\section{Practicability: Additonal Memory Consumption} \label{sec:DISCUSSION:2}
 
 A constant memory overhead is expectable for the version-aware references, while the preserved versions are expected to require different amounts of additional memory.
 
@@ -183,20 +183,18 @@ The runtime required the most memory at the second measured point, whilewhile th
 
 
 \paragraph{Discussion}
-Our implementation does not copy all objects for each version, but only creates copies when objects change between versions, effectively storing only diffs on the granularity of objects.
-Therefore, the memory required for preserving versions of the runtime depends on how many objects change compared to the predecessor version and how big those objects are.
+Our implementation does not copy all objects for each version, but only creates copies when objects change subsequentely, effectively storing only diffs on the granularity of objects.
+Therefore, the memory required for preserving versions of the runtime depends on how objects change compared to the predecessor version.
 Except for some objects created due to mouse interactions in-between versions, the state \textcircled{2} renders the same objects as state \textcircled{1}, but holds multiple versions of the state of the involed morphs and, therefore, slightly increases.
 The memory required for the entire JavaScript runtime---not only for preserving versions---does not always increase as there are also temporary objects that are not preserved with any version, including the state of actual HTML document elements that can be derived from preserved morph state.
-For this reason, it does not seem odd that state \textcircled{3} requires less memory than state \textcircled{2}, even though from the third state both previous states can be re-established.
-That is, the memory required for preserving different versions of the runtime does not increase linearly with the number of versions, but instead depends highly on concrete usage scenarios.
+For this reason, it does not seem odd that state \textcircled{3} requires less memory than state \textcircled{2}, even though from the third state both previous states can be re-established.\\
+\emph{In summary}, the memory overhead for preserving different versions of the runtime does not increase linearly with the number of versions and does not only depend on how objects state is preserved for, but instead depends highly on the differences between preserved versions.
 
 
 
 \section{Practicability: Impact on Execution Speed} \label{sec:DISCUSSION:3}
 
 % TODO: one-sentence subsection intro
-
-% TODO: 
 
 In general, the experienced slow down does not depend as much on the number of preserved versions as it is dependent on how many version-aware references have to be resolved during the execution of particular code.
 As versions of objects are created only when objects change between versions, preserving a version of the runtime happens incrementally and not at a single moment in time.
