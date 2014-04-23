@@ -8,8 +8,7 @@ For this evaluation, we used a standard benchmark suite and the Lively Kernel.
 
 \section{Test Setup}
 
-We tested the implementation of version-aware references with a standard JavaScript benchmark suite and with the target programming system, the Lively Kernel.
-For all tests, we used the test machine described in this section.
+We tested the implementation of version-aware references with a standard JavaScript benchmark suite, with the Lively Kernel, and used the test machine described in this section.
 
 
 \subsection{The Octane JavaScript Benchmark Suite}
@@ -71,7 +70,7 @@ We tested whether the version-aware references forward to particular versions co
 \paragraph{Method}
 % what was done?
 We ran the Octane benchmark suite to test the functionality of our implementation.
-For this, we transformed the Octane benchmarks with our source transformations, executed the resulting code, and then checked for JavaScript errors as well as compared the results of the transformed benchmarks to their usual results.\\
+We transformed the Octane benchmarks with our source transformations, executed the resulting code, and then checked for JavaScript errors as well as compared the results of the transformed benchmarks to their usual results.\\
 % why / to test what?
 We did this for to test two aspects.
 First, to test whether our source transformations yield syntactically correct JavaScript code for the benchmarks.
@@ -118,59 +117,78 @@ Further, the current implementation already allows to re-establish many preserve
 
 \section{Practicability: Effect on Memory Consumption} \label{sec:DISCUSSION:2}
 
-% TODO: one-sentence section intro
+A constant memory overhead is expectable for the version-aware references, while the preserved versions are expected to require different amounts of additional memory.
 
 \subsection{Memory Overhead for Version-aware References}
 
-The version-aware references have an impact on memory consumption
-focus on performance overhead of version-aware references, not of having multiple versions.. + why this? constant overhead for references, overhead for multiple versions dependent on the different versions.. but version-aware ref overhead a prerequisite for versions.. overhead of versions is also out of the scope of this thesis
-
-% overhead ist erwartbar, aber die Frage, die sich stellt: ist der overhead vertretbar / das System mit version-aware references noch nutzbar / responsive?
-
-% memory overhead for the version-aware references, not for preserving multiple versions
+The version-aware references obviously have an impact on memory consumption, but a question is whether the overhead is still practical.
 
 \paragraph{Method}
-memory overhead for the version-aware references, not for preserving multiple versions
-loading an empty the Lively Kernel world
+% what was done?
+We measured the memory consumption of an empty Lively world both when loaded with and without source transformations and, thus, version-aware references.
+We did not preserve any versions of development states.\\
+% why / to test what? 
+This way, we only measure the overhead of the proxy-based version-aware references themselves as each of those refers to only one version---the usual objects, which are present both with version-aware references and without.
+We decided to load an empty Lively Kernel world to measure the minimal overhead due to version-aware references.
 
 
 \paragraph{Results}
-As shown in Figure~\ref{fig:MemoryOverhead}, loading an empty the Lively Kernel world requires three times more space with proxies than without proxies.
+As shown in Figure~\ref{fig:MemoryOverheadForReferences}, loading an empty the Lively Kernel world requires three times more space with proxies than without proxies.
 
 \begin{figure}[h]
     \centering
     \includegraphics[width=\textwidth]{figures/6_evaluation/1_memoryOverhead.pdf}
     \caption{Memory consumption when starting an empty the Lively Kernel Kernel world in megabyte.}
-    \label{fig:MemoryOverhead}
+    \label{fig:MemoryOverheadForReferences}
 \end{figure}
 
 \paragraph{Discussion}
-The memory overhead of our implementation appears to be practical.
-
-In our proxy-based implementation, the system uses a proxy for each reachable mutable object and all references that would usually refer directly to the object refer to the proxy instead.
+Even without preserving multiple versions for any object, the system requires more space when all mutable state is referred to only through proxies.
+The system uses a proxy for each reachable mutable object and all references that would usually refer directly to the object refer to the proxy instead.
 These proxies require additional space.
-That is, even without preserving multiple versions for any object, the system requires more space when all mutable state is referred to only through proxies.
-For each proxied object the system now also has a proxy, which comprises of an internal proxy object, a proxy handler object that implements the proxy's behavior, an ordinary JavaScript object as dictionary for all available versions of the object the proxy stands-in for, and boolean flags to, for example, indicate whether a proxy should preserve versions at all or not.
-While the system creates proxies for most objects, it does not use proxies for, for example, all objects created before our language-level implementation of object versioning is loaded and all objects used for implementing the versioning itself.
-
-
+Each proxy comprises of at least an internal proxy object, a proxy handler object that implements the proxy's behavior, and an ordinary JavaScript object as dictionary for all available versions of the object the proxy stands-in for.
+While the system creates proxies for most objects, it does not use proxies for all objects created before our language-level implementation of object versioning is loaded, which also includes all objects used for implementing the versioning itself.
+We expect the number of objects excluded from versioning to be relatively stable, while all additional objects created at runtime will be accompanied by proxies.
+That is, we estimate the overhead to increase both absolutely and relatively for Lively worlds that consist of more objects.
+In absolute terms, however, the memory overhead increases linearly with the number of objects accessed through proxies.\\
+\emph{In summary}, the memory overhead appears to be expect and practical.
 
 
 \subsection{Memory Usage for Preserving Versions}
 
+Besides the memory required for the proxies, there is also memory required for preserving multiple versions of the runtime.
+Although we expect this memory overhead to be highly dependent on the differences between preserved states, we still measured an example scenario.
+
 \paragraph{Method}
+% what?
+To measure how much memory is required for preserving versions of the runtime state, we measured the memory consumed at three different moments while preserving each of the previous moments, as visible in the upper half of Figure~\ref{fig:MemoryOverheadForVersions}.
+The memory we measured is not limited to the memory required for versions, but was instead the memory necessary for the entire JavaScript runtime.
+In particular, in this experiment, we did the following:
+\begin{enumerate}
+    \item We measured the memory consumed for the state \textcircled{1} and then commited this version of the runtime.
+    \item We changed the state to be state \textcircled{2}, measured the memory again, and also commited that version.
+    \item We changed the state to state \textcircled{3} and measured the memory one last time.
+\end{enumerate}
 
 \paragraph{Results}
+As shown in Figure~\ref{fig:MemoryOverheadForVersions}, the memory consumption is not very different for the three situations.
+The runtime required the most memory at the second measured point, whilewhile the third is in-between the first and the second measurements.
 
-\todo{present a heap measurement for a particular scenario, where multiple commits can be marked in the graph to show that for the versions only relatively little memory needs to be reserved / maybe also compared to the memory needed for opening a system code browser (or similar) in the same graph..}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{figures/6_evaluation/4_MemoryForVersions.pdf}
+    \caption{Memory consumed by the same runtime at three different moments in time, after preserving the previous states.}
+    \label{fig:MemoryOverheadForVersions}
+\end{figure}
+
 
 \paragraph{Discussion}
-In contrast to the memory overhead for the version-aware references, the memory consumption for preserving different versions of the runtime does not increase linearly with the number of proxied objects or even with the number of versions.
 Our implementation does not copy all objects for each version, but only creates copies when objects change between versions, effectively storing only diffs on the granularity of objects.
-Therefore, the memory required for new versions of the runtime depends on how many objects change and how big those objects are.
-Thus, the memory overhead for preserving multiple versions of the the Lively Kernel runtime depends highly on concrete usage scenarios.
-
-
+Therefore, the memory required for preserving versions of the runtime depends on how many objects change compared to the predecessor version and how big those objects are.
+Except for some objects created due to mouse interactions in-between versions, the state \textcircled{2} renders the same objects as state \textcircled{1}, but holds multiple versions of the state of the involed morphs and, therefore, slightly increases.
+The memory required for the entire JavaScript runtime---not only for preserving versions---does not always increase as there are also temporary objects that are not preserved with any version, including the state of actual HTML document elements that can be derived from preserved morph state.
+For this reason, it does not seem odd that state \textcircled{3} requires less memory than state \textcircled{2}, even though from the third state both previous states can be re-established.
+That is, the memory required for preserving different versions of the runtime does not increase linearly with the number of versions, but instead depends highly on concrete usage scenarios.
 
 
 
