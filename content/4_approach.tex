@@ -1,12 +1,12 @@
 % TODO: is the following incorporated somewhere?
-% state of the complete runtime, including state of the runtime that is not persisted with commiting particular objects or entire Lively worlds (global variables.. config..).. and that, in Lively, classes are also objects and, thus, also preserved
+% state of the complete runtime, including state of the runtime that is not persisted with commiting particular objects or entire the Lively Kernel worlds (global variables.. config..).. and that, in the Lively Kernel, classes are also objects and, thus, also preserved
 
 
 \chapter{Object Versioning} \label{chapter:APPROACH}
 
 % When programmers unexpectedly introduce problems to the functionality, performance, or design of their applications, they might want to recover a previous development state.
-% In programming systems like Lively, where programmers often work at runtime on objects, a development state consists of the state of objects, which includes object-specific behavior.
-% To be able to recover such a development state, comprehensive recovery support for Lively must, therefore, preserve versions of objects.
+% In programming systems like the Lively Kernel, where programmers often work at runtime on objects, a development state consists of the state of objects, which includes object-specific behavior.
+% To be able to recover such a development state, comprehensive recovery support for the Lively Kernel must, therefore, preserve versions of objects.
 % 
 % Our approach for this is based on alternative, version-aware references that manage versions of objects transparently.
 % That is, objects are referred to by references that dynamically and transparently choose one particular version of the objects as they were at a particular moment.
@@ -39,7 +39,7 @@
 % ++ objects are kept as readily usable objects in memory (instead of storing versions on disk)
 
 
-For object versioning in systems like Lively, we propose alternative, version-aware references to manage multiple versions of objects.
+For object versioning in systems like the Lively Kernel, we propose alternative, version-aware references to manage multiple versions of objects.
 These version-aware references know the available versions for an object and resolve to one of those.
 That is, a version-aware reference encapsulates the multiplicity of different objects representing versions for conceptually one object.
 To be able to re-establish complete development states, the state of all objects of the programming runtime needs to be accessed via these version-aware references.
@@ -152,7 +152,7 @@ This way, as \emph{objects} are copied on writes, versioning happens automatical
 % garbage collection of proxies and versions
 
 % rationale for using proxies:
-% (as opposed to providing alternative references on virtual machine-level: language-level solution as there are many different engines used for executing JavaScript (which would all require implementations of version-aware references to have Lively with recovery support for all users. also implementation in JavaScript is easier (especially for a first prototype) and does not have to go through any formal review or standardization process, which language features added to JS engines usually do))
+% (as opposed to providing alternative references on virtual machine-level: language-level solution as there are many different engines used for executing JavaScript (which would all require implementations of version-aware references to have the Lively Kernel with recovery support for all users. also implementation in JavaScript is easier (especially for a first prototype) and does not have to go through any formal review or standardization process, which language features added to JS engines usually do))
 
 
 For a concrete solution for the Lively Kernel, we propose to use proxies for version-aware references.
@@ -163,7 +163,7 @@ For this, we transform sources to proxy object literals and constructor function
 Proxies for functions then return objects always proxied when used as constructors or otherwise to create new objects.
 When these proxy-based version-aware references can know the versions of an object and are used consistently to access mutable objects, the proxies only need to know which versions to choose at a given moment and when to copy current versions to preserve particular runtime states.
 For this, the runtime is enhanced with a global version identifier representing the current version, which the proxies use to annotate newly proxied objects or new versions of objects with and also to choose the correspondingly annotated versions when accessing proxies.
-This then is enough to provide a simple undo/redo for Lively.
+This then is enough to provide a simple undo/redo for the Lively Kernel.
 
 
 The proxies required for our solution are virtual-object proxies, proxies that can intercept and response arbitrarily on access.
@@ -287,5 +287,5 @@ Proxies allow a language-level implementation of alternative references in JavaS
 Without requiring adaptions to the virtual execution engines, proxies can be inserted to stand-in for objects---so references that usually point directly to objects point to proxies instead---and these proxies can provide versioning information and behavior.
 These proxies are, thus, an alternative to using ordinary references to directly refer to objects.
 That is, some objects can, potentially, still be referred to directly, while objects that should be versioned should be accessed only though proxies.
-In our solution for Lively, nearly all objects are only accessed through proxies, except for some particular \emph{root objects} that are not required to be versioned but potentially do refer to other objects via version-aware references.
+In our solution for the Lively Kernel, nearly all objects are only accessed through proxies, except for some particular \emph{root objects} that are not required to be versioned but potentially do refer to other objects via version-aware references.
 
