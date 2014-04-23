@@ -9,16 +9,18 @@ For this evaluation, we used a standard benchmark suite and the Lively Kernel.
 \section{Test Setup}
 
 We tested the implementation of version-aware references with a standard JavaScript benchmark suite and with the target programming system, the Lively Kernel.
-For these tests, we used the computer described in this section and the Chrome browser.
+For all tests, we used the test machine described in this section.
 
 
 \subsection{The Octane JavaScript Benchmark Suite}
 
 % what?
 We used the \emph{Octance} benchmark suite\footnote{\url{http://code.google.com/p/octane-benchmark/}, accessed February 3, 2014, at version 26} to test both the behavior and performance overhead of our alternative references.
-Octane is a general JavaScript benchmark suite that consists of eight benchmarks and makes use of many important language features, including primitive data types, operators, built-in functions, custom functions, objects, and prototypical inheritance.
-It advertises itself as providing tests that are representative of modern Web applications.
-Octane is also used in measuring the performance of \emph{v8}, the engine used by the Chrome browser and Node.js, and even part of its official source code repository\footnote{\url{http://v8.googlecode.com/svn/}, accessed April 23, 2014, at revision 20901}.
+Octane is a general JavaScript benchmark suite that consists of eight benchmarks.
+It does not test JavaScript's language features systematically, but instead is a benchmark suite of programs such as the \emph{DeltaBlue}\cite{FreemanBenson1990ICS} constraint solver.
+These selection of JavaScript programs do, however, make use of many important language features, including primitive data types, operators, built-in functions, custom functions, objects, and prototypical inheritance.
+Octane advertises itself as providing tests that are representative of modern Web applications.
+It is also used in measuring the performance of \emph{v8}, the engine incorporated by both the Chrome browser and Node.js, and even part of its official source code repository\footnote{\url{http://v8.googlecode.com/svn/}, accessed April 23, 2014, at revision 20901}.
 
 % why?
 We decided to use the Octane suite for two reasons.
@@ -62,34 +64,44 @@ We used Chrome for all experiments as the Lively Kernel currently works best in 
 
 \section{Functionality: Versions of the Lively Kernel Runtime} \label{sec:DISCUSSION:1}
 
-% TODO: one-sentence section intro
+We tested whether the version-aware references forward to particular versions correctly both with benchmarks and with the Lively Kernel, as described in this section, and did this continuously during the implementation of our approach.
 
 \subsection{Testing with Benchmarks}
 
 \paragraph{Method}
 % what was done?
-Besides testing the behavior of our proxies and our source transformations in isolated test cases that cover important JavaScript language features and syntax, we also used a benchmark suite.
+We ran the Octane benchmark suite to test the functionality of our implementation.
+For this, we transformed the Octane benchmarks with our source transformations, executed the resulting code, and then checked for JavaScript errors as well as compared the results of the transformed benchmarks to their usual results.
 
 % why / to test what?
+We did this for to test two aspects.
 First, to test whether our source transformations yield syntactically correct JavaScript code for the benchmarks.
 Second, to test whether the proxy-based implementation of version-aware references, inserted by the source transformations, allows to run the benchmarks without errors and with the same results as when running the benchmarks without our implementation.
 
 
 \paragraph{Results}
 All benchmarks in this suite run without errors and return the same results as when executed without any source transformations.
-That is, at least for these tests, our source transformations produce working source code and our proxy-based version-aware references behave as the objects they refer to.
+That is, at least for these tests, our source transformations produce working source code and our proxy-based version-aware references behave as the object versions they refer to.
+The benchmarks and, in particular, the \emph{DeltaBlue} benchmark revealed a problem with using proxies as prototypes of objects, which we reported to the \emph{harmony-reflect} repository\footnote{\url{http://github.com/tvcutsem/harmony-reflect/issues/18}, accessed April 23, 2014} and which turned out to be an issue with the \emph{v8} JavaScript engine itself\footnote{\url{http://code.google.com/p/v8/issues/detail?id=2804}, accessed April 23, 2014}.
+We virtualized the prototype relation among proxies as workaround for this problem in our implementation, while the issue was subsequentely fixed, making the implemented workaround redundant.
 
 \paragraph{Discussion}
-% TODO: ++ lessons learned from running the benchmarks with our version-aware references
-The proxies, which implement version-aware references, behave like the respective versions of objects in the situations exhibited.
-
+The proxies, which implement version-aware references, behave like the respective versions of objects in the situations exhibited in the benchmarks.
+While these benchmarks do not test JavaScript's features systematically, they cover a range of language features that are representative of many JavaScript programs.
 
 
 \subsection{Testing with the Lively Kernel}
 
 \paragraph{Method}
-Given these results, we further tested whether the version-aware references are also used consistently for all mutable objects and whether the version-aware references correctly delegate to particular versions.
-For this, we tested the simple linear global undo/redo that we built for the Lively Kernel, as explained in \ref{subsec:APPROACH:2:3}, through various simple examples and with this, whether the source transformations and proxies together allow to preserve and re-establish versions of the Lively Kernel's JavaScript runtime in practice.
+% what was done?
+tested whether lively loads.. 
+
+we tested the simple linear global undo/redo that we built for the Lively Kernel, as explained in \todo{reference..}, through various simple examples and with this, whether the source transformations and proxies together allow to preserve and re-establish versions of the Lively Kernel's JavaScript runtime in practice.
+
+% why / to test what?
+
+whether the version-aware references are also used consistently for all mutable objects and whether the version-aware references correctly delegate to particular versions.
+
 
 \paragraph{Results}
 Here, we were able to preserve and re-establish the particular runtime state of multiple example scenarios, including the state of simple morphs, morph compositions, and more complicated graphical applications as, for example, text editors and developer tools.
@@ -98,8 +110,10 @@ but not all scenarios..
 
 except for a few known cases, our proxy-based JavaScript implementation of our approach allows to practically preserve and re-establish the entire runtime state of the Lively Kernel.
 
-\paragraph{Discussion}
 % TODO: ++ lessons learned from letting the Lively Kernel run with our version-aware references
+
+
+\paragraph{Discussion}
 
 % Further, the linear global runtime versions allows to re-establish previous development states in the Lively Kernel.
 % That is, all references to relevant objects appear to be version-aware references in the tested situations.
@@ -110,11 +124,13 @@ Our implementation already unwraps proxies for many built-in functions, as expla
 However, the used proxies are currently an experimental JavaScript feature in Chrome, not yet fully supported, and we expect these issues not to be problems once the proxies get fully supported by JavaScript engines.
 
 
-\section{Practicability: Additional Memory Consumption} \label{sec:DISCUSSION:2}
+
+
+\section{Practicability: Effect on Memory Consumption} \label{sec:DISCUSSION:2}
 
 % TODO: one-sentence section intro
 
-\subsection{Constant Memory Overhead for Version-aware References}
+\subsection{Memory Overhead for Version-aware References}
 
 The version-aware references have an impact on memory consumption
 focus on performance overhead of version-aware references, not of having multiple versions.. + why this? constant overhead for references, overhead for multiple versions dependent on the different versions.. but version-aware ref overhead a prerequisite for versions.. overhead of versions is also out of the scope of this thesis
@@ -150,7 +166,7 @@ While the system creates proxies for most objects, it does not use proxies for, 
 
 
 
-\subsection{Memory Used for Preserving Versions}
+\subsection{Memory Usage for Preserving Versions}
 
 \paragraph{Method}
 
