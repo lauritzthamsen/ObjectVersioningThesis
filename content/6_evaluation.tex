@@ -3,62 +3,56 @@
 We evaluated our implementation of version-aware references in terms of functionality and practicability, as presented and discussed in this Chapter.
 Regarding functionality, we evaluated whether our proxy-based version-aware references behave correctly like particular versions and whether they allow to preserve and re-establish versions of the development state in the Lively Kernel.
 Regarding practicability, we evaluated the impact of proxy-based version-aware references on both memory consumption and execution speed.
-For this evaluation, we used a standard JavaScript benchmark suite and our target programming system, the Lively Kernel.
-
-% We tested the implementation of version-aware references with two JavaScript benchmark suites and with running the target programming system, the Lively Kernel.
-% The proxies, which implement version-aware references, behave like the respective versions of objects in the situations exhibited.
-% Further, the linear global runtime versions allows to re-establish previous development states in the Lively Kernel.
-% That is, all references to relevant objects appear to be version-aware references in the tested situations.
-% 
-% The memory overhead of our implementation appears to be practical, while the execution overhead of the current implementation does not.
-% The measured execution overhead is in the range of three orders of magnitude for popular JavaScript benchmarks and typical user interactions in the Lively Kernel.
-% Direct comparisons of just the version-aware references and direct references in a microbenchmark even show slow downs of four orders of magnitude.
-% In analyzing these results, we gained the impression that only one order of magnitude is due to the specific proxy behavior, while most of the overhead can be ascribed to the Direct Proxies as currently available in the Chrome browser.
-% In fact, a comparable indirection can be implemented considerably faster with ordinary JavaScript.
-% Using such a custom JavaScript indirection and further source transformations, thus, promises a practical implementation.
-
-
-
-
+For this evaluation, we used a standard benchmark suite and the Lively Kernel.
 
 
 \section{Test Setup}
 
-
-% TODO: ++ guied through benchmarks and the Lively Kernel, learned about all necessary workarounds..
-
-\subsubsection{The Octane JavaScript Benchmark Suite}
-
-% what?
-used the Octance benchmark suite\footnote{\url{http://code.google.com/p/octane-benchmark/}, accessed February 3, 2014, at version 26}, 
-a general JavaScript benchmark suite, consisting of eight different benchmarks, makes use of many important language features..
-
-which is also used to evaluate \emph{v8}, the JavaScript engine that the Chrome browser uses.
-
-advertised as: ``a suite of tests representative of today’s complex and demanding web applications. Octane‘s goal is to measure the performance of JavaScript code found in large, real-world web applications.''
-
-% why?
-standard benchmark suite, used in tuning the performance of one of the most popular JavaScript engines
+We tested the implementation of version-aware references with a standard JavaScript benchmark suite and with the target programming system, the Lively Kernel.
+For these tests, we used the computer described in this section and the Chrome browser.
 
 
-\subsubsection{Using the Lively Kernel System}
+\subsection{The Octane JavaScript Benchmark Suite}
 
 % what?
-The Lively Kernel Kernel version 2.1.3, integrated our adaptions into ba726ddca08df66b775e904366cdcbd76c4920f6
-
-transforming most of the Lively Kernel's code, except for the module system, but including all classes...
+We used the \emph{Octance} benchmark suite\footnote{\url{http://code.google.com/p/octane-benchmark/}, accessed February 3, 2014, at version 26} to test both the behavior and performance overhead of our alternative references.
+Octane is a general JavaScript benchmark suite that consists of eight benchmarks and makes use of many important language features, including primitive data types, operators, built-in functions, custom functions, objects, and prototypical inheritance.
+It advertises itself as providing tests that are representative of modern Web applications.
+Octane is also used in measuring the performance of \emph{v8}, the engine used by the Chrome browser and Node.js, and even part of its official source code repository\footnote{\url{http://v8.googlecode.com/svn/}, accessed April 23, 2014, at revision 20901}.
 
 % why?
-goal of this work is to provide recovery in the Lively Kernel..
+We decided to use the Octane suite for two reasons.
+First, it covers many JavaScript language features and seems to be a benchmark suite that is widely in use.
+Second, it is the JavaScript benchmark suite used by the Chrome browser, which is also the browser we used in both developing and testing our implementation.
 
-\subsubsection{Test Machine}
+
+\subsection{The Lively Kernel System}
 
 % what?
-All tests and measurements were done on a Macbook Air, with an 2 GHz Intel Core i7, 8 GB main memory, using Mac OS X 10.9.1 and the stable Chrome release 32.0.1700.107, on February 18, 2014.
-All presented measurement results were averaged over five runs.
+We also used Lively Kernel itself to test the implementation of our approach in it.
+We integrated our approach with the version 2.1.3 of the Lively Kernel and, in particular, used the commit ba726ddca08df66b775e904366cdcbd76c4920f6\footnote{\url{http://github.com/LivelyKernel/LivelyKernel/commits/ba726ddca08df66b775e904366cdcbd76c4920f6}, accessed February 17, 2014} as starting point for our changes.
+The version we used for the tests described in this section is fc6f3b7e7e75cf3f866a8e5eb5899d65a5530654\footnote{\url{http://github.com/LivelyKernel/LivelyKernel/commits/fc6f3b7e7e75cf3f866a8e5eb5899d65a5530654}, accessed February 17, 2014}.
+This version transforms most of the Lively Kernel's code to insert proxies for all references to mutable objects.
+In particular, the versioning system is loaded and enabled right after loading Lively Kernel's module system, which excludes the extensions to the built-in JavaScript types, the bootstrap logic, and the module system, but includes everything loaded thereafter, including for example, the instances of all classes of the Lively Kernel.
 
 % why?
-We used Chrome for all these experiments as the Lively Kernel currently works best in Chrome.
+We tested the Lively Kernel itself with our implementation for multiple reasons.
+First, the Lively Kernel is a large JavaScript application that makes use of many features of both the JavaScript language but also the browser as particular host environment.
+That is, it makes use of not only most of the features described in the language specification, including the language's standard library, but also much of the additional built-in functionality of the browser, which, for example, includes the built-in functions to manipulate the HTML document.
+Second, the main goal of the presented work is to provide object versioning for the Lively Kernel, which just happens to be implemented in JavaScript.
+Thus, we are particularly interested in evaluating our implementation with the JavaScript parts used by the Lively Kernel.
+
+
+\subsection{Test Machine Configuration}
+
+% what?
+All tests and measurements were done on a Macbook Air with an 2 GHz Intel Core i7 and 8 GB main memory, using Mac OS X 10.9.1.
+We further used the most recent stable release of the Chrome browser on February 18, 2014, which was version 32.0.1700.107.
+
+The presented measurement results were averaged over five runs.
+
+% why?
+We used Chrome for all experiments as the Lively Kernel currently works best in Chrome.
 
 
 
@@ -87,7 +81,8 @@ That is, at least for these tests, our source transformations produce working so
 
 \paragraph{Discussion}
 % TODO: ++ lessons learned from running the benchmarks with our version-aware references
-??
+The proxies, which implement version-aware references, behave like the respective versions of objects in the situations exhibited.
+
 
 
 \subsection{Testing with the Lively Kernel}
@@ -105,6 +100,10 @@ except for a few known cases, our proxy-based JavaScript implementation of our a
 
 \paragraph{Discussion}
 % TODO: ++ lessons learned from letting the Lively Kernel run with our version-aware references
+
+% Further, the linear global runtime versions allows to re-establish previous development states in the Lively Kernel.
+% That is, all references to relevant objects appear to be version-aware references in the tested situations.
+
 While most of the tested functionality of the the Lively Kernel---including the entire bootstrap process, rendering graphical objects, loading parts from the Lively Kernel's Parts Bin, and using the Lively Kernel's halo controls---work as expected, certain specific parts are not yet working correctly or even yield errors.
 The remaining issues here are expected to be problems related to built-in functions that do not handle proxies correctly.
 Our implementation already unwraps proxies for many built-in functions, as explained in \ref{sec:IMPLEMENTATION:1}, but the configuration appears to not cover all problematic built-in functions, yet.
@@ -140,6 +139,8 @@ As shown in Figure~\ref{fig:MemoryOverhead}, loading an empty the Lively Kernel 
 \end{figure}
 
 \paragraph{Discussion}
+The memory overhead of our implementation appears to be practical.
+
 In our proxy-based implementation, the system uses a proxy for each reachable mutable object and all references that would usually refer directly to the object refer to the proxy instead.
 These proxies require additional space.
 That is, even without preserving multiple versions for any object, the system requires more space when all mutable state is referred to only through proxies.
@@ -162,6 +163,7 @@ In contrast to the memory overhead for the version-aware references, the memory 
 Our implementation does not copy all objects for each version, but only creates copies when objects change between versions, effectively storing only diffs on the granularity of objects.
 Therefore, the memory required for new versions of the runtime depends on how many objects change and how big those objects are.
 Thus, the memory overhead for preserving multiple versions of the the Lively Kernel runtime depends highly on concrete usage scenarios.
+
 
 
 
@@ -241,7 +243,13 @@ The difference between providing object versioning and not is here a factor of a
 
 \subsection{Discussion of the Execution Overhead}
 
+
+The execution overhead of the current implementation of version-aware referecens does not appear practical.
+
 the current implementation slows down the JavaScript execution considerably: the benchmark programs need two to three orders of magnitude more time to finish, while particular typical user interactions in the Lively Kernel also take two orders of magnitude more time.
+
+% The measured execution overhead is in the range of three orders of magnitude for popular JavaScript benchmarks and typical user interactions in the Lively Kernel.
+% Direct comparisons of just the version-aware references and direct references in a microbenchmark even show slow downs of four orders of magnitude.
 
 As this slowdown is due to the proxy-based version-aware references,
 
@@ -255,10 +263,17 @@ When we exchange the proxy-based version-aware reference for this benchmark with
 That is, even without our specific proxy behavior, the proxies slow down the microbenchmark close to 200 times.
 
 
+% In analyzing these results, we gained the impression that only one order of magnitude is due to the specific proxy behavior, while most of the overhead can be ascribed to the Direct Proxies as currently available in the Chrome browser.
+
+
+
+% In fact, a comparable indirection can be implemented considerably faster with ordinary JavaScript.
+
 Further, similar indirections of object access as the default proxy handler provide could be implemented in JavaScript.
 Instead of using a proxy for an object, we could still refer only to a stand-in, but implement the proxy behavior in an ordinary JavaScript function to which we would transform the source code: instead of \lstinline{obj.prop} we could execute something similar to \lstinline{get(obj, \"name\")}, where \lstinline{get} could implement the behavior previously implemented by respective the proxy trap.
 Measuring the performance of such a manually provided indirection results in a much lower performance decrease for the previously described microbenchmark setup.
 In fact, such an indirection would only take twice the time to read a property from a specific target using such a \lstinline{get}-function as it takes when reading a property directly. 
+% Using such a custom JavaScript indirection and further source transformations, thus, promises a practical implementation.
 
 
 All this suggests that the performance of the ECMAScript 6 Direct Proxies in Chrome might improve in the future.
