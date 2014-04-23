@@ -35,7 +35,7 @@ We also used Lively Kernel itself to test the implementation of our approach in 
 We integrated our approach with the version 2.1.3 of the Lively Kernel and, in particular, used the commit ba726ddca08df66b775e904366cdcbd76c4920f6\footnote{\url{http://github.com/LivelyKernel/LivelyKernel/commits/ba726ddca08df66b775e904366cdcbd76c4920f6}, accessed February 17, 2014} as starting point for our changes.
 The version we used for the tests described in this section is fc6f3b7e7e75cf3f866a8e5eb5899d65a5530654\footnote{\url{http://github.com/LivelyKernel/LivelyKernel/commits/fc6f3b7e7e75cf3f866a8e5eb5899d65a5530654}, accessed February 17, 2014}.
 This version transforms most of the Lively Kernel's code to insert proxies for all references to mutable objects.
-In particular, the versioning system is loaded and enabled right after loading Lively Kernel's module system, which excludes the extensions to the built-in JavaScript types, the bootstrap logic, and the module system, but includes everything loaded thereafter, including for example, the instances of all classes of the Lively Kernel.
+In particular, the versioning system is loaded and enabled right after loading Lively Kernel's module system, which excludes the extensions to the built-in JavaScript types, the bootstrap logic, and the module system itself, but includes everything loaded thereafter, including all actual modules of the Lively Kernel and, with that, also all classes.
 
 % why?
 We tested the Lively Kernel itself with our implementation for multiple reasons.
@@ -71,8 +71,7 @@ We tested whether the version-aware references forward to particular versions co
 \paragraph{Method}
 % what was done?
 We ran the Octane benchmark suite to test the functionality of our implementation.
-For this, we transformed the Octane benchmarks with our source transformations, executed the resulting code, and then checked for JavaScript errors as well as compared the results of the transformed benchmarks to their usual results.
-
+For this, we transformed the Octane benchmarks with our source transformations, executed the resulting code, and then checked for JavaScript errors as well as compared the results of the transformed benchmarks to their usual results.\\
 % why / to test what?
 We did this for to test two aspects.
 First, to test whether our source transformations yield syntactically correct JavaScript code for the benchmarks.
@@ -87,41 +86,32 @@ We virtualized the prototype relation among proxies as workaround for this probl
 
 \paragraph{Discussion}
 The proxies, which implement version-aware references, behave like the respective versions of objects in the situations exhibited in the benchmarks.
-While these benchmarks do not test JavaScript's features systematically, they cover a range of language features that are representative of many JavaScript programs.
+While these benchmarks do not test JavaScript's features systematically, they cover a range of language features.
 
 
 \subsection{Testing with the Lively Kernel}
 
 \paragraph{Method}
 % what was done?
-tested whether lively loads.. 
-
-we tested the simple linear global undo/redo that we built for the Lively Kernel, as explained in \todo{reference..}, through various simple examples and with this, whether the source transformations and proxies together allow to preserve and re-establish versions of the Lively Kernel's JavaScript runtime in practice.
-
+We tested whether, when the Lively Kernel sources are transformed to use version-aware references, the Lively Kernel loads and works as expected.
+We further tested whether the version-aware references and the linear global undo/redo that we built as explained in \todo{reference..} allow to preserve and re-establish versions of the Lively Kernel's JavaScript runtime in practice.
+Here, we tried multiple example scenarios, including to undo changes to the state of simple morphs, morph compositions, and more complicated graphical applications as, for example, text editors and developer tools.\\
 % why / to test what?
-
-whether the version-aware references are also used consistently for all mutable objects and whether the version-aware references correctly delegate to particular versions.
+With this, we tested that the source transformations yield valid JavaScript code for the modules of the Lively Kernel, that the version-aware references delegate correctly to the versions of objects they stand-in for in Lively, and that the version-aware references are used consistently for all mutable objects.
 
 
 \paragraph{Results}
-Here, we were able to preserve and re-establish the particular runtime state of multiple example scenarios, including the state of simple morphs, morph compositions, and more complicated graphical applications as, for example, text editors and developer tools.
-
-but not all scenarios..
-
-except for a few known cases, our proxy-based JavaScript implementation of our approach allows to practically preserve and re-establish the entire runtime state of the Lively Kernel.
-
-% TODO: ++ lessons learned from letting the Lively Kernel run with our version-aware references
-
+The Lively Kernel does load when all of its modules are transformed to use version-aware references.
+Further, most of its basic functionality works as expected and we were able to preserve and re-establish the particular runtime state of multiple example scenarios, as described above.
+However, not all functionality works as expected and we were, thus, also not able to re-establish all preserved states. 
+In particular, we did learn about the issues of the current implementation of the ECMAScript 6 through these experiments and implemented the workarounds described in Section~\ref{sec:IMPLEMENTATION:4}.
 
 \paragraph{Discussion}
-
-% Further, the linear global runtime versions allows to re-establish previous development states in the Lively Kernel.
-% That is, all references to relevant objects appear to be version-aware references in the tested situations.
-
-While most of the tested functionality of the the Lively Kernel---including the entire bootstrap process, rendering graphical objects, loading parts from the Lively Kernel's Parts Bin, and using the Lively Kernel's halo controls---work as expected, certain specific parts are not yet working correctly or even yield errors.
-The remaining issues here are expected to be problems related to built-in functions that do not handle proxies correctly.
-Our implementation already unwraps proxies for many built-in functions, as explained in \ref{sec:IMPLEMENTATION:1}, but the configuration appears to not cover all problematic built-in functions, yet.
+While most of the tested functionality of the the Lively Kernel---including the entire bootstrap process, rendering graphical objects, loading parts from the Lively Kernel's Parts Bin, and using the Lively Kernel's halo controls---work as expected with version-aware references, certain functionality of the Lively Kernel is not yet working correctly or even yield errors.
+The remaining issues here are expected to be problems related to built-in JavaScript functions that do not handle proxies correctly.
+Our implementation already unwraps proxies for many built-in functions, as explained in \ref{sec:IMPLEMENTATION:4}, but the configuration appears to not cover all problematic built-in functions, yet.
 However, the used proxies are currently an experimental JavaScript feature in Chrome, not yet fully supported, and we expect these issues not to be problems once the proxies get fully supported by JavaScript engines.
+Further, the current implementation already allows to re-establish many preserved development states of the Lively Kernel.
 
 
 
