@@ -350,7 +350,7 @@ single-threaded and cooperative scheduling, but setTimeout / setInterval... stop
 adds lots of low-level frames due to the partly native but also partly shim implementation of proxies..
 
 dev tools don’t yet handle proxies well (hovering, labels, stepping into), but we have at least source maps, so developers can debug the original code and not the result of our source transformation
-Besides impacting code execution, the current implementation of object versioning for Lively also with certain programming tasks.
+Besides impacting code execution, the current implementation of object versioning for the Lively Kernel also with certain programming tasks.
 Though the version-aware references should be transparent to programmers, in the current proxy-based implementation proxies show during debugging.
 However, the developer tools show the original source code, despite the implementation's transformations of the sources.
 
@@ -358,5 +358,5 @@ However, the developer tools show the original source code, despite the implemen
 
 
 
-Nevertheless, our implementation is functional and integrated with Lively.
+Nevertheless, our implementation is functional and integrated with the Lively Kernel.
 It allows programmers to undo and redo changes and is publicly available\footnote{\url{http://github.com/LivelyKernel/LivelyKernel/commit/858aca8c5ac0f203061823f463fda9b434131636}}.

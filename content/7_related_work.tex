@@ -26,11 +26,11 @@ In contrast to CoExist, our system not only preserves code, but also the state o
 
 \subsection{Offline Worlds}
 
-Offline Worlds~\cite{Czuchra2012OfW} is an approach to implementing automatic saving of Lively worlds as protection against system failures.
+Offline Worlds~\cite{Czuchra2012OfW} is an approach to implementing automatic saving of the Lively Kernel worlds as protection against system failures.
 The world is saved automatically in a fixed time interval to be able to re-establish the latest saved version of the world in case of unexpected crashes, or network or server outages.
 
 As only the differences to the last saved version is stored, Offline Worlds would also allow to re-establish other versions than the latest.
-However, in contrast to our goals, the Offline Worlds approach aims at preserving the latest state of a Lively world to provide recovery from system failures, while our approach aims to preserve multiple versions of the runtime to provide recovery from inappropriate changes.
+However, in contrast to our goals, the Offline Worlds approach aims at preserving the latest state of a the Lively Kernel world to provide recovery from system failures, while our approach aims to preserve multiple versions of the runtime to provide recovery from inappropriate changes.
 Further, Offline Worlds only preserve the state of all graphical objects, whereas our versions also preserve other globally accessible state such as the global system configuration, classes, and state explicitly excluded when serializing graphical objects.
 Also, while our approach saves new versions incrementally and resolves to different versions dynamically, Offline Worlds saves and loads versions of the world in a discrete, interruptive step.
 While object versioning introduces a constant execution overhead for resolving version-aware references, Offline Worlds stops the world for both saving and loading versions.
