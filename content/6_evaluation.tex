@@ -1,15 +1,14 @@
 \chapter{Evaluation} \label{chapter:EVALUATION}
 
 We evaluated our implementation of version-aware references in terms of functionality and practicability, as presented and discussed in this Chapter.
-Regarding functionality, we evaluated whether our proxy-based version-aware references behave correctly like particular versions and whether they allow to preserve and re-establish versions of the development state in the Lively Kernel.
+Regarding functionality, we evaluated whether our proxy-based version-aware references behave like particular versions and whether they allow to preserve and re-establish versions of the development state of the Lively Kernel.
 Regarding practicability, we evaluated the impact of proxy-based version-aware references on both memory consumption and execution speed.
-For this evaluation, we used a standard benchmark suite and the Lively Kernel.
+For the tests, we used a standard benchmark suite and the Lively Kernel.
 
 
 \section{Test Setup}
 
-We tested the implementation of version-aware references with a standard JavaScript benchmark suite, with the Lively Kernel, and used the test machine described in this section.
-
+We tested our implementation with a standard JavaScript benchmark suite, the Lively Kernel, and a particular machine configuration, as described in this section.
 
 \subsection{The Octane JavaScript Benchmark Suite}
 
@@ -117,11 +116,11 @@ Further, the current implementation already allows to re-establish many preserve
 
 \section{Practicability: Additonal Memory Consumption} \label{sec:DISCUSSION:2}
 
-A constant memory overhead is expectable for the version-aware references, while the preserved versions are expected to require different amounts of additional memory.
+We measured the memory overhead of just the version-aware references---that is, without having multiple versions---and also present the memory consumption when multiple versions of the development state of a small example scenario are preserved.
 
 \subsection{Memory Overhead for Version-aware References}
 
-The version-aware references obviously have an impact on memory consumption, but a question is whether the overhead is still practical.
+The version-aware references have an impact on memory consumption, but a question is whether the overhead is still practical.
 
 \paragraph{Method}
 % what was done?
@@ -143,15 +142,15 @@ As shown in Figure~\ref{fig:MemoryOverheadForReferences}, loading an empty the L
 \end{figure}
 
 \paragraph{Discussion}
-Even without preserving multiple versions for any object, the system requires more space when all mutable state is referred to only through proxies.
-The system uses a proxy for each reachable mutable object and all references that would usually refer directly to the object refer to the proxy instead.
-These proxies require additional space.
-Each proxy comprises of at least an internal proxy object, a proxy handler object that implements the proxy's behavior, and an ordinary JavaScript object as dictionary for all available versions of the object the proxy stands-in for.
-While the system creates proxies for most objects, it does not use proxies for all objects created before our language-level implementation of object versioning is loaded, which also includes all objects used for implementing the versioning itself.
-We expect the number of objects excluded from versioning to be relatively stable, while all additional objects created at runtime will be accompanied by proxies.
-That is, we estimate the overhead to increase both absolutely and relatively for Lively worlds that consist of more objects.
-In absolute terms, however, the memory overhead increases linearly with the number of objects accessed through proxies.\\
-\emph{In summary}, the memory overhead appears to be expect and practical.
+Even without preserving multiple versions for any object, the system requires more space when loaded with versioning proxyies in place.
+The system uses a proxy for reachable mutable objects and all references that would usually refer directly to the object refer to the proxy instead.
+These proxies require additional space: Each proxy comprises of at least an internal proxy object, a proxy handler object that implements the proxy's behavior, and an ordinary JavaScript object as dictionary for all available versions of the object the proxy stands-in for.
+The memory overhead increases linearly with the number of objects accessed through proxies.
+While the system creates proxies for most objects, it does not use proxies for all objects created before our language-level implementation of object versioning is loaded, including all objects used for implementing the versioning itself.
+We expect the number of objects that are excluded from versioning to be relatively stable, while all additional objects created at runtime will be accompanied by proxies.
+Currently, the proxies are not optimized to consume as little space as possible.
+Two improvements of the current implementation would be to, first, to not create a dictionary for multiple versions as long as a proxy stands-in for only one object and, second, to have proxy handlers share behavior.
+The memory overhead, however, does not appear to be a problem at the moment.
 
 
 \subsection{Memory Usage for Preserving Versions}
@@ -194,7 +193,7 @@ For this reason, it does not seem odd that state \textcircled{3} requires less m
 
 \section{Practicability: Impact on Execution Speed} \label{sec:DISCUSSION:3}
 
-We measured the overhead the proxies impose on benchmarks and on executing functionality of the Lively Kernel.
+We measured the overhead the proxies impose on execution times for benchmarks and for certain functionality of the Lively Kernel.
 A discussion of the presented results follows at the end of this section.
 
 
