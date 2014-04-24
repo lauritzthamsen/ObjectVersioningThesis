@@ -240,20 +240,23 @@ That is, even without our specific proxy behavior, the proxies slow down the mic
 
 \subsection{Measuring the Lively Kernel}
 
-% a few typical user interactions in the Lively Kernel, and also how much longer it takes to load a Lively Kernel world with source transformations and version-aware references.
+We measured the overhead of a few typical user interactions and of the load time of a Lively Kernel world.
 
-\subsubsection{the Lively Kernel interactions..}
+\subsubsection{Typical Lively Kernel Interactions}
 
+As our goal is to provide recovery support for development in Lively Kernel, this overhead is especially interesting as it is directly experienced by developers.
 
 \paragraph{Method}
-Therefore, in addition to measuring the execution of general JavaScript programs, we also measured the overhead for typical user interactions in the Lively Kernel.
-...a direct comparison between using proxies and not using proxies for three selected user interactions: bringing up the halo buttons on a particular morph, opening the world's menu, and opening the Lively Kernel's System Code Browser.
-
+% what?
+We measured the overhead for typical user interactions in the Lively Kernel by comparing the time these interactions take when using proxies and when not using proxies.
+The three user interaction we chose are: bringing up the halo buttons on a particular morph, opening the world's menu, and opening the Lively Kernel's System Code Browser.\\
+% why?
+We chose these three interactions as they are among the more impacted interactions compared to, for example, interactions that are more browser-supported such as dragging elements around the screen.
+All three interaction trigger code from multiple different modules, including event handling code, rendering code, and tool-specific code.
 
 \paragraph{Results}
-Figure \ref{fig:LivelyInteractionsOverhead} shows ...
-The three presented interactions are among the more impacted interactions compared to, for example, interactions are more browser-supported such as dragging a morph around.
-All three interaction trigger code from multiple different modules, including event handling code, rendering code, and tool-specific code.
+Figure \ref{fig:LivelyInteractionsOverhead} shows the results, which are comparable for all three interactions.
+Each of these interactions takes on average 43 times the time when triggered while the system's versioning is active.
 
 \begin{figure}[h]
     \centering
@@ -265,24 +268,20 @@ All three interaction trigger code from multiple different modules, including ev
 
 \subsubsection{Loading a World in the Lively Kernel}
 
-\paragraph{Method}
 Another performance related question specific to the Lively Kernel is how long it takes to load a world.
-This includes requesting the required modules from the Lively Kernel's server, but also client-side code to resolve dependencies among modules, evaluating all loaded modules, and deserializing a the Lively Kernel world.
-In addition, in the case that version-aware references should be used, all required modules also need to be transformed.
+
+\paragraph{Method}
+We measured how long it takes to load a specific Lively Kernel world both with and without source transformations and, thus, proxies.
+Loading a world includes requesting the required modules from the Lively Kernel's server, but also client-side code to resolve dependencies among modules, evaluating all loaded modules, and deserializing a the Lively Kernel world.
+In addition, in the case that version-aware references should be used, all required modules also are transformed.
 
 \paragraph{Results}
-The difference between providing object versioning and not is here a factor of around eight for loading a world: instead of around 4 seconds, the user would have to wait around 32 seconds until the requested the Lively Kernel world reacts on user interactions.
-
+The difference between providing object versioning and not is a factor of around eight for loading a world: instead of around 4 seconds, the user would have to wait around 32 seconds until the requested the Lively Kernel world reacts on user interactions.
 
 
 
 
 \subsection{Discussion of the Execution Overhead}
-
-
-
-
-
 
 The execution overhead of the current implementation of version-aware referecens does not appear practical.
 
