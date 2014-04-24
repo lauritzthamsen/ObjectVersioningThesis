@@ -15,39 +15,38 @@ We tested our implementation with a standard JavaScript benchmark suite, the Liv
 % what?
 We used the \emph{Octance} benchmark suite\footnote{\url{http://code.google.com/p/octane-benchmark/}, accessed February 3, 2014, at version 26} to test both the behavior and performance overhead of our alternative references.
 Octane is a general JavaScript benchmark suite that consists of eight benchmarks.
-It does not test JavaScript's language features systematically, but instead is a benchmark suite of programs such as the \emph{DeltaBlue}\cite{FreemanBenson1990ICS} constraint solver.
-These selection of JavaScript programs do, however, make use of many important language features, including primitive data types, operators, built-in functions, custom functions, objects, and prototypical inheritance.
-Octane advertises itself as providing tests that are representative of modern Web applications.
-It is also used in measuring the performance of \emph{v8}, the engine incorporated by both the Chrome browser and Node.js, and even part of its official source code repository\footnote{\url{http://v8.googlecode.com/svn/}, accessed April 23, 2014, at revision 20901}.
+It does not test JavaScript's language features systematically, but is a suite of real programs such as the \emph{DeltaBlue}\cite{FreemanBenson1990ICS} constraint solver.
+These JavaScript programs make, however, use of many important language features, including primitive data types, operators, built-in functions, functions, objects, and prototypical inheritance.
+Octane is also used in measuring the performance of \emph{v8}, the engine used by both the Chrome browser and Node.js, and is even part of v8's official source code repository\footnote{\url{http://v8.googlecode.com/svn/}, accessed April 23, 2014, at revision 20901}.
 
 % why?
 We decided to use the Octane suite for two reasons.
 First, it covers many JavaScript language features and seems to be a benchmark suite that is widely in use.
-Second, it is the JavaScript benchmark suite used by the Chrome browser, which is also the browser we used in both developing and testing our implementation.
+Second, it is used particularly by the Chrome browser's JavaScript engine and Chrome is also the browser we used for developing and testing our implementation.
 
 
 \subsection{The Lively Kernel System}
 
 % what?
-We used Lively Kernel itself to test the implementation of our approach in it.
-We integrated our approach with the version 2.1.3 of the Lively Kernel and, in particular, used the commit ba726ddca08df66b775e904366cdcbd76c4920f6\footnote{\url{http://github.com/LivelyKernel/LivelyKernel/commits/ba726ddca08df66b775e904366cdcbd76c4920f6}, accessed February 17, 2014} as starting point for our changes.
-The version we used for the tests described in this section is fc6f3b7e7e75cf3f866a8e5eb5899d65a5530654\footnote{\url{http://github.com/LivelyKernel/LivelyKernel/commits/fc6f3b7e7e75cf3f866a8e5eb5899d65a5530654}, accessed February 17, 2014}.
-This version transforms most of the Lively Kernel's code to insert proxies for all references to mutable objects.
-In particular, the versioning system is loaded and enabled right after loading Lively Kernel's module system, which excludes the extensions to the built-in JavaScript types, the bootstrap logic, and the module system itself, but includes everything loaded thereafter, including all actual modules of the Lively Kernel and, with that, also all classes.
+We continuously tested our system with the Lively Kernel.
+We integrated our approach with version 2.1.3 of the Lively Kernel and, in particular, used the commit ba726ddca08df66b775e904366cdcbd76c4920f6\footnote{\url{http://github.com/LivelyKernel/LivelyKernel/commits/ba726ddca08df66b775e904366cdcbd76c4920f6}, accessed February 17, 2014} as starting point for our changes.
+The version we used for all experiments described in this section is fc6f3b7e7e75cf3f866a8e5eb5899d65a5530654\footnote{\url{http://github.com/LivelyKernel/LivelyKernel/commits/fc6f3b7e7e75cf3f866a8e5eb5899d65a5530654}, accessed February 17, 2014}.
+This version of the Lively Kernel can transform most of the Lively Kernel's code to insert proxies for mutable objects.
+In particular, the versioning system is loaded right after loading Lively Kernel's module system.
+Thus, enabling the versioning system excludes the Lively Kernel's extensions to the built-in JavaScript types, its bootstrap logic, and its module system, but includes everything loaded thereafter, including all modules and classes of the Lively Kernel.
 
 % why?
-We tested the Lively Kernel itself with our implementation for multiple reasons.
+We tested our implementation with the Lively Kernel for multiple reasons.
 First, the Lively Kernel is a large JavaScript application that makes use of many features of both the JavaScript language but also the browser as particular host environment.
 That is, it makes use of not only most of the features described in the language specification, including the language's standard library, but also much of the additional built-in functionality of the browser, which, for example, includes the built-in functions to manipulate the HTML document.
-Second, the main goal of the presented work is to provide object versioning for the Lively Kernel, which just happens to be implemented in JavaScript.
-Thus, we are particularly interested in evaluating our implementation with the JavaScript parts used by the Lively Kernel.
+Second, the main goal of the presented work is to provide object versioning for the Lively Kernel.
+Thus, we are particularly interested in evaluating our implementation with the Lively Kernel.
 
 
 \subsection{Test Machine Configuration}
 
 % what?
-All tests and measurements were done on a Macbook Air with an 2 GHz Intel Core i7 and 8 GB main memory, using Mac OS X 10.9.1.
-We further used the most recent stable release of the Chrome browser on February 18, 2014, which was version 32.0.1700.107.
+All tests and measurements were done on a Macbook Air with an 2 GHz Intel Core i7 and 8 GB main memory, using Mac OS X 10.9.1, and the most recent stable release of the Chrome browser on February 18, 2014, which was version 32.0.1700.107.
 
 The presented measurement results were averaged over five runs.
 
@@ -308,7 +307,7 @@ At the same time, we might also decide to base our version-aware references on s
 
 \section{Summary}
 
-\todosec{add a summary of the chapter, which may read similar to what introduced this Chapter in the version I gave to Bastian}
+\todosec{add a summary of this longlong chapter, which may read similar to what introduced this Chapter in the version I gave to Bastian}
 
 % The experienced slow down does not depend as much on the number of preserved versions, but instead depends on how many version-aware references have to be resolved during the execution of particular code.
 
