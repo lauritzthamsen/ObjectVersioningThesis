@@ -194,7 +194,7 @@ For this reason, it does not seem odd that state \textcircled{3} requires less m
 
 \section{Practicability: Impact on Execution Speed} \label{sec:DISCUSSION:3}
 
-We measured the overhead the proxies impose with benchmarks and with the Lively Kernel.
+We measured the overhead the proxies impose on benchmarks and on executing functionality of the Lively Kernel.
 A discussion of the presented results follows at the end of this section.
 
 
@@ -283,48 +283,28 @@ The difference between providing object versioning and not is a factor of around
 
 \subsection{Discussion of the Execution Overhead}
 
-The execution overhead of the current implementation of version-aware referecens does not appear practical.
-
-
+The execution overhead of the current implementation of version-aware references does not appear practical.
+The current implementation slows down the JavaScript execution considerably: the benchmark programs need two to three orders of magnitude more time to finish, while particular typical user interactions in the Lively Kernel also take two orders of magnitude more time.
+Direct comparisons of resolving version-aware references and direct references in a microbenchmark even show slow downs of four orders of magnitude.
 
 While object versioning could be used for undo and redo in a specific application, it is primalary itented to support development and similar explorative tasks.
 That could, conceivably, be an argument for providing object versioning only during development and not when programs should run at full speed.
-However, besides having the disadvantage of introducing distinct usage modes, this still requires the version-aware references to resolve fast enough to not impede development significantly.
+However, besides having the disadvantage of introducing distinct usage modes, this still requires the version-aware references to resolve fast enough to not impede development significantly, which they currently do not do.
 
-
-
-
-the current implementation slows down the JavaScript execution considerably: the benchmark programs need two to three orders of magnitude more time to finish, while particular typical user interactions in the Lively Kernel also take two orders of magnitude more time.
-
-% The measured execution overhead is in the range of three orders of magnitude for popular JavaScript benchmarks and typical user interactions in the Lively Kernel.
-% Direct comparisons of just the version-aware references and direct references in a microbenchmark even show slow downs of four orders of magnitude.
-
-As this slowdown is due to the proxy-based version-aware references,
-
+In analyzing the results, we gained the impression that only one order of magnitude is due to the specific proxy behavior, while most of the overhead can be ascribed to the Direct Proxies as currently available in the Chrome browser.
 As explained in Section~\ref{sec:IMPLEMENTATION:1}, the proxies are currently implemented using a library that relies on an experimental implementation of a previous, deprecated draft of the proxy specification.
 The proxies are also part of a ECMAScript specification that has not yet been finalized and completely implemented.
 
-
- 
-
-% In analyzing these results, we gained the impression that only one order of magnitude is due to the specific proxy behavior, while most of the overhead can be ascribed to the Direct Proxies as currently available in the Chrome browser.
-
-
-
-% In fact, a comparable indirection can be implemented considerably faster with ordinary JavaScript.
-
-Further, similar indirections of object access as the default proxy handler provide could be implemented in JavaScript.
+Similar indirections of object access as the default proxy handler provide could be implemented in JavaScript.
 Instead of using a proxy for an object, we could still refer only to a stand-in, but implement the proxy behavior in an ordinary JavaScript function to which we would transform the source code: instead of \lstinline{obj.prop} we could execute something similar to \lstinline{get(obj, \"name\")}, where \lstinline{get} could implement the behavior previously implemented by respective the proxy trap.
 Measuring the performance of such a manually provided indirection results in a much lower performance decrease for the previously described microbenchmark setup.
 In fact, such an indirection would only take twice the time to read a property from a specific target using such a \lstinline{get}-function as it takes when reading a property directly. 
-% Using such a custom JavaScript indirection and further source transformations, thus, promises a practical implementation.
-
 
 All this suggests that the performance of the ECMAScript 6 Direct Proxies in Chrome might improve in the future.
 At the same time, as suggested in Section~\ref{sec:FUTURE_WORK:1}, we might also decide to base our version-aware references on source transformations and custom indirections instead of proxies in the future.
 
+% The experienced slow down does not depend as much on the number of preserved versions, but instead depends on how many version-aware references have to be resolved during the execution of particular code.
 
-% In general, the experienced slow down does not depend as much on the number of preserved versions as it is dependent on how many version-aware references have to be resolved during the execution of particular code.
 % As versions of objects are created only when objects change between versions, preserving a version of the runtime happens incrementally and not at a single moment in time.
 % Additionally, changing a version also does not take significant time as the version-aware references are not updated but dynamically delegate differently the next time they are resolved.
 % To give an impression on how the version-aware references, however, impact the execution speed in general, 
