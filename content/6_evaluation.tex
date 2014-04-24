@@ -305,6 +305,11 @@ In fact, such an indirection would only take twice the time to read a property f
 All this---the experimental status of the proxy implementation, the high cost of proxies even when used with the default handler behavior, and the significantly lower overhead of a custom indirection based on ordinary JavaScript functions---suggest that the performance of the ECMAScript 6 Direct Proxies in Chrome might improve in the future.
 At the same time, we might also decide to base our version-aware references on source transformations and custom indirections instead of proxies in the future.
 
+
+\section{Summary}
+
+\todosec{add a summary of the chapter, which may read similar to what introduced this Chapter in the version I gave to Bastian}
+
 % The experienced slow down does not depend as much on the number of preserved versions, but instead depends on how many version-aware references have to be resolved during the execution of particular code.
 
 % As versions of objects are created only when objects change between versions, preserving a version of the runtime happens incrementally and not at a single moment in time.

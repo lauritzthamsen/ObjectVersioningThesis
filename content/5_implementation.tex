@@ -253,11 +253,11 @@ In addition, UglifyJS also supports Source Maps \todo{footnote with url to Sourc
 \todo{add something about when the versioning source transformations are done and which parts of the system are currently versioned}
 % TODO: source transformations enabled right after the object versioning code, i.e. the implementation of the proxies and the source transformation, which are both themselves implemented using ordinary javascript code, gets loaded. by patching the eval that is used for evaluated modules that get loaded with an eval(transformSource.. so modules are not versioned, but classes / layers / traits are.. e.g. a class is versioned, so in different versions there might be different class-side state... so, for example, modules are currently in our implementation the roots of the version-aware reference graphs that prevent garbage collection, 
 
+\todo{add list of built-in objects we transform..}
 
 
 
-
-\section{Workarounds for the Current State of the Proxies}
+\section{Workarounds for the Current State of the Proxies} \label{sec:IMPLEMENTATION:4}
 
 Certain workarounds are required to make our proxy-based implementation of version-aware references work, due to the preliminary status of the proxy implementation.
 While the specification of Direct Proxies already progressed from proposal status to being part of the current ECMAScript 6 Draft\footnote{\url{http://people.mozilla.org/~jorendorff/es6-draft.html}, accessed March 5th, 2014}, it is still in draft status and not yet implemented in the JavaScript engines used by the Chrome browser and the Firefox browser.
