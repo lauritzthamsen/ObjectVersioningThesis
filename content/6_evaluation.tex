@@ -29,7 +29,7 @@ Second, it is the JavaScript benchmark suite used by the Chrome browser, which i
 \subsection{The Lively Kernel System}
 
 % what?
-We also used Lively Kernel itself to test the implementation of our approach in it.
+We used Lively Kernel itself to test the implementation of our approach in it.
 We integrated our approach with the version 2.1.3 of the Lively Kernel and, in particular, used the commit ba726ddca08df66b775e904366cdcbd76c4920f6\footnote{\url{http://github.com/LivelyKernel/LivelyKernel/commits/ba726ddca08df66b775e904366cdcbd76c4920f6}, accessed February 17, 2014} as starting point for our changes.
 The version we used for the tests described in this section is fc6f3b7e7e75cf3f866a8e5eb5899d65a5530654\footnote{\url{http://github.com/LivelyKernel/LivelyKernel/commits/fc6f3b7e7e75cf3f866a8e5eb5899d65a5530654}, accessed February 17, 2014}.
 This version transforms most of the Lively Kernel's code to insert proxies for all references to mutable objects.
@@ -66,9 +66,10 @@ We tested whether the version-aware references forward to particular versions co
 
 \subsection{Testing with Benchmarks}
 
+We ran the Octane benchmark suite to test the functionality of our implementation.
+
 \paragraph{Method}
 % what was done?
-We ran the Octane benchmark suite to test the functionality of our implementation.
 We transformed the Octane benchmarks with our source transformations, executed the resulting code, and then checked for JavaScript errors as well as compared the results of the transformed benchmarks to their usual results.\\
 % why / to test what?
 We did this for to test two aspects.
@@ -89,9 +90,11 @@ While these benchmarks do not test JavaScript's features systematically, they co
 
 \subsection{Testing with the Lively Kernel}
 
+We tested whether the Lively Kernel loads and works as expected when our version-aware references are used.
+
 \paragraph{Method}
 % what was done?
-We tested whether, when the Lively Kernel sources are transformed to use version-aware references, the Lively Kernel loads and works as expected.
+We transformed the JavaScript modules of the Lively Kernel at load-time to test whether it loads and works as expected with our versioning system.
 We further tested whether the version-aware references and the linear global undo/redo that we built as explained in \todo{reference..} allow to preserve and re-establish versions of the Lively Kernel's JavaScript runtime in practice.
 Here, we tried multiple example scenarios, including to undo changes to the state of simple morphs, morph compositions, and more complicated graphical applications as, for example, text editors and developer tools.\\
 % why / to test what?
@@ -116,11 +119,11 @@ Further, the current implementation already allows to re-establish many preserve
 
 \section{Practicability: Additonal Memory Consumption} \label{sec:DISCUSSION:2}
 
-We measured the memory overhead of just the version-aware references---that is, without having multiple versions---and also present the memory consumption when multiple versions of the development state of a small example scenario are preserved.
+We measured the memory overhead of just the version-aware references---that is, without preserving any version---and also present the memory consumption when multiple versions of the development state of a small example scenario are preserved.
 
 \subsection{Memory Overhead for Version-aware References}
 
-The version-aware references have an impact on memory consumption, but a question is whether the overhead is still practical.
+The version-aware references have an impact on memory consumption that, however, has to be practical.
 
 \paragraph{Method}
 % what was done?
@@ -156,7 +159,7 @@ The memory overhead, however, does not appear to be a problem at the moment.
 \subsection{Memory Usage for Preserving Versions}
 
 Besides the memory required for the proxies, there is also memory required for preserving multiple versions of the runtime.
-Although we expect this memory overhead to be highly dependent on the differences between preserved states, we still measured an example scenario.
+Although we expect the memory usage for versions to be highly dependent on the differences between preserved states, we still present a simple example scenario here.
 
 \paragraph{Method}
 % what?
@@ -199,11 +202,11 @@ A discussion of the presented results follows at the end of this section.
 
 \subsection{Measuring Benchmarks}
 
-The Octane benchmark suite show how our proxies currently slow down realistic JavaScript programs, while two microbenchmarks highlight the specific cost of resolving these proxy-based version-aware references.
+The Octane benchmark suite show how the proxies currently slow down a variety of different JavaScript programs, while two microbenchmarks show the specific cost of using the proxy-based version-aware references.
 
 \subsubsection{Octane Benchmark Suite}
 
-Measuring the Octane benchmark suite highlights how the execution of eight JavaScript programs that make use of different language features is affected by the proxies.
+Measuring the Octane benchmark suite highlights how the execution of eight JavaScript programs is affected by the proxies.
 
 \paragraph{Method}
 We ran the Octane benchmarks\footnote{Note: We reduced the input size to the Splay benchmark by an order of magnitude to prevent the browser from prompting for user input during the benchmarks execution. This prompt is a reaction to the long time required to run the benchmark, cannot be disabled, and would influence the benchmark result.} with and without previous transformation of the benchmark code and, therefore, with or without version-aware references.
@@ -224,7 +227,7 @@ On average the slowdown of a single benchmark is, thus, a 187.5 times.
 
 \subsubsection{Microbenchmarks}
 
-We implemented microbenchmarks to analyze how long it takes to resolve the proxy-based version-aware references.
+We implemented microbenchmarks to analyze the overhead the proxies impose on resolving references---the time proxies take to forward access to a particular version.
 
 \paragraph{Method}
 In the first setup, we resolved a reference between two objects a million times, where the reference is either an ordinary reference or a proxy-based version-aware reference.
@@ -239,11 +242,11 @@ That is, even without our specific proxy behavior, the proxies slow down the mic
 
 \subsection{Measuring the Lively Kernel}
 
-We measured the overhead of a few typical user interactions and of the load time of a Lively Kernel world.
+We measured the overhead of a few typical user interactions and also how much longer it takes to load a simple Lively Kernel world.
 
 \subsubsection{Typical Lively Kernel Interactions}
 
-As our goal is to provide recovery support for development in Lively Kernel, this overhead is especially interesting as it is directly experienced by developers.
+As our goal is to provide recovery support for development in Lively Kernel, this impact on typical interactions is especially interesting as it directly affects developers.
 
 \paragraph{Method}
 % what?
@@ -267,7 +270,7 @@ Each of these interactions takes on average 43 times the time when triggered whi
 
 \subsubsection{Loading a World in the Lively Kernel}
 
-Another performance related question specific to the Lively Kernel is how long it takes to load a world.
+Another performance-related question specific to the Lively Kernel is how long it takes to load a world.
 
 \paragraph{Method}
 We measured how long it takes to load a specific Lively Kernel world both with and without source transformations and, thus, proxies.
@@ -283,24 +286,24 @@ The difference between providing object versioning and not is a factor of around
 \subsection{Discussion of the Execution Overhead}
 
 The execution overhead of the current implementation of version-aware references does not appear practical.
-The current implementation slows down the JavaScript execution considerably: the benchmark programs need two to three orders of magnitude more time to finish, while particular typical user interactions in the Lively Kernel also take two orders of magnitude more time.
-Direct comparisons of resolving version-aware references and direct references in a microbenchmark even show slow downs of four orders of magnitude.
+The current implementation slows down the JavaScript execution considerably: the Octane benchmarks need two to three orders of magnitude more time to finish, while the examined user interactions in the Lively Kernel also take two orders of magnitude more time.
+Direct comparisons of resolving version-aware references and direct references in a microbenchmark even show a slowdown of four orders of magnitude.
 
 While object versioning could be used for undo and redo in a specific application, it is primalary itented to support development and similar explorative tasks.
 That could, conceivably, be an argument for providing object versioning only during development and not when programs should run at full speed.
-However, besides having the disadvantage of introducing distinct usage modes, this still requires the version-aware references to resolve fast enough to not impede development significantly, which they currently do not do.
+However, besides having the disadvantage of introducing distinct usage modes, this still requires the version-aware references to resolve fast enough to not impede development significantly, which they currently do not yet do.
 
 In analyzing the results, we gained the impression that only one order of magnitude is due to the specific proxy behavior, while most of the overhead can be ascribed to the Direct Proxies as currently available in the Chrome browser.
+The proxies are also part of an ECMAScript specification that has not yet been finalized and completely implemented by the JavaScript engines.
 As explained in Section~\ref{sec:IMPLEMENTATION:1}, the proxies are currently implemented using a library that relies on an experimental implementation of a previous, deprecated draft of the proxy specification.
-The proxies are also part of a ECMAScript specification that has not yet been finalized and completely implemented.
 
-Similar indirections of object access as the default proxy handler provide could be implemented in JavaScript.
-Instead of using a proxy for an object, we could still refer only to a stand-in, but implement the proxy behavior in an ordinary JavaScript function to which we would transform the source code: instead of \lstinline{obj.prop} we could execute something similar to \lstinline{get(obj, \"name\")}, where \lstinline{get} could implement the behavior previously implemented by respective the proxy trap.
-Measuring the performance of such a manually provided indirection results in a much lower performance decrease for the previously described microbenchmark setup.
-In fact, such an indirection would only take twice the time to read a property from a specific target using such a \lstinline{get}-function as it takes when reading a property directly. 
+Further, similar indirections of object access as the proxy handler can provide could be implemented in JavaScript.
+Instead of using a proxy for an object, we could still refer to a stand-in, but implement the handler behavior in an ordinary JavaScript function that is to be used by further transformed source code: instead of \lstinline{obj.prop} we could execute code similar to \lstinline{get(obj, \"name\")}, where \lstinline{get} could implement the behavior previously implemented by respective the proxy trap.
+Measuring the performance of such an indirection results in a much lower performance decrease for the previously described microbenchmark setup.
+In fact, such an indirection would only take twice the time to read a property from a specific target using such a \lstinline{get}-function as it takes when reading a property directly, when both situations are compared in the previously presented microbenchmark setup.
 
-All this suggests that the performance of the ECMAScript 6 Direct Proxies in Chrome might improve in the future.
-At the same time, as suggested in Section~\ref{sec:FUTURE_WORK:1}, we might also decide to base our version-aware references on source transformations and custom indirections instead of proxies in the future.
+All this---the experimental status of the proxy implementation, the high cost of proxies even when used with the default handler behavior, and the significantly lower overhead of a custom indirection based on ordinary JavaScript functions---suggest that the performance of the ECMAScript 6 Direct Proxies in Chrome might improve in the future.
+At the same time, we might also decide to base our version-aware references on source transformations and custom indirections instead of proxies in the future.
 
 % The experienced slow down does not depend as much on the number of preserved versions, but instead depends on how many version-aware references have to be resolved during the execution of particular code.
 
