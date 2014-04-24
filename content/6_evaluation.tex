@@ -69,18 +69,18 @@ We ran the Octane benchmark suite to test the functionality of our implementatio
 
 \paragraph{Method}
 % what was done?
-We transformed the Octane benchmarks with our source transformations, executed the resulting code, and then checked for JavaScript errors as well as compared the results of the transformed benchmarks to their usual results.\\
+We transformed the Octane benchmarks with our source transformations, executed the resulting code, and then checked for JavaScript errors and compared the results of running the transformed benchmarks to their usual results.\\
 % why / to test what?
 We did this for to test two aspects.
 First, to test whether our source transformations yield syntactically correct JavaScript code for the benchmarks.
-Second, to test whether the proxy-based implementation of version-aware references, inserted by the source transformations, allows to run the benchmarks without errors and with the same results as when running the benchmarks without our implementation.
+Second, to test whether the proxy-based implementation of version-aware references, inserted by the source transformations, allows to run the benchmarks without errors and with the same results as when the benchmarks are executed without our implementation.
 
 
 \paragraph{Results}
 All benchmarks in this suite run without errors and return the same results as when executed without any source transformations.
-That is, at least for these tests, our source transformations produce working source code and our proxy-based version-aware references behave as the object versions they refer to.
+That is, at least for these tests, our source transformations produce working source code and our proxy-based version-aware references behave as the object versions they stand-in for.
 The benchmarks and, in particular, the \emph{DeltaBlue} benchmark revealed a problem with using proxies as prototypes of objects, which we reported to the \emph{harmony-reflect} repository\footnote{\url{http://github.com/tvcutsem/harmony-reflect/issues/18}, accessed April 23, 2014} and which turned out to be an issue with the \emph{v8} JavaScript engine itself\footnote{\url{http://code.google.com/p/v8/issues/detail?id=2804}, accessed April 23, 2014}.
-We virtualized the prototype relation among proxies as workaround for this problem in our implementation, while the issue was subsequentely fixed, making the implemented workaround redundant.
+We virtualized the prototype relation among proxies as workaround for this problem in our implementation, but the issue was subsequentely fixed, rendering the implemented workaround redundant.
 
 \paragraph{Discussion}
 The proxies, which implement version-aware references, behave like the respective versions of objects in the situations exhibited in the benchmarks.
@@ -94,24 +94,24 @@ We tested whether the Lively Kernel loads and works as expected when our version
 \paragraph{Method}
 % what was done?
 We transformed the JavaScript modules of the Lively Kernel at load-time to test whether it loads and works as expected with our versioning system.
-We further tested whether the version-aware references and the linear global undo/redo that we built as explained in \todo{reference..} allow to preserve and re-establish versions of the Lively Kernel's JavaScript runtime in practice.
-Here, we tried multiple example scenarios, including to undo changes to the state of simple morphs, morph compositions, and more complicated graphical applications as, for example, text editors and developer tools.\\
+We further tested whether the version-aware references and the linear global undo/redo allow to preserve and re-establish versions of the Lively Kernel's JavaScript runtime in practice.
+Here, we tried multiple simple example scenarios, including to undo changes to the state and behavior of basic morphs, to morph compositions, and to the state of more complicated graphical applications as, for example, text editors and developer tools.\\
 % why / to test what?
 With this, we tested that the source transformations yield valid JavaScript code for the modules of the Lively Kernel, that the version-aware references delegate correctly to the versions of objects they stand-in for in Lively, and that the version-aware references are used consistently for all mutable objects.
 
 
 \paragraph{Results}
-The Lively Kernel does load when all of its modules are transformed to use version-aware references.
-Further, most of its basic functionality works as expected and we were able to preserve and re-establish the particular runtime state of multiple example scenarios, as described above.
+The Lively Kernel loads when all of its modules are transformed to use version-aware references.
+Further, most of its basic functionality works as expected and we were able to preserve and re-establish runtime states of multiple examples.
 However, not all functionality works as expected and we were, thus, also not able to re-establish all preserved states. 
-In particular, we did learn about the issues of the current implementation of the ECMAScript 6 through these experiments and implemented the workarounds described in Section~\ref{sec:IMPLEMENTATION:4}.
+This way, we also learned about the issues of the current state of ECMAScript 6 Direct Proxies in Chrome and implemented the workarounds described in Section~\ref{sec:IMPLEMENTATION:4}.
 
 \paragraph{Discussion}
-While most of the tested functionality of the the Lively Kernel---including the entire bootstrap process, rendering graphical objects, loading parts from the Lively Kernel's Parts Bin, and using the Lively Kernel's halo controls---work as expected with version-aware references, certain functionality of the Lively Kernel is not yet working correctly or even yield errors.
+While most of the tested functionality of the the Lively Kernel---including the entire bootstrap process, rendering graphical objects, loading parts from the Lively Kernel's Parts Bin, and using the Lively Kernel's halo controls---work as expected with version-aware references, certain functionality of the Lively Kernel is not yet working correctly or even yields errors.
 The remaining issues here are expected to be problems related to built-in JavaScript functions that do not handle proxies correctly.
-Our implementation already unwraps proxies for many built-in functions, as explained in \ref{sec:IMPLEMENTATION:4}, but the configuration appears to not cover all problematic built-in functions, yet.
-However, the used proxies are currently an experimental JavaScript feature in Chrome, not yet fully supported, and we expect these issues not to be problems once the proxies get fully supported by JavaScript engines.
-Further, the current implementation already allows to re-establish many preserved development states of the Lively Kernel.
+Our implementation already unwraps proxies for many built-in functions, as explained in \ref{sec:IMPLEMENTATION:4}, but the configuration appears to currently not cover all problematic built-in functions, yet.
+However, the used proxies are still an experimental JavaScript feature in Chrome, not yet fully supported, and we expect these issues not to be problems anymore once the proxies get fully implemented by JavaScript engines.
+Further, the current implementation already allows to use many features and re-establish many development states of the Lively Kernel.
 
 
 
@@ -311,6 +311,3 @@ At the same time, we might also decide to base our version-aware references on s
 
 % The experienced slow down does not depend as much on the number of preserved versions, but instead depends on how many version-aware references have to be resolved during the execution of particular code.
 
-% As versions of objects are created only when objects change between versions, preserving a version of the runtime happens incrementally and not at a single moment in time.
-% Additionally, changing a version also does not take significant time as the version-aware references are not updated but dynamically delegate differently the next time they are resolved.
-% To give an impression on how the version-aware references, however, impact the execution speed in general, 
