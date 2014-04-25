@@ -77,7 +77,18 @@ Though this requires developers to make experiments explicitly---explicitly crea
 
 \section{ChangeBoxes}
 
+ChangeBoxes~\cite{Denker2007EEC} is an approach to capture and scope changes to a system in first-class entities called ChangeBoxes.
+A ChangeBox can embody changes to multiple elements of a software system such as adding a field, removing a method, or renaming a class.
+The approach does not constrain how changes get sorted into ChangeBoxes, but demands that every change to the system is encapsulated in a ChangeBox.
+Each ChangeBox can be used to scope changes for a running process and multiple running processes can view the system differently through using different ChangeBoxes.
+ChangeBoxes can also have ancestor relationships and even merge changes from multiple ancestors.
+This way, ChangeBoxes can not only be used to scope changes, but also to reason about the evolution of systems and to undo changes.
 
+The ChangeBoxes approach is similar to our approach as changes to the system are grouped into versions and these can be used to run code in different versions of the runtime.
+Further, both solutions are also comparable in that there is no definite notion in how exactly changes are to be grouped.
+Our object versioning approach, however, is intended to be used to group changes associated with a particular developer actions and, thereby, support undoing any inappropriate changes during the development of systems.
+For this reason, a convenient global undo/redo mechanism for all changes is built into our solution, while using ChangeBoxes to undo changes is rather tedious~\cite{Steinert2012COE}.
+Furthermore, ChangeBoxes recognizes only changes to the static elements of a software system such as packages, classes, methods, and fields, while object versioning allows to version changes to the state and behavior of objects.
 
 
 
