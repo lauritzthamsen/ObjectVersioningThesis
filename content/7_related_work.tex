@@ -1,17 +1,15 @@
 \chapter{Related Work} \label{chapter:RELATED_WORK}
 
-Our versioning approach relates to three categories of related work, as reflected in this chapter's structure:
+Our versioning approach relates to two categories of work, as presented in this chapter:
 
 \begin{enumerate}
-    \item There are other approaches that re-establish previous versions of systems when there's need to recover, which are, thus, closely related to the motivation of our work.
-    \item A number of other solutions also allow to combine adaptions into first-class objects, which can be used to scope particular sets of changes dynamically and which are, thus, closely related to the technical solution presented in this thesis.
-    \item \ac{stm} is related in that it also provides multiple different views on the state of the system, but it is neither intended for deliberate recovery of state nor can changes be dynamically scoped using transactions.
+    \item Approaches related to our motivation and, thus, to providing previous versions of system state when there is need for recovery.
+    \item Approaches realted to the technical solution presented in this thesis and, thus, to combining changes into first-class objects that can be scoped dynamically.
 \end{enumerate}
-
 
 \section{Recovery of Previous System States}
 
-The related appraoches presented in this section support developers in recovering previous states without requiring developers to take precautionary actions such as safe-guarding a particular state manually with snapshots.
+The related approaches presented in this section support developers in recovering previous states without requiring developers to take precautionary actions such as safe-guarding a particular state manually with snapshots.
 
 \subsection{CoExist}
 
@@ -54,21 +52,21 @@ It also allows to re-establish a previous situation through preserving previous 
 However, back-in-time debuggers need to be able to undo the effects of every statement separately, while our system's versioning granularity is arbitrarily and can, for example, correspond to developer interaction with the live system.
 In general, back-in-time debuggers support a particular development task---debugging--- and, thus, are also often only active when a program is started in separate debugging mode, while the purpose of object versioning is more comprehensive and we expect it to be active at least during all development tasks, but possibly even be always enabled.
 
-\subsubsection{Back-in-Time Debugging with Aliases}
-
-Practical Object-oriented Back-in-Time Debugging~\cite{Lienhard2008POB} is a logging-based approach to back-in-time debugging that also preserves the history for each object using alternative references.
-As in our approach, these alternative references, called Aliases, are actually also objects, part of the application memory, and contain information about the history and origin of the values stored in objects.
-Aliases are, however, never passed around, but new aliases are created for each read or write of an object field or an array and for each reference passed as parameter.
-Each of these aliases refers to an actual value, but also to an alias for the value the variable previously referred to---its predecessor---and to the alias that was used to create this new alias from---its origin.
-An alias and its origin both refer to the same value, but provide different information as their creation context, which always is a particular method.
-That is, the origin link can be used to follow the object's ``flow'' through the program, and, because each alias also records a timestamp when created, the predecessor link can be followed while comparing timestamps to read a value as it were at a particular moment in time.
-
-In comparison to our approach, there is not just one alias object for every mutable object, but potentially many---as many as references to that object, while there is only one version-aware reference.
-Further, an alias object has predecessors for every value stored in a variable such as an object field, while our version-aware references hold a subset of the different state the same object had, corresponding to particular discrete versions of the runtime, which may or may not have been commited automatically.
-That is, with the presented debugging approach its possible to recreate all states the system was in and also retrace the flow of all values, while our system stores only meaningful versions that, for example, might correspond to developer actions.
-Another difference lies in the in the expected usage extent: the alias references are intended to be used only for explicit debugging sessions, while our version-aware reference are intended to be used always, at least completely during all development activities.
 
 
+\subsection{Software Transactional Memory}
+
+\ac{stm}~\cite{Shavit1995STM} allows to edit values in transactions, analogous to database transactions.
+Each transaction has its own view of the memory, unaffected by other concurrently running transactions.
+That is, multiple versions of the state of a system can coexist and which one is read and written to depends on the transaction.
+Transactions contain a number of program statements to be executed as one atomic operation.
+The changes are only permanently commited when no conflicts with other transactions occurred.
+On conflicts, however, all changes made by a transaction are rolled back and undone.
+
+\ac{stm} and our approach are similar in that multiple versions of the system state can coexist and that a previous state can be re-establish if necessary.
+\ac{stm}, however, provides concurrency control and an alternative to lock-based synchronization, while our approach provides recovery support to developers when changes turn out inappropriate.
+That is, \ac{stm} transactions are automatically rolled back when changes conflict with changes from other concurrently running transactions, while our versions are offered to programmers so they can decide to undo those changes that negatively impact the functionality, design, or performance of programs. 
+Our versions of the runtime are further first-class objects, which can be stored in variables and be later re-established, while transactions are always created through particular control structures and commited immediately upon success.
 
 
 
@@ -124,18 +122,18 @@ For this reason, a convenient global undo/redo mechanism for all changes is buil
 Furthermore, ChangeBoxes recognizes only changes to the static elements of a software system such as packages, classes, methods, and fields, while object versioning allows to version changes to the state and behavior of objects.
 
 
+\subsubsection{Aliases}
 
+Practical Object-oriented Back-in-Time Debugging~\cite{Lienhard2008POB} is a logging-based approach to back-in-time debugging that also preserves the history for each object using alternative references.
+As in our approach, these alternative references, called Aliases, are actually also objects, part of the application memory, and contain information about the history and origin of the values stored in objects.
+Aliases are, however, never passed around, but new aliases are created for each read or write of an object field or an array and for each reference passed as parameter.
+Each of these aliases refers to an actual value, but also to an alias for the value the variable previously referred to---its predecessor---and to the alias that was used to create this new alias from---its origin.
+An alias and its origin both refer to the same value, but provide different information as their creation context, which always is a particular method.
+That is, the origin link can be used to follow the object's ``flow'' through the program, and, because each alias also records a timestamp when created, the predecessor link can be followed while comparing timestamps to read a value as it were at a particular moment in time.
 
-\section{Software Transactional Memory}
+In comparison to our approach, there is not just one alias object for every mutable object, but potentially many---as many as references to that object, while there is only one version-aware reference.
+Further, an alias object has predecessors for every value stored in a variable such as an object field, while our version-aware references hold a subset of the different state the same object had, corresponding to particular discrete versions of the runtime, which may or may not have been commited automatically.
+That is, with the presented debugging approach its possible to recreate all states the system was in and also retrace the flow of all values, while our system stores only meaningful versions that, for example, might correspond to developer actions.
+Another difference lies in the in the expected usage extent: the alias references are intended to be used only for explicit debugging sessions, while our version-aware reference are intended to be used always, at least completely during all development activities.
 
-\ac{stm}~\cite{Shavit1995STM} allows to edit values in transactions, analogous to database transactions.
-Each transaction has its own view of the memory, unaffected by other concurrently running transactions.
-That is, multiple versions of the state of a system can coexist and which one is read and written to depends on the transaction.
-Transactions contain a number of program statements to be executed as one atomic operation.
-The changes are only permanently commited when no conflicts with other transactions occurred.
-On conflicts, however, all changes made by a transaction are rolled back and undone.
-
-In contrast to our approach, \ac{stm} aims to provide concurrency control and an alternative to lock-based synchronization, our goal is to support developers in recovering previous development states.
-Therefore, using object versioning is reasonable even in single-threaded execution environments, while \ac{stm} provides support explicitly for parallel programming.
-Versions of the runtime are further just first-class objects, can be stored in variables and only later be re-established, while transactions are always created through particular control structures and commited immediately upon access.
 
