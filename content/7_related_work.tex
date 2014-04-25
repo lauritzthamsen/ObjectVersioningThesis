@@ -1,15 +1,21 @@
 \chapter{Related Work} \label{chapter:RELATED_WORK}
 
-\todo{chapter intro for related work}
+Our versioning approach relates to three categories of related work, as reflected in this chapter's structure:
+
+\begin{enumerate}
+    \item There are other approaches that re-establish previous versions of systems when there's need to recover, which are, thus, closely related to the motivation of our work.
+    \item A number of other solutions also allow to combine adaptions into first-class objects, which can be used to scope particular sets of changes dynamically and which are, thus, closely related to the technical solution presented in this thesis.
+    \item \ac{stm} is related in that it also provides multiple different views on the state of the system, but it is neither intended for deliberate recovery of state nor can changes be dynamically scoped using transactions.
+\end{enumerate}
 
 
 \section{Recovery of Previous System States}
 
+The related appraoches presented in this section support developers in recovering previous states without requiring developers to take precautionary actions such as safe-guarding a particular state manually with snapshots.
 
 \subsection{CoExist}
 
-\cite{Steinert2012COE}
-CoExist provides recovery support through continuous versioning in Squeak/Smalltalk.
+CoExist~\cite{Steinert2012COE} provides recovery support through continuous versioning in Squeak/Smalltalk.
 For each change made to source code, CoExist creates a new version of the system sources, resulting in a fine-grained history of changes.
 CoExist then presents this fine-grained history in a timeline and a browser.
 For each version, those tools provide diffs, but also test results and a screenshot.
@@ -67,7 +73,9 @@ Another difference lies in the in the expected usage extent: the alias reference
 
 
 
-\section{Dynamically Scoping First-class Groups of Changes}
+\section{Dynamically Scoping First-class Groups of Change}
+
+Multiple approaches allow to combine changes to behavior or state into specific version objects and to use these to run code with a particular set of changes being active.
 
 \subsection{Worlds}
 
@@ -114,7 +122,6 @@ Further, both solutions are also comparable in that there is no definite notion 
 Our object versioning approach, however, is intended to be used to group changes associated with a particular developer actions and, thereby, support undoing any inappropriate changes during the development of systems.
 For this reason, a convenient global undo/redo mechanism for all changes is built into our solution, while using ChangeBoxes to undo changes is rather tedious~\cite{Steinert2012COE}.
 Furthermore, ChangeBoxes recognizes only changes to the static elements of a software system such as packages, classes, methods, and fields, while object versioning allows to version changes to the state and behavior of objects.
-
 
 
 
