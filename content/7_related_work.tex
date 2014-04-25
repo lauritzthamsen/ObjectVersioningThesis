@@ -76,22 +76,22 @@ Our versions of the runtime are further first-class objects, which can be stored
 
 \section{Dynamically Scoping First-class Groups of Change}
 
-The approaches presented in this sections allow to combine changes into first-class groups of changes and, subsequentely, to run code with a particular set of such groups.
+The approaches presented in this sections allow to combine changes into first-class values and, subsequentely, to run code with a particular set of such groups.
 
 
 \subsection{Worlds}
 
-Worlds are a language construct to capture and control the scope of side-effects: changes to the state of objects are by default only effective in the world in which the changes occurred.
+Worlds are a language construct to capture side-effects and control the scope of them: changes to the state of objects are by default only effective in the world in which the changes occurred.
 Worlds are first-class values, to be used to execute statements in a particular world.
 A new world can be spawned from an existing world, which establishes a child-parent relationships between the two worlds.
 Developers can commit changes contained in a child world to its parent world, thereby extending the scope of the captured side-effects.
 For this, the Worlds approach further includes conditions to prevent inconsistencies as result of commits.
 
-In comparison, Worlds provides a language construct to support explicitly experimenting with different states of the runtime, while object versioning provides versions of the runtime intented to be created implicitly and continuously: Our approach does not include extensions to existing programming languages with versions as first-class values and no conditions under which versions of the runtime should be merged into their predecessors.
+In comparison, Worlds provides a language construct to support explicitly experimenting with different states of the runtime, while object versioning allows to preserve versions of the entire runtime intented to be created implicitly and continuously: Our approach does not include extensions to the host programming languages and no conditions under which versions of the runtime should be merged into predecessor versions.
 
-That said, worlds could, potentially, also be used as a basis for continuous object versioning.
-However, out of practical considerations---currently, Worlds, for example, provides no garbage collection and also does not work for all possible JavaScript code---we decided not to build upon worlds, but to implement object versioning as explained in Chapter WHERE. \todo{add reference to approach / implementation}
-
+Other differences between Worlds and our approach are mainly on the implementation level.
+Our implementation in JavaScript does not prevent garbage collection as Worlds does.
+Further, both use different libraries for source transformations, which our choice does faster and without relying on JavaScript exceptions for backtracking.
 
 \subsection{Context-oriented Programming}
 
@@ -111,31 +111,33 @@ This requires developers to make experiments explicitly though---explicitly crea
 
 \subsection{ChangeBoxes}
 
-ChangeBoxes~\cite{Denker2007EEC} is an approach to capture and scope changes to a system in first-class entities called ChangeBoxes.
+ChangeBoxes~\cite{Denker2007EEC} is an approach to capture and scope changes to a system in first-class entities, also called ChangeBoxes.
 A ChangeBox can embody changes to multiple elements of a software system such as adding a field, removing a method, or renaming a class.
-The approach does not constrain how changes get sorted into ChangeBoxes, but demands that every change to the system is encapsulated in a ChangeBox.
-Each ChangeBox can be used to scope changes for a running process and multiple running processes can view the system differently through using different ChangeBoxes.
-ChangeBoxes can also have ancestor relationships and even merge changes from multiple ancestors.
-This way, ChangeBoxes can not only be used to scope changes, but also to reason about the evolution of systems and to undo changes.
+The approach does not constrain how changes get grouped into ChangeBoxes, but every change to the system has be encapsulated in a ChangeBox.
+Each ChangeBox can be used for deriving the set of changes for the scope of a running process.
+This way, multiple running processes can view the system differently by using different ChangeBoxes.
+ChangeBoxes can have ancestor relationships and merge changes from multiple ancestors.
+Using these ancestor relations, ChangeBoxes can be used to review the evolution of systems and to undo changes.
 
 The ChangeBoxes approach is similar to our approach as changes to the system are grouped into versions and these can be used to run code in different versions of the runtime.
 Further, both solutions are also comparable in that there is no definite notion in how exactly changes are to be grouped.
-Our object versioning approach, however, is intended to be used to group changes associated with a particular developer actions and, thereby, support undoing any inappropriate changes during the development of systems.
-For this reason, a convenient global undo/redo mechanism for all changes is built into our solution, while using ChangeBoxes to undo changes is rather tedious~\cite{Steinert2012COE}.
-Furthermore, ChangeBoxes recognizes only changes to the static elements of a software system such as packages, classes, methods, and fields, while object versioning allows to version changes to the state and behavior of objects.
+Our object versioning approach, however, is intended to be used to group changes associated with developer actions and a simple global undo/redo mechanism to undo inappropriate actions is built into our solution.
+To actually undo changes ChangeBoxes, in contrast, is rather tedious~\cite{Steinert2012COE}.
+Furthermore, ChangeBoxes recognizes only changes to the static elements of a software system such as packages, classes, methods, and fields, while object versioning allows to also version the state and behavior of objects.
 
 
-\subsubsection{Aliases}
+\subsubsection{Practical Object-oriented Back-in-Time Debugging}
 
-Practical Object-oriented Back-in-Time Debugging~\cite{Lienhard2008POB} is a logging-based approach to back-in-time debugging that also preserves the history for each object using alternative references.
-As in our approach, these alternative references, called Aliases, are actually also objects, part of the application memory, and contain information about the history and origin of the values stored in objects.
-Aliases are, however, never passed around, but new aliases are created for each read or write of an object field or an array and for each reference passed as parameter.
-Each of these aliases refers to an actual value, but also to an alias for the value the variable previously referred to---its predecessor---and to the alias that was used to create this new alias from---its origin.
+Practical Object-oriented Back-in-Time Debugging~\cite{Lienhard2008POB} is a logging-based approach to back-in-time debugging that uses alternative references to preserve the history of each object.
+These alternative references, called Aliases, are actually objects, part of the application memory, and contain information about the history and origin of the values stored in objects.
+Aliases are not passed around, but instead are created for each read or write of an object field or an array and for each reference passed as parameter.
+Each of these aliases refers to an actual value, but also to another alias---its predecessor---representing the value previously stored by a field and to the alias that was used to create this new alias from---its origin.
 An alias and its origin both refer to the same value, but provide different information as their creation context, which always is a particular method.
-That is, the origin link can be used to follow the object's ``flow'' through the program, and, because each alias also records a timestamp when created, the predecessor link can be followed while comparing timestamps to read a value as it were at a particular moment in time.
+That is, the origin link can be used to follow the object's ``flow'' through the program.
+Each alias also records a timestamp when created and with this information the predecessor link can be followed to read a value as it was at a particular moment in time.
 
-In comparison to our approach, there is not just one alias object for every mutable object, but potentially many---as many as references to that object, while there is only one version-aware reference.
-Further, an alias object has predecessors for every value stored in a variable such as an object field, while our version-aware references hold a subset of the different state the same object had, corresponding to particular discrete versions of the runtime, which may or may not have been commited automatically.
-That is, with the presented debugging approach its possible to recreate all states the system was in and also retrace the flow of all values, while our system stores only meaningful versions that, for example, might correspond to developer actions.
-Another difference lies in the in the expected usage extent: the alias references are intended to be used only for explicit debugging sessions, while our version-aware reference are intended to be used always, at least completely during all development activities.
+In comparison, there is not just one alias object for every mutable object, but as many as there are references to that object, whereas there is always only one version-aware reference for every mutable object with our approach.
+Further, an alias object has time-stamped predecessors for the values stored in a field, while our version-aware references hold versions of an object that correspond to particular discrete versions of the runtime.
+That is, with the presented back-in-time debugging solution its possible to recreate all states the system was in and also retrace the flow of all values, while our system stores only particular meaningful versions that, for example, might correspond to developer actions.
+Another difference lies in the expected usage extent: the alias references are intended to be used only for explicit debugging sessions, while our version-aware reference are intended to be used always.
 
