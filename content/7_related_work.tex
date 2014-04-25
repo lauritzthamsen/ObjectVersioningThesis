@@ -63,14 +63,17 @@ Another difference lies in the in the expected usage extent: the alias reference
 
 
 \section{Software Transactional Memory}
-Software Transactional Memory~\cite{Shavit1995STM}
 
-\todosec{Missing Section: Software Transactional Memory}
+\ac{stm}~\cite{Shavit1995STM} allows to edit values in transactions, analogous to database transactions.
+Each transaction has its own view of the memory, unaffected by other concurrently running transactions.
+That is, multiple versions of the state of a system can coexist and which one is read and written to depends on the transaction.
+Transactions contain a number of program statements to be executed as one atomic operation.
+The changes are only permanently commited when no conflicts with other transactions occurred.
+On conflicts, however, all changes made by a transaction are rolled back and undone.
 
-
-% from the Worlds paper:
-% In languages that support Software Transactional Memory (STM) [27, 14], every trans- action that is being executed at a given time has access to its own view of the program store that can be modified in isolation, without affecting other transactions. Therefore, like worlds, STM enables multiple versions of the store to co-exist. But whereas the pur- pose of transactions is to provide a simple model for parallel programming, the goal of worlds is to provide a clean and flexible mechanism for controlling the scope of side ef- fects. Unlike transactions, worlds are first-class values and are not tied to any particular control structure—a world can be stored in a variable to be revisited at a later time. This novel combination of design properties makes worlds more general (albeit more prim- itive) than transactions.
-
+In contrast to our approach, \ac{stm} aims to provide concurrency control and an alternative to lock-based synchronization, our goal is to support developers in recovering previous development states.
+Therefore, using object versioning is reasonable even in single-threaded execution environments, while \ac{stm} provides support explicitly for parallel programming.
+Versions of the runtime are further just first-class objects, can be stored in variables and only later be re-established, while transactions are always created through particular control structures and commited immediately upon access.
 
 
 
@@ -120,22 +123,4 @@ While object versioning introduces a constant execution overhead for resolving v
 For this reason, object versioning seems to be more practical for fine-grained versioning.
 
 \todo{while both approaches could store multiple versions of the runtime in memory, serialization and deserialization for preserving and re-establishing versions of the runtime is a stop-the-world approach. one other difference between both approaches is that our approach preserves object identity with proxies (the proxy identities) and it is, therefore, possible to version just parts of the system, while the rest of the system could still refer to any of the versioned objects by references..}
-
-
-
-
-
-
-
-% Bastian meinte, dass ich Subject-oriented Programming und Scoped Assignments nicht unbedingt auch noch machen muss..
-
-% \section{Subject-oriented Programming}
-% maybe something about David Ungar's Us~\cite{}
-
-
-
-% \section{Scoped Assignments}
-% Tanter's scoped assignment construct  that enables programmers to control the scope of side effects 
-
-
 
