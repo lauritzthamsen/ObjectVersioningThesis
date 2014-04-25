@@ -2,7 +2,11 @@
 
 \todo{chapter intro for related work}
 
-\section{Continuous Versioning}
+
+\section{Recovery of Previous System States}
+
+
+\subsection{CoExist}
 
 \cite{Steinert2012COE}
 CoExist provides recovery support through continuous versioning in Squeak/Smalltalk.
@@ -18,22 +22,22 @@ However, CoExist already records versions continuously on the granularity of cha
 In contrast to CoExist, our system not only preserves code, but also the state of objects and, thus, is primarily intended for programming systems that allow to manipulate objects directly.
 
 
-\section{Worlds}
+\subsection{Lively Kernel Offline Worlds}
 
-Worlds are a language construct to capture and control the scope of side-effects: changes to the state of objects are by default only effective in the world in which the changes occurred.
-Worlds are first-class values, to be used to execute statements in a particular world.
-A new world can be spawned from an existing world, which establishes a child-parent relationships between the two worlds.
-Developers can commit changes contained in a child world to its parent world, thereby extending the scope of the captured side-effects.
-For this, the Worlds approach further includes conditions to prevent inconsistencies as result of commits.
+Offline Worlds~\cite{Czuchra2012OfW} is an approach to implementing automatic saving of the Lively Kernel worlds as protection against system failures.
+The world is saved automatically in a fixed time interval to be able to re-establish the latest saved version of the world in case of unexpected crashes, or network or server outages.
 
-In comparison, Worlds provides a language construct to support explicitly experimenting with different states of the runtime, while object versioning provides versions of the runtime intented to be created implicitly and continuously: Our approach does not include extensions to existing programming languages with versions as first-class values and no conditions under which versions of the runtime should be merged into their predecessors.
+As only the differences to the last saved version is stored, Offline Worlds would also allow to re-establish other versions than the latest.
+However, in contrast to our goals, the Offline Worlds approach aims at preserving the latest state of a the Lively Kernel world to provide recovery from system failures, while our approach aims to preserve multiple versions of the runtime to provide recovery from inappropriate changes.
+Further, Offline Worlds only preserve the state of all graphical objects, whereas our versions also preserve other globally accessible state such as the global system configuration, classes, and state explicitly excluded when serializing graphical objects.
+Also, while our approach saves new versions incrementally and resolves to different versions dynamically, Offline Worlds saves and loads versions of the world in a discrete, interruptive step.
+While object versioning introduces a constant execution overhead for resolving version-aware references, Offline Worlds stops the world for both saving and loading versions.
+For this reason, object versioning seems to be more practical for fine-grained versioning.
 
-That said, worlds could, potentially, also be used as a basis for continuous object versioning.
-However, out of practical considerations---currently, Worlds, for example, provides no garbage collection and also does not work for all possible JavaScript code---we decided not to build upon worlds, but to implement object versioning as explained in Chapter WHERE. \todo{add reference to approach / implementation}
+\todo{while both approaches could store multiple versions of the runtime in memory, serialization and deserialization for preserving and re-establishing versions of the runtime is a stop-the-world approach. one other difference between both approaches is that our approach preserves object identity with proxies (the proxy identities) and it is, therefore, possible to version just parts of the system, while the rest of the system could still refer to any of the versioned objects by references..}
 
 
-
-\section{Back-in-Time Debugging}
+\subsection{Back-in-Time Debugging}
 
 Back-in-time Debuggers~\cite{Lewis2003BIT}, also known as Omniscient Debuggers, allow developers to inspect previous program states and step backwards in the control flow to effectively undo the effects of statements.
 For this, approaches are either based on logging or replay: either the debugger records previous states to be able to recreate a particular previous situations, requiring mainly space for all the different states, or the debugger re-executes the program up to a particular previous situation, requiring mainly time to run the program again.
@@ -44,10 +48,7 @@ It also allows to re-establish a previous situation through preserving previous 
 However, back-in-time debuggers need to be able to undo the effects of every statement separately, while our system's versioning granularity is arbitrarily and can, for example, correspond to developer interaction with the live system.
 In general, back-in-time debuggers support a particular development task---debugging--- and, thus, are also often only active when a program is started in separate debugging mode, while the purpose of object versioning is more comprehensive and we expect it to be active at least during all development tasks, but possibly even be always enabled.
 
-
-\section{Aliases}
-
-\todo{cite Lienhard's diss and make it more focused on aliases than POoBiTDebugging}
+\subsubsection{Back-in-Time Debugging with Aliases}
 
 Practical Object-oriented Back-in-Time Debugging~\cite{Lienhard2008POB} is a logging-based approach to back-in-time debugging that also preserves the history for each object using alternative references.
 As in our approach, these alternative references, called Aliases, are actually also objects, part of the application memory, and contain information about the history and origin of the values stored in objects.
@@ -62,22 +63,28 @@ That is, with the presented debugging approach its possible to recreate all stat
 Another difference lies in the in the expected usage extent: the alias references are intended to be used only for explicit debugging sessions, while our version-aware reference are intended to be used always, at least completely during all development activities.
 
 
-\section{Software Transactional Memory}
-
-\ac{stm}~\cite{Shavit1995STM} allows to edit values in transactions, analogous to database transactions.
-Each transaction has its own view of the memory, unaffected by other concurrently running transactions.
-That is, multiple versions of the state of a system can coexist and which one is read and written to depends on the transaction.
-Transactions contain a number of program statements to be executed as one atomic operation.
-The changes are only permanently commited when no conflicts with other transactions occurred.
-On conflicts, however, all changes made by a transaction are rolled back and undone.
-
-In contrast to our approach, \ac{stm} aims to provide concurrency control and an alternative to lock-based synchronization, our goal is to support developers in recovering previous development states.
-Therefore, using object versioning is reasonable even in single-threaded execution environments, while \ac{stm} provides support explicitly for parallel programming.
-Versions of the runtime are further just first-class objects, can be stored in variables and only later be re-established, while transactions are always created through particular control structures and commited immediately upon access.
 
 
 
-\section{Context-oriented Programming}
+
+\section{Dynamically Scoping First-class Groups of Changes}
+
+\subsection{Worlds}
+
+Worlds are a language construct to capture and control the scope of side-effects: changes to the state of objects are by default only effective in the world in which the changes occurred.
+Worlds are first-class values, to be used to execute statements in a particular world.
+A new world can be spawned from an existing world, which establishes a child-parent relationships between the two worlds.
+Developers can commit changes contained in a child world to its parent world, thereby extending the scope of the captured side-effects.
+For this, the Worlds approach further includes conditions to prevent inconsistencies as result of commits.
+
+In comparison, Worlds provides a language construct to support explicitly experimenting with different states of the runtime, while object versioning provides versions of the runtime intented to be created implicitly and continuously: Our approach does not include extensions to existing programming languages with versions as first-class values and no conditions under which versions of the runtime should be merged into their predecessors.
+
+That said, worlds could, potentially, also be used as a basis for continuous object versioning.
+However, out of practical considerations---currently, Worlds, for example, provides no garbage collection and also does not work for all possible JavaScript code---we decided not to build upon worlds, but to implement object versioning as explained in Chapter WHERE. \todo{add reference to approach / implementation}
+
+
+
+\subsection{Context-oriented Programming}
 
 Context-oriented Programming~\cite{Hirschfeld2008COP} adds dedicated language constructs for dynamic behavior adaptions.
 Depending on context information, COP allows to enable and disable layers, which contain variations to be executed instead or around methods of object-oriented base programs, at runtime.
@@ -93,7 +100,7 @@ However, \cite{Lincke2012SCS} showed that COP can also allow developers to exper
 This requires developers to make experiments explicitly though---explicitly creating layers and explicitly moving code from layers back to the base system once experiments are considered finished, at least when developers want to maintain the original modularization of the system.
 
 
-\section{ChangeBoxes}
+\subsection{ChangeBoxes}
 
 ChangeBoxes~\cite{Denker2007EEC} is an approach to capture and scope changes to a system in first-class entities called ChangeBoxes.
 A ChangeBox can embody changes to multiple elements of a software system such as adding a field, removing a method, or renaming a class.
@@ -110,17 +117,18 @@ Furthermore, ChangeBoxes recognizes only changes to the static elements of a sof
 
 
 
-\section{Lively Kernel Offline Worlds}
 
-Offline Worlds~\cite{Czuchra2012OfW} is an approach to implementing automatic saving of the Lively Kernel worlds as protection against system failures.
-The world is saved automatically in a fixed time interval to be able to re-establish the latest saved version of the world in case of unexpected crashes, or network or server outages.
 
-As only the differences to the last saved version is stored, Offline Worlds would also allow to re-establish other versions than the latest.
-However, in contrast to our goals, the Offline Worlds approach aims at preserving the latest state of a the Lively Kernel world to provide recovery from system failures, while our approach aims to preserve multiple versions of the runtime to provide recovery from inappropriate changes.
-Further, Offline Worlds only preserve the state of all graphical objects, whereas our versions also preserve other globally accessible state such as the global system configuration, classes, and state explicitly excluded when serializing graphical objects.
-Also, while our approach saves new versions incrementally and resolves to different versions dynamically, Offline Worlds saves and loads versions of the world in a discrete, interruptive step.
-While object versioning introduces a constant execution overhead for resolving version-aware references, Offline Worlds stops the world for both saving and loading versions.
-For this reason, object versioning seems to be more practical for fine-grained versioning.
+\section{Software Transactional Memory}
 
-\todo{while both approaches could store multiple versions of the runtime in memory, serialization and deserialization for preserving and re-establishing versions of the runtime is a stop-the-world approach. one other difference between both approaches is that our approach preserves object identity with proxies (the proxy identities) and it is, therefore, possible to version just parts of the system, while the rest of the system could still refer to any of the versioned objects by references..}
+\ac{stm}~\cite{Shavit1995STM} allows to edit values in transactions, analogous to database transactions.
+Each transaction has its own view of the memory, unaffected by other concurrently running transactions.
+That is, multiple versions of the state of a system can coexist and which one is read and written to depends on the transaction.
+Transactions contain a number of program statements to be executed as one atomic operation.
+The changes are only permanently commited when no conflicts with other transactions occurred.
+On conflicts, however, all changes made by a transaction are rolled back and undone.
+
+In contrast to our approach, \ac{stm} aims to provide concurrency control and an alternative to lock-based synchronization, our goal is to support developers in recovering previous development states.
+Therefore, using object versioning is reasonable even in single-threaded execution environments, while \ac{stm} provides support explicitly for parallel programming.
+Versions of the runtime are further just first-class objects, can be stored in variables and only later be re-established, while transactions are always created through particular control structures and commited immediately upon access.
 
