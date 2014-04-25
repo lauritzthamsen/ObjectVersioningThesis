@@ -79,18 +79,18 @@ Versions of the runtime are further just first-class objects, can be stored in v
 
 \section{Context-oriented Programming}
 
-Context-oriented Programming~\cite{Hirschfeld2008COP} adds dedicated language constructs for dynamic behavior adaptions to object-oriented programs.
-Depending on context information, COP allows to enable and disable layers, which contain variations to be executed instead or around methods of the object-oriented base program, at runtime.
+Context-oriented Programming~\cite{Hirschfeld2008COP} adds dedicated language constructs for dynamic behavior adaptions.
+Depending on context information, COP allows to enable and disable layers, which contain variations to be executed instead or around methods of object-oriented base programs, at runtime.
 Context information can be any information which is computationally accessible.
-Different implementation of COP provide different mechansims to scope the activation of layers: often layers can be activated explicitly for a particular scope of the program or globally for the entire runtime.
+Different implementation of COP provide different mechansims to scope the activation of layers: for example, layers can be activated explicitly for a particular scope of the program or globally for the entire runtime.
 In ContextJS~\cite{Lincke2011OIC} it is even possible to activate layers only for specific objects.
 
-In comparison to our approach, COP also allows to group changes to the system into layers and which of those sets of changes are active can be changed dynamically.
-However, while COP concentrates on behavior variations, our approach recognizes changes to state and behavior.
-At the same time, COP supports the composition of multiple layers, while object versioning expects a single specific version to be the current version.
-COP further is a language construct that allows to separate heterogeneous cross-cutting concerns, while object versioning is part of the programming system to allow developers to recover previous development states.
-However, \cite{Lincke2012SCS} showed that COP can also allow developers to experiment with changes to a system: developers may implement their proposed changes to behavior in layers, not aiming primarily at modularization, but to not change the system permanently and instead be able to recover easily.
-Though this requires developers to make experiments explicitly---explicitly creating layers and explicitly moving code from layers back to the base system, once experiments are considered successful and changes expected to be permanent, when developers want to maintain the original modularization of the system.
+In comparison to our approach, COP also allows to group changes to the system and which of those sets of changes are active can be changed dynamically.
+However, while COP concentrates on behavior variations, our approach recognizes changes to both state and behavior.
+COP supports the composition of multiple indepedent layers, while with object versioning runtime versions are related more permanently in ancestor relationships and only one version is active at a given point in time.
+COP further aims on separating heterogeneous cross-cutting concerns, while the motivation of object versioning is supporting developers to recover previous development states.
+However, \cite{Lincke2012SCS} showed that COP can also allow developers to experiment with changes to a system: developers may implement their proposed changes to behavior in layers, not to primarily at modularize context-dependent adaptions, but to not change the system permanently and instead be able to recover the original system easily.
+This requires developers to make experiments explicitly though---explicitly creating layers and explicitly moving code from layers back to the base system once experiments are considered finished, at least when developers want to maintain the original modularization of the system.
 
 
 \section{ChangeBoxes}
