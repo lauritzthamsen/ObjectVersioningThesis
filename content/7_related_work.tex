@@ -2,13 +2,7 @@
 
 \todo{chapter intro for related work}
 
-
-\section{Automatic Access to Previous States}
-
-\todo{section intro for this group of related work: recovery of previous versions / automatic versioning}
-
-
-\subsection{Continuous Versioning}
+\section{Continuous Versioning}
 
 \cite{Steinert2012COE}
 CoExist provides recovery support through continuous versioning in Squeak/Smalltalk.
@@ -24,7 +18,7 @@ However, CoExist already records versions continuously on the granularity of cha
 In contrast to CoExist, our system not only preserves code, but also the state of objects and, thus, is primarily intended for programming systems that allow to manipulate objects directly.
 
 
-\subsection{Offline Worlds}
+\section{Offline Worlds}
 
 Offline Worlds~\cite{Czuchra2012OfW} is an approach to implementing automatic saving of the Lively Kernel worlds as protection against system failures.
 The world is saved automatically in a fixed time interval to be able to re-establish the latest saved version of the world in case of unexpected crashes, or network or server outages.
@@ -39,7 +33,7 @@ For this reason, object versioning seems to be more practical for fine-grained v
 \todo{while both approaches could store multiple versions of the runtime in memory, serialization and deserialization for preserving and re-establishing versions of the runtime is a stop-the-world approach. one other difference between both approaches is that our approach preserves object identity with proxies (the proxy identities) and it is, therefore, possible to version just parts of the system, while the rest of the system could still refer to any of the versioned objects by references..}
 
 
-\subsection{Back-in-Time Debugging}
+\section{Back-in-Time Debugging}
 
 Back-in-time Debuggers~\cite{Lewis2003BIT}, also known as Omniscient Debuggers, allow developers to inspect previous program states and step backwards in the control flow to effectively undo the effects of statements.
 For this, approaches are either based on logging or replay: either the debugger records previous states to be able to recreate a particular previous situations, requiring mainly space for all the different states, or the debugger re-executes the program up to a particular previous situation, requiring mainly time to run the program again.
@@ -51,11 +45,7 @@ However, back-in-time debuggers need to be able to undo the effects of every sta
 In general, back-in-time debuggers support a particular development task---debugging--- and, thus, are also often only active when a program is started in separate debugging mode, while the purpose of object versioning is more comprehensive and we expect it to be active at least during all development tasks, but possibly even be always enabled.
 
 
-\section{Multiple Versions Of the Runtime}
-
-\todo{section intro for this group of related work: first-class changes / dynamic scoping of adaptions..}
-
-\subsection{Worlds}
+\section{Worlds}
 
 Worlds are a language construct to capture and control the scope of side-effects: changes to the state of objects are by default only effective in the world in which the changes occurred.
 Worlds are first-class values, to be used to execute statements in a particular world.
@@ -69,7 +59,7 @@ That said, worlds could, potentially, also be used as a basis for continuous obj
 However, out of practical considerations---currently, Worlds, for example, provides no garbage collection and also does not work for all possible JavaScript code---we decided not to build upon worlds, but to implement object versioning as explained in Chapter WHERE. \todo{add reference to approach / implementation}
 
 
-\subsection{Context-oriented Programming}
+\section{Context-oriented Programming}
 
 Context-oriented Programming~\cite{Hirschfeld2008COP} adds dedicated language constructs for dynamic behavior adaptions to object-oriented programs.
 Depending on context information, COP allows to enable and disable layers, which contain variations to be executed instead or around methods of the object-oriented base program, at runtime.
@@ -85,19 +75,18 @@ However, \cite{Lincke2012SCS} showed that COP can also allow developers to exper
 Though this requires developers to make experiments explicitly---explicitly creating layers and explicitly moving code from layers back to the base system, once experiments are considered successful and changes expected to be permanent, when developers want to maintain the original modularization of the system.
 
 
-\subsection{ChangeBoxes}
-ChangeBoxes~\cite{Denker2007EEC}
-
-\todosec{Missing Section: ChangeBoxes}
-
-Class-boxes? \todo{what about Alexandre Bergel's Class-boxes.. and other boxes by the SCG?}
+\section{ChangeBoxes}
 
 
-\subsection{Aliases}
+
+
+
+
+\section{Aliases}
 
 \todo{cite Lienhard's diss and make it more focused on aliases than POoBiTDebugging}
 
-A concrete and particularly related work is Practical Object-oriented Back-in-Time Debugging~\cite{Lienhard2008POB}, a logging-based approach that also preserves the history for each object using alternative references.
+Practical Object-oriented Back-in-Time Debugging~\cite{Lienhard2008POB} is a logging-based approach to back-in-time debugging that also preserves the history for each object using alternative references.
 As in our approach, these alternative references, called Aliases, are actually also objects, part of the application memory, and contain information about the history and origin of the values stored in objects.
 Aliases are, however, never passed around, but new aliases are created for each read or write of an object field or an array and for each reference passed as parameter.
 Each of these aliases refers to an actual value, but also to an alias for the value the variable previously referred to---its predecessor---and to the alias that was used to create this new alias from---its origin.
@@ -110,10 +99,18 @@ That is, with the presented debugging approach its possible to recreate all stat
 Another difference lies in the in the expected usage extent: the alias references are intended to be used only for explicit debugging sessions, while our version-aware reference are intended to be used always, at least completely during all development activities.
 
 
-\subsection{Software Transactional Memory}
+\section{Software Transactional Memory}
 Software Transactional Memory~\cite{Shavit1995STM}
 
 \todosec{Missing Section: Software Transactional Memory}
+
+
+% from the Worlds paper:
+% In languages that support Software Transactional Memory (STM) [27, 14], every trans- action that is being executed at a given time has access to its own view of the program store that can be modified in isolation, without affecting other transactions. Therefore, like worlds, STM enables multiple versions of the store to co-exist. But whereas the pur- pose of transactions is to provide a simple model for parallel programming, the goal of worlds is to provide a clean and flexible mechanism for controlling the scope of side ef- fects. Unlike transactions, worlds are first-class values and are not tied to any particular control structure—a world can be stored in a variable to be revisited at a later time. This novel combination of design properties makes worlds more general (albeit more prim- itive) than transactions.
+
+
+
+
 
 
 
