@@ -1,47 +1,61 @@
-% TODO: is the following incorporated?
- % the usage we intend for the object versioning: 
-% but implicit versioning of the object state, not on every change to object but corresponding to user interactions, manipulating user interaction.. saving scripts, directly manipulating state through halo buttons or drag and drop composition, evaluating do-it snippets
-% fine-grained object versioning as foundation for continuous object versioning
-
-
 \chapter{Future Work} \label{chapter:FUTURE_WORK}
 
-In the future, we want to improve the practicability of our implementation.
-Speeding up the proxy-based version-aware references seems most important in this regard.
-In addition, we would like to build upon our approach and implementation.
-The system should preserve meaningful versions of the runtime automatically and support developers in finding relevant previous state in recovery situations.
+In the future, we want to make our solution more practically useful for developers.
+As described in this section, we want to improve the performance of our implementation and provide appropriate tool support to developers.
+
+\todo{once the other chapters are written, i need to check the references of this chapter}
+
 
 \section{Improving the Performance of Our Implementation} \label{sec:FUTURE_WORK:1}
 
-Our current implementation makes JavaScript code execution significantly slower and the development tools in Lively considerably less responsiveness, as presented in Section~\ref{sec:DISCUSSION:2}.
-Our proxy-based version-aware references select dynamically to which version of an object any access should be delegated.
-They also dynamically create new versions of an object, when objects are changed after having been commited with the version of the runtime.
-Until then, for all reads, our version-aware references delegate to the latest, unchanged version of that object.
-With this implementation, creating a new or switching the current version of the runtime happens incrementally instead of in a stop-the-world approach.
-At the same time, however, this---the use of version-aware references--introduces a constant runtime overhead.
-There will be overhead for incrementally copying objects on writes, when new versions of an object get created, but even for a single active version for the runtime and, thus, only one version for each object, there is the constant overhead of resolving the version-aware references to their current object versions.
-Thus, when we want to speed-up the execution of JavaScript code and, thereby, also the responsiveness of Lively's tools again, we need to reduce the time it takes to resolve a version-aware references, which in the current implementation is done by the proxies.
 
+Our current implementation reduces the speed of JavaScript code execution and responsiveness of the development tools in the Lively Kernel considerably, as presented in Section~\ref{sec:DISCUSSION:2}.
+Our proxy-based version-aware references select dynamically to which version of an object any access should be delegated.
+Therefore, even for a single version of the runtime and, thus, only one version for each object, there is a constant overhead for resolving the version-aware references to their targets.
+Thus, when we want to speed-up the execution of JavaScript code, we need to reduce the time it takes to resolve a version-aware references, which is currently done by having proxies intercept and forward access to the correct target.
+
+There are three different approaches to a better performance of the system when version-aware references are used:
+
+\begin{itemize}
+    \item Faster proxies:
+    \item Fewer proxies:
+    \item Alternative proxies:
+\end{itemize}
+
+
+\subsubsection{Faster Proxies}
 We use the Direct Proxies that the ECMAScript 6 standard will add to the JavaScript language.
-As discussed in Section~\ref{sec:DISCUSSION:2}, our specific proxy behavior---delegate to a changing version of an essentially unrelated object---is currently only an order of magnitude slower than the default behavior---delegate the access unchanged to the proxy's constant target; two orders of magnitude are introduced just by using proxies independent of any version-awareness.
-At the time of writing the ECMAScript 6 specification is still only a draft.
-We are able to use these proxies already because the Chrome browser implements an earlier, now deprecated specification of the proxies as an experimental feature and because there is a library that provides the currently specified proxies on top of the deprecated style of proxies, as also discussed in Section~\ref{sec:IMPLEMENTATION:1}.
-However, given that the proxies are marked as experimental feature in Chrome and also currently partly implemented as JavaScript library---instead by the JavaScript engine---and on top of the deprecated variant, it seems reasonable to expect performance gains once ECMAScript 6 gets finalized and implemented by the browser vendors.
+As discussed in Section~\ref{sec:DISCUSSION:2}, our specific proxy behavior---delegate to a changing version of an essentially unrelated object---is currently only an order of magnitude slower than the default behavior---delegate the access unchanged to the proxy's constant target.
+Two orders of magnitude are introduced just by using proxies, independent of any version-awareness.
+
+At the time of writing, the ECMAScript 6 specification is still only a draft.
+We are able to use these proxies already because the Chrome browser implements an earlier, now deprecated specification of the proxies as an experimental feature and because there is a library that provides the currently specified Direct Proxies on top of the deprecated style of proxies, as also discussed in Section~\ref{sec:IMPLEMENTATION:1}.
+However, given that the proxies are marked as experimental feature in Chrome and currently partly implemented as JavaScript library---instead by the JavaScript engine--- as well as on top of the deprecated variant, it seems reasonable to expect performance gains once ECMAScript 6 gets finalized and implemented by the browser vendors.
+
+\subsubsection{Fewer Proxies}
+We could use proxies less deliberately and especially not for objects for which we wont have different versions anyways.
+One example for a system part that would not need to version objects would be one of the Lively Kernel's parsers.
+The particular parser, based on the JavaScript implementation of OMeta~\cite{Warth2007OOL}, creates many objects while parsing code.
+These objects are only necessary during parsing, which often only needs to return a success or failure.
+In fact, given JavaScript's single-threaded and cooperative execution it would not even be possible to switch the version during parsing with the current implementation.
+So, there wont, for example, be multiple versions for any of the objects only created as intermediate results of a parser, rendering version-aware reference to such temporary objects irrelevant, while they, however, currently still impede performance significantly.
+
+\subsubsection{Alternative Proxies}
 Another indicator that proxies could be faster is that equivalent indirections as provided with the proxy handler traps are significantly faster when they are provided manually through custom JavaScript functions and source transformations, as indicated in Section~\ref{sec:DISCUSSION:2}.
 This suggests an alternative implementation to using the Direct Proxies.
-We could still use objects as stand-ins for a multiplicity of versions, but implement the delegation behavior currently provided in proxy traps with ordinary JavaScript functions, which we could use consistently instead of direct object access through further source transformations.
-Instead of, for example, \lstinline{anObject.aFunctionProperty()} the system would execute something similar to \lstinline{apply(anObject, get(anObject, aProperty))}.
+We could still use objects as stand-ins for a multiplicity of versions, but implement the delegation behavior currently provided in proxy traps with ordinary JavaScript functions, which we could use consistently instead of direct object access through further source transformations.\\
+These source transformations could do something similar to the following:
 
-Besides having the options to wait for faster proxies or not using proxies at all, we could use proxies less deliberately and especially not for objects for which we wont have different versions anyways.
-One example would be a parser implemented in JavaScript that creates lots of objects while parsing code such as the one currently used in Lively.
-These objects are only necessary during parsing, which often only needs to return a success or failure.
-Given JavaScript's single-threaded and cooperative execution it would not even be possible to switch the version during parsing with the current implementation.
-So, there wont, for example, be multiple versions for any of the objects only created as intermediate results of a parser, rendering version-aware reference to such temporary objects irrelevant, while they, however, currently still impede performance significantly.
+\begin{center}
+    \begin{tabular}{ lll }
+    \lstinline|obj.func()| & --> & \lstinline|apply(obj, get(obj, func))| \\
+    \end{tabular}
+\end{center}
 
 
 \section{Providing Recovery Tools}
 
-Our implementation allows to preserve and to re-establish versions of the Lively runtime, but these versions need currently to be created explicitly.
+Our implementation allows to preserve and to re-establish versions of the the Lively Kernel runtime, but these versions need currently to be created explicitly.
 Developers still need to preserve particular versions, which developers might, however, forget or deliberately decide against after underestimating the risk of a change.
 At the same time, it takes effort to assess the risk of upcoming changes, to run appropriate tests to check the current state, and to commit a version.
 For these reasons and as suggested by CoExist, we want the system to preserve a fine-grained history automatically.
@@ -53,8 +67,8 @@ However, even if that were technically feasible, developers also need to be able
 Therefore, we propose to preserve versions associated with actions of developers, to allow developers to undo the effects of their actions when they recognize actions did not exactly improve their programs.
 In particular, the system could, for example, automatically preserve a version of the state whenever a developer does one of the following actions:
 \begin{itemize}
-    \item manipulate a graphical object directly with one of Lively's halo tools or through drag and drop
-    \item directly evaluate a code snippet (``Do-It'')
+    \item manipulate a graphical object directly with one of the Lively Kernel's halo tools or through drag and drop
+    \item evaluate a code snippet (``Do-It'')
     \item save a script of an object or a method of a class
     \item trigger code execution by clicking a button or pressing a key
 \end{itemize}
@@ -69,7 +83,7 @@ A third category of helpful information for a version, besides when and why a ve
 What source code changed can often be indicated by static information as, for example, a class, its module, and the containing file.
 There is, however, less static information for objects.
 In case of Livey, we might be able to present how they relate to the scenegraph of visible objects.
-Further, some graphical objects do have explicit names in Lively.
+Further, some graphical objects do have explicit names in the Lively Kernel.
 How objects changed between versions can be presented in a diff view for both state and behavior.
 Lastly, the system could also provide information on the impact of changes: For each version, we could also preserve results for test cases and benchmarks.
 
