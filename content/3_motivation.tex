@@ -1,16 +1,17 @@
 \chapter{Motivation} \label{chapter:MOTIVATION}
 
-In Lively, programmers can create applications by manipulating and composing simpler parts.
+In Lively, programmers can create applications by manipulating and composing graphical parts.
 These graphical objects can be edited using a variety of direct manipulation tools.
-When programmers do edit these parts directly, they often see the effects of their actions immediately.
-However, not all these effects are improvements and sometimes programmers want to undo recent changes and recover previous situations.
+When programmers edit parts directly, they often see the effects of their actions immediately.
+However, not all effects are improvements.
+Sometimes programmers want to undo recent changes and recover previous situations.
 The development of parts in Lively and conceivable recovery needs are shown by the example of adding a new functionality to an existing tool in Lively.
 
 
 \section{Part Development In Lively}
 
 To exemplify how developers change objects directly in Lively, we will add a new feature to Lively's Object Editor.
-The editor itself has been been developed by composing and editing simple graphical objects like buttons, text fields, and lists.
+The editor itself has been been developed by composing and editing graphical objects like buttons, text fields, and lists.
 For this reason, we do not have to adapt any source code modules to change the editor, but rather manipulate and save the concrete editor object.
 The new feature we add in this example is a magnifier button that can show the editor's current target.
 The target is the object to which the Object Editor currently presents scripts to and allows to manipulate.
@@ -40,7 +41,7 @@ First, we can add scripts to the button that while the mouse cursor hovers above
 \todo{this whole section needs to be more concrete and actually present situations from the previously introduced example. e.g. explain how parts of the script to can be evaluated to test whether the overlay works, but even when that works as intented there is then just wrong state (an overlay added to some morph in the world..)}
 
 While manipulating objects directly, developers might make changes to object state that they subsequentely want to undo.
-In the previously summarized example developers might, for example, developers might accidentally move the new button after carefully positioning it.
+In the previously summarized example developers might, for example, accidentally move the new button after carefully positioning it.
 Or they might accidentally drop the button into an existing layout, thereby undesirably repositioning multiple unrelated morphs.
 An extreme example for such an accidental inappropriate change is closing a morph that had meaningful, but unsaved changes.
 

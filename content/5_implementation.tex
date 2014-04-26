@@ -1,15 +1,6 @@
 \chapter{Implementation} \label{chapter:IMPLEMENTATION}
 
-We implemented version-aware references for our approach to object versioning in JavaScript using proxies and source transformations.
-This way, our prototype does not require changes to JavaScript engines, but only a certain JavaScript language feature.
-In particular, it requires the Direct Proxies\footnote{\url{http://wiki.ecmascript.org/doku.php?id=harmony:direct_proxies}, accessed February 3rd, 2014} as proposed with Version 6 of ECMAScript, the standard that JavaScript follows.
-These proxies can implement specific behavior to handle various kinds of access to them.
-In our implementation, these proxies are used to delegate all access to a particular version of the object they stand in for.
-To have these proxies intercept access to all mutable objects for which versions should be preserved, our prototype uses a combination of source transformations and proxy behavior.
-In particular, the moment mutable objects get created, proxies get created for the new objects and references to the proxies are returned instead of references to the actual objects.
-The proxies then preserve and choose versions of their object corresponding to a global version identifier.
-This version identifier effectively declares one particular state of the programming runtime, consisting of those versions of objects that are associated with that runtime state, to be read and written.
-Therefore, to change the entire runtime state as, for example, an undo and redo would require only the global version identifier needs to be changed.
+
 
 % TODO CHAPTER STRUCTURE TODO
 
@@ -26,7 +17,23 @@ Therefore, to change the entire runtime state as, for example, an undo and redo 
 
 
 
+% TODO: chapter intro..
+
+
+
 \section{ECMAScript 6 Proxies as Version-aware References} \label{sec:IMPLEMENTATION:1}
+
+% We implemented version-aware references for our approach to object versioning in JavaScript using proxies and source transformations.
+% This way, our prototype does not require changes to JavaScript engines, but only a certain JavaScript language feature.
+% In particular, it requires the Direct Proxies\footnote{\url{http://wiki.ecmascript.org/doku.php?id=harmony:direct_proxies}, accessed February 3rd, 2014} as proposed with Version 6 of ECMAScript, the standard that JavaScript follows.
+% These proxies can implement specific behavior to handle various kinds of access to them.
+% In our implementation, these proxies are used to delegate all access to a particular version of the object they stand in for.
+% To have these proxies intercept access to all mutable objects for which versions should be preserved, our prototype uses a combination of source transformations and proxy behavior.
+% In particular, the moment mutable objects get created, proxies get created for the new objects and references to the proxies are returned instead of references to the actual objects.
+% The proxies then preserve and choose versions of their object corresponding to a global version identifier.
+% This version identifier effectively declares one particular state of the programming runtime, consisting of those versions of objects that are associated with that runtime state, to be read and written.
+% Therefore, to change the entire runtime state as, for example, an undo and redo would require only the global version identifier needs to be changed.
+
 
 Our implementation of version-aware references is based on the ECMAScript 6 Direct Proxies.
 While these are supposed to stand-in for particular objects, their \emph{targets}, they can also be used as fully virtual objects.
