@@ -7,7 +7,7 @@
 \chapter{Introduction} \label{chapter:INTRODUCTION}
 
 % Background
-Programming systems such as Squeak/Smalltalk~\cite{GoldbergRobson83} and REPLs for LISP or Python allow to adapt and develop programs while those run.
+Programming systems such as Squeak/Smalltalk~\cite{Ingalls1997Squeak,GoldbergRobson83} and REPLs for LISP or Python allow to adapt and develop programs while those run.
 Changes to programs in such environments are effective immediately and programmers can often see or test right away what differences their actions make.
 Thus, these systems provide immediate feedback to programmers.
 A subset of such systems, which includes, for example, Self~\cite{Ungar1987SPS,Ungar2007SEL} and the Lively Kernel~\cite{Ingalls2008LKS,Krahn2009LWD}, are those built around prototype-based object-oriented languages, in which programmers create applications using objects and without having to define classes first.
@@ -55,7 +55,7 @@ Developers could, thus, execute all their actions in separate worlds and discard
 Worlds as such, though, would require developers to explicitly create as well as potentially merge or discard worlds, and, therefore, still needs the programmer to explicitly take precautionary actions, similar to version control systems.
 In addition, the implementation of Worlds for and in JavaScript is not yet practical as it, for example, currently prevents garbage collection.
 
-In contrast to these approaches, CoExist~\cite{Steinert2012COE} provides automatic recovery support, without requiring developers to take any precautionary actions beforehand.
+In contrast to these approaches, CoExist~\cite{Steinert2012COE,Steinert2014EVA} provides automatic recovery support, without requiring developers to take any precautionary actions beforehand.
 For this, CoExist automatically records versions for every change and, thereby, provides a fine-grained history of intermediate development states.
 To each preserved version programmers can also see diff views, screenshots, and test results.
 Programmers can review the changes chronological, examine the impact each change had, and re-establish previous development states again.
