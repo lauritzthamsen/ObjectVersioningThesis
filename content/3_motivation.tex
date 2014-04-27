@@ -114,5 +114,7 @@ If, for example, the text selection in Figure~\ref{fig:onMouseOverScript} gets e
 In particular, its collection of submorphs is altered.
 Instead of having no submorphs, the character now has one submorph, as shown in Figure~\ref{fig:changedCharacter}.
 
-To undo the change and re-establish the previous version, the character object needs to have its previous state.
+To undo the change and re-establish the previous version of the character, the character object needs to have its previous state.
 It needs to have an empty array again as its \lstinline{submorphs} property again.
+
+Similarly, when the state of objects is preserved and can be re-established on demand, previous development states can be recovered whenever recovery is necessary.
