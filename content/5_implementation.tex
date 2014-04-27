@@ -1,6 +1,7 @@
 \chapter{Implementation} \label{chapter:IMPLEMENTATION}
 
-
+This chapter describes how we used the ECMAScript 6 proxies to implement version-aware references for the Lively Kernel.
+It explains the proxy behavior, shows how proxies are inserted using source transformations, and presents implemented workarounds as well as remaining limitations.
 
 % TODO CHAPTER STRUCTURE TODO
 
@@ -15,9 +16,6 @@
 
 % limitations / ES 6 implications: proxies have to be available, lots of low-level frames and dev tool issues
 
-
-
-% TODO: chapter intro..
 
 
 
@@ -123,7 +121,7 @@ When a proxy gets garbage collected, all versions get garbage collected as well.
 
 
 
-\section{Runtime Versions for Global Undo and Redo} \label{sec:IMPLEMENTATION:3}
+\section{Runtime Versions for a Global Undo/Redo} \label{sec:IMPLEMENTATION:3}
 
 \todo{write a text from the following notes}
 
