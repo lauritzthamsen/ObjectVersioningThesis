@@ -137,7 +137,7 @@ It presents the same information on test cases, but also offers diffs and how th
 
 CoExist is intented to reduce the effort that programmers usually put into recovery and, thereby, to encourage programmers to explore their ideas through actual development more often.
 
-Without CoExist, recovery is tied to either compensational or precautionary actions.
+Without CoExist, either compensational or precautionary actions are necessary for recovery.
 When programmers unintentionally introduce errors, decrease performance, or harm the program design, they can manually repair improperly changed code.
 Alternatively, programmers can preserve specific versions to be able to easily withdraw changes later.
 That is, they can reduce the cost of recovery by anticipating recovery needs beforehand.
@@ -145,13 +145,12 @@ Preserving versions manually is, however, also an effort and especially so when 
 For that, programmers need to assemble changes to meaningful increments, test these, and write helpful commit messages.
 Testing each one directly is also advocated as it can help to find introduced problems directly intead of later analyzing long lists of changes that all could potentially have introduced a problem.
 
-With CoExist, developers do not have to take these explicit precautionary actions, but still have access to a fine-grained history of development states and even test results for each individual state.
+CoExist provides tool support for easy and fast recovery.
+Developers do not have to take these explicit precautionary actions, but still are able to undo changes when necessary.
+In this regard, CoExist is similar to undo/redo systems.
+CoExist however provides access to the previous states of the entire system, not just particular source code views or files.
+Further, it provides much more structure, as each version is associated with the static structure of the software system, is related to other versions in a timeline, and accompanied by test results.
+Additionally, making changes to a previous state in CoExist does not overwrite the history, but creates a branch.
+
 Instead of worrying about negative consequences when trying ideas, programmers can focus on their actual programming tasks and rely on CoExist to help in case any action unexpectedly needs to be undone.
 
-% \todo{Structured: not just like auto-save (google docs), but structured: associated with particular actions and the static structure of programs... class>>method (add/delete/modify).. and also cross-document}
-
-% % sometimes easier to make the changes and experience the results than to anticipate the changes beforehand...)
-
-% have to remember to make commits +  
-% commits take some effort: combining changes into meaningful increments, making sure the current version passes test cases, where test cases also take time, writing helpful commit messages
-% for this reason, not a commit for every single change, but deciding when to commit, assessing the risks of changes and planning changes to a point where grouping changes into consistent steps, which each should be commited separately, is also time-consuming and error-prone
