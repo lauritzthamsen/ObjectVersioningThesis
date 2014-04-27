@@ -50,6 +50,9 @@ These source transformations could look similar to the following transformation:
     \end{tabular}
 \end{center}
 
+From these three approaches, implementing an alternative to the ECMAScript 6 proxies promises the best short-term results.
+Using proxies only for parts of the system that should be versioned would only be a sufficient optimization if these parts would not require a speedup, which they, however, currently do.
+Waiting for faster proxy implementations in the JavaScript engine might work, but is no short-term solution as there is no official due date for the ECMAScript 6 specification yet.
 
 
 \section{Providing Recovery Tools}
