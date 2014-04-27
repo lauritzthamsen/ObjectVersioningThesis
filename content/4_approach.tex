@@ -1,24 +1,13 @@
 % TODO: is the following incorporated somewhere?
 % state of the complete runtime, including state of the runtime that is not persisted with commiting particular objects or entire the Lively Kernel worlds (global variables.. config..).. and that, in the Lively Kernel, classes are also objects and, thus, also preserved
 
-
 % TODO: what about design goals? and if we present design goals, then we need to also evaluate which we met? transparent: yes, practical: only the memory dimension, ??
 
 \chapter{Object Versioning} \label{chapter:APPROACH}
 
-% When programmers unexpectedly introduce problems to the functionality, performance, or design of their applications, they might want to recover a previous development state.
-% In programming systems like the Lively Kernel, where programmers often work at runtime on objects, a development state consists of the state of objects, which includes object-specific behavior.
-% To be able to recover such a development state, comprehensive recovery support for the Lively Kernel must, therefore, preserve versions of objects.
-% 
-% Our approach for this is based on alternative, version-aware references that manage versions of objects transparently.
-% That is, objects are referred to by references that dynamically and transparently choose one particular version of the objects as they were at a particular moment.
-% When these references are then used for all mutable objects of a runtime, the entire runtime state can be preserved and re-established.
-% 
-% Our concrete solution for implementing this in JavaScript and for the Lively Kernel relies on proxies and source transformations.
-% Using proxies and source transformations allows a language-level solution for alternative references.
-% Versions of objects are also just JavaScript objects and, thus, also in memory.
-% The proxies, in this solution, also contain the versions of the object they stand-in for.
-% This way, when a proxy, which stands in for all versions of conceptually one object, is no longer referred to from anywhere, all versions of an objects are reclaimed by the ordinary JavaScript gargage collector.
+This chapter introduces our approach to recovering development states in object-oriented programming systems that allow to make changes directly to objects at runtime.
+The approach is based on alternative, version-aware references that manage versions of objects transparently.
+As a concrete solution for the Lively Kernel, we present a design based on using proxies for implementing version-aware references.
 
 
 \section{Version-aware References} \label{sec:APPROACH:1}
@@ -134,7 +123,14 @@ This way, as \emph{objects} are copied on writes, versioning happens automatical
 
 
 
-
+% That is, objects are referred to by references that dynamically and transparently choose one particular version of the objects as they were at a particular moment.
+% When these references are then used for all mutable objects of a runtime, the entire runtime state can be preserved and re-established.
+% 
+% Our concrete solution for implementing this in JavaScript and for the Lively Kernel relies on proxies and source transformations.
+% Using proxies and source transformations allows a language-level solution for alternative references.
+% Versions of objects are also just JavaScript objects and, thus, also in memory.
+% The proxies, in this solution, also contain the versions of the object they stand-in for.
+% This way, when a proxy, which stands in for all versions of conceptually one object, is no longer referred to from anywhere, all versions of an objects are reclaimed by the ordinary JavaScript gargage collector.
 
 
 
