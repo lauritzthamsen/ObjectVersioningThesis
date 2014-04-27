@@ -26,7 +26,8 @@ This requires to create and add a new button morph to the editor, shown in Figur
 \end{figure}
 
 The magnifier button implements two features: First, when a programmer hovers over the button, the Object Editor's current target object is highlighted through a blue and transparent overlay. Second, when a programmer clicks the button, the current target selection is revoked and the programmer can visually select the new target of the editor.
-This example covers the first of these two behaviors, which is shown in Figure~\ref{fig:MagnifierBehavior}.
+This example covers the first of these two behaviors.
+Figure~\ref{fig:MagnifierBehavior} shows the behavior for an Object Editor currently targeting the character of a game.
 
 The editor itself has been been developed by composing and editing graphical objects directly.
 For this reason, we do not have to adapt any source code modules to change the editor, but rather manipulate and save the concrete object the editor is.
@@ -55,9 +56,10 @@ Developers do not need to run any code to check the resulting appearance.
 
 \paragraph{Scripting the Button Morph}
 Next, the magnifier button needs its behavior.
-We add scripts to the button to lay a translucent rectangle over the current target, highlighting the morph that is currently being edited.
-This behavior can be triggered from two other scripts of the button morph, \lstinline{onMouseMove} and \lstinline{onMouseOut}.
-These two scripts make sure that the overlay is shown only on hover.
+We add scripts to the button to lay a translucent rectangle over the current target.
+A naive implementation of this could include the following: the button holds a transparent rectangle, which is resized and added to the submorphs of the target the mouse enters the button, while it is removed from the scenegraph of visible objects when the mouse leaves the button.
+The behavior is triggered from two specific scripts of the button morph: \lstinline{onMouseMove} and \lstinline{onMouseOut}.
+These two scripts make sure that the overlay is shown only when the cursor hovers above the button.
 
 Such scripts can be added using another Object Editor.
 The editor also allows to evaluate code in the context of its target.
@@ -66,32 +68,51 @@ So, when developers want to test a script or even just specific lines of code, t
 
 \section{Recovery Needs When Developing Parts}
 
-\todo{this whole section needs to be more concrete and actually present situations from the previously introduced example. e.g. explain how parts of the script to can be evaluated to test whether the overlay works, but even when that works as intented there is then just wrong state (an overlay added to some morph in the world..)}
+While manipulating objects directly, developers might make changes that they subsequentely want to undo.
 
-While manipulating objects directly, developers might make changes to object state that they subsequentely want to undo.
-In the previously summarized example developers might, for example, accidentally move the new button after carefully positioning it.
-Or they might accidentally drop the button into an existing layout, thereby undesirably repositioning multiple unrelated morphs.
-An extreme example for such an accidental inappropriate change is closing a morph that had meaningful, but unsaved changes.
+In the previous example developers could, for example, make any of the following mistakes that all affect the development state:
 
-In constrast to those clearly undesired, accidental changes, well-intentioned changes can also result in the desire to recover a previous development state.
-For example, when fine-tuning the visual appearance of a morph, a developer might make many changes to the sizes, the positions, and the colors of morphs, only to decide later-on that a particular intermediate version was most appealing.
-Or developers edit a script only to learn that the change introduced an an error or a decrease in performance.
-Further, developers can change objects not only through direct manipulation, but also could write a code snippet that makes changes to the state or behavior of an objects.
+\begin{itemize}
+    \item accidentally grap and move a morph such as the new button and, thereby, change the carefully arranged layout.
+    \item close a morph such as the Object Editor, which contains the new button, and, thus, lose meaningful unsaved changes.
+    \item introduce an an error or a decrease in performance with an edit to a script.
+\end{itemize}
+
+Besides these accidental mistakes, well-intentioned changes can also turn out to be inappropriate.
+When fine-tuning the visual appearance of a morph, for example, a developer might make many changes to the sizes, the positions, and the colors of morphs, only to decide later that a particular intermediate version was most appealing.
+Developers can also change objects through a code snippet from a temporary workspace.
 Such a snippet could of course change any number of properties of many objects at once, so re-establishing a previous situation would be a laborious task.
 
 Another category of development interactions that potentially introduce undesirable changes is the exploration of code snippets.
-As Lively's Object Editor manipulates the scripts of a specific object, developers can often evaluate the scripts or parts of them directly.
-While such code evaluation might help to understand the effects of particular code, it might also actually change the editor's target or other objects undesirably and permanently.
+The Object Editor always manipulates the scripts of a specific object and developers can evaluate code directly for that target object.
+While such evaluation might help to understand the effects of particular code, it might also change the state of objects permanently.
 
-In essence, there are many situations in which developers might want to undo some of their operations.
-They might want to recover a previous development state or just withdraw particular changes to particular objects.
-Developers can save particular versions of objects and those can be restored later-on by, for example, using Lively's Parts Bin.
-However, explicitly saving particular versions of objects has several drawbacks.
+For example, a programmer could edit the button's \lstinline{onMouseMove} script and afterwards could try a few lines of code to quickly evaluate his changes.
+These lines, as shown in Figure~\ref{fig:onMouseOverScript}, would, however, add the rectangle to the current target, without regard to the conditions usually checked before and without setting the state as done right after the selection in the script.
+Thus, while evaluating this selection allows to test the highlighting behavior, it leaves the system in a different state that it is not itended to be in through the script.
 
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.7\textwidth]{figures/3_motivation/4_workspaceDoIt.png}
+    \caption{The button's \lstinline{onMouseMove} script with a text selection.}
+    \label{fig:onMouseOverScript}
+\end{figure}
 
-\todo{this section's end should provide a concrete idea of the recovery needs: developers want to be able to just go back to previous state. show this with before and after screenshots of the visual applications, but then also provide a before-and-after on the level of objects (conceptual graphic)}
+The given examples show that there are many situations in which developers might want to undo some of their operations.
+In programming systems like the Lively Kernel, where programmers often work at runtime on objects, the development state consists of the state of objects.
+Changes are always made to objects as even classes and modules are objects in the Lively Kernel.
+More precisely, changes are always made to the \emph{state of objects} as even functions are also just properties of objects.
 
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.7\textwidth]{figures/3_motivation/5_stateChanges.png}
+    \caption{Adding a submorph changes the state of a morph.}
+    \label{fig:changedCharacter}
+\end{figure}
 
-% When programmers unexpectedly introduce problems to the functionality, performance, or design of their applications, they might want to recover a previous development state.
-% In programming systems like the Lively Kernel, where programmers often work at runtime on objects, a development state consists of the state of objects, which includes object-specific behavior.
-% To be able to recover such a development state, comprehensive recovery support for the Lively Kernel must, therefore, preserve versions of objects.
+If, for example, the text selection in Figure~\ref{fig:onMouseOverScript} gets evaluated while the Object Editor targets the character, the character object is changed.
+In particular, its collection of submorphs is altered.
+Instead of having no submorphs, the character now has one submorph, as shown in Figure~\ref{fig:changedCharacter}.
+
+To undo the change and re-establish the previous version, the character object needs to have its previous state.
+It needs to have an empty array again as its \lstinline{submorphs} property again.
