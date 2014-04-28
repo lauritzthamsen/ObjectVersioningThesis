@@ -130,8 +130,8 @@ First, all mutable objects of the programming runtime need to be accessed via ve
 Second, the version of the runtime that should be re-established need to have been preserved.
 That is, the versions of objects reflecting the specific development state need to be available for the references.
 
-With our approach, specific versions, not every state the system ever has been in, are preserved.
-Which versions exactly is not inherent to our approach.
+With our approach, specific versions are preserved.
+That is, not every state the system ever has been in is recoverable, but specific states need to be preserved.
 Programmers could explicitly preserve versions or the programming system could do this implicitly.
 When the programming system is resposible, each programmer actions could implictly yield new versions of the system.
 This way, programmers can undo and redo the changes associated with specific and rememberable actions.
