@@ -3,6 +3,10 @@
 
 % TODO: what about design goals? and if we present design goals, then we need to also evaluate which we met? transparent: yes, practical: only the memory dimension, ??
 
+
+
+
+
 \chapter{Object Versioning} \label{chapter:APPROACH}
 
 This chapter introduces our approach to recovering development states in object-oriented programming systems that allow to make changes directly to objects at runtime.
@@ -10,11 +14,14 @@ The approach is based on alternative, version-aware references that manage versi
 As a concrete solution for the Lively Kernel, we present a design based on using proxies for implementing the version-aware references.
 
 
+
 \section{Version-aware References} \label{sec:APPROACH:1}
 
-% TODO STRUCTURE TODO
+
+% TODO SECTION STRUCTURE TODO
 
 % multiple versions of one object
+
 % but objects get referred to by variables and other objects (object collaboration) ==> correct version has to be used
 % version-aware references: know the versions of one objects and choose the correct version
 
@@ -30,66 +37,133 @@ As a concrete solution for the Lively Kernel, we present a design based on using
 % ++ objects are kept as readily usable objects in memory (instead of storing versions on disk)
 
 
-For object versioning in systems like the Lively Kernel, we propose alternative, version-aware references to manage multiple versions of objects.
-These version-aware references know the available versions for an object and resolve to one of those.
-That is, a version-aware reference encapsulates the multiplicity of different objects representing versions for conceptually one object.
-To be able to re-establish complete development states, the state of all objects of the programming runtime needs to be accessed via these version-aware references.
-To save a version of the runtime, versions of all objects are preserved, which also entails that the side effects to the state of other programs, for example processes living on servers, or to databases are not preserved with this approach.
-A version of an object is, in the simplest case, a full copy of an object---also an object and also part of the application memory.
-To re-establish a version of the runtime, the version-aware references all choose versions of objects that were preserved together and that form the object graph of a particular runtime state.
-That is, version-aware references can be resolved transitively to the state as it was when the versions were preserved.
 
 
-Figure~\ref{fig:VersionAwareReference} shows a version-aware reference and three objects:
-one \emph{Person} object and two different objects representing versions of conceptually one \emph{address} object.
-The person holds the version-aware reference to the two address objects in its \emph{address} slot.
-The version-aware reference can resolve to both, dynamically using context information to decide which one should currently be accessed.
-That is, neither one of the address versions is hard-wired to be the active version.
-The address objects are two different versions of the same object: both represent the \emph{same} address object and that address object was changed in-between versions.
-It was, thus, just copied to still preserve the previous state.
-When the person object would have changed instead in-between versions to point to a \emph{different} address object, the person object would have been copied instead and there would be one version of the person object pointing to the first address object and another version of it pointing to the second address object.
-In that case the two address objects would not be versions of the same object, but the two person objects would.
+% TODO: section intro
+
+
+
+
+
+when a single object such as an object representing an address, as shown in Figure~\, i
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.5\textwidth]{figures/4_approach/versionAwareReference.png}
-    \caption{A Person object with two versions for its address.}
+    \includegraphics[width=0.3\textwidth]{figures/4_approach/1_singleObject.pdf}
+    \caption{}
+    \label{fig:SingleObject}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.7\textwidth]{figures/4_approach/2_objectChange.pdf}
+    \caption{}
+    \label{fig:ObjectChanged}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.7\textwidth]{figures/4_approach/3_previousVersionPreserved.pdf}
+    \caption{}
+    \label{fig:VersionPreserved}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{figures/4_approach/4_referenceToPreviousVersion.pdf}
+    \caption{}
+    \label{fig:ReferenceFixedToPreviousVersion}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{figures/4_approach/5_versionAwareReference.pdf}
+    \caption{}
     \label{fig:VersionAwareReference}
 \end{figure}
 
-To resolve a path of an object graph as it was at a particular moment..., versions of objects are created and resolved in a coordinated way.
-For this, the version-aware references have access to information on which version is currently the one that should be resolved to.
-This can, for example, be a global version identifier that corresponds to information stored for each version of a version-aware reference, as shown in Figure~\ref{fig:MoreVersionAwareReferences}.
-This example shows a slightly more comprehensive graph that might result from preserving specific versions while changing particular objects.
-We have an initial version, \emph{v1}.
-In this, a \emph{Company} object is created and that refers to a \emph{CEO} object using a version-aware reference.
-The CEO in turn has an address, also referred to via a version-aware reference.
-Next, we preserve this version and then, in version \emph{v2}, the same CEO moves to Berlin and, thus, his address gets changed.
-Therefore, the version-aware reference to the address of the first CEO knows two different versions of the same address object.
-Finally, to reach the situation shown in Figure~\ref{fig:MoreVersionAwareReferences}, we preserve the second version and change the company's CEO in version \emph{v3}.
-We can also see that the new CEO also has its own address.
-Now, given the knowledge that \emph{v3} is preceded by \emph{v2} and that by \emph{v1}, the version-aware references can resolve to three different development states the runtime was in.
-When, for example, changing the CEO turns out to be a mistake, we can re-establish \emph{v2} and with it the old CEO with its address in Berlin as head of the company.
-This way, when version-aware references are used consistently for all object relations in a programming runtime, the state of the entire runtime can be set to particular preserved versions.
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{figures/4_approach/6_versionAwareReferenceFollowingVersion2.pdf}
+    \caption{}
+    \label{fig:VersionAwareReferenceFollowingVersion2}
+\end{figure}
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=\textwidth]{figures/4_approach/multipleVersionAwareReferences.png}
-    \caption{Three versions visible in the version-aware references of a simple object graph.}
-    \label{fig:MoreVersionAwareReferences}
+    \includegraphics[width=\textwidth]{figures/4_approach/7_objectGraphWithVARefs.pdf}
+    \caption{}
+    \label{fig:ObjectGraphWithWithReferencesResolvedAlongVersion2}
 \end{figure}
 
-\todo{add code for the path through the object graph}
-\todo{add version info (context info) to figures, where necessary}
 
-\todo{add a Figure that shows the three versions of the company object graph separately and incorporate it into the text..}
 
-Which states of the runtime get preserved is not inherent to our approach, but can be different for different use cases. % but also say that versions are created at specific times, specific state preserved (not all situations are recoverable)
-Programmers could explicitly preserve versions or the programming system could do this implicitly.
-When the programming system is resposible, each manipulating action of a programmer could, for example, yield a new version of the runtime, so programmers can reason about their concrete steps when undoing changes.
-Actions that yield new versions could include directly manipulating attributes and composition of graphical elements, editing source code, evaluating do-its, and, for example, clicking buttons of an application.
-This way, programmers could also always undo every actions, regardless of whether the action was intended as mere exploration and, thus, the current state protected by a version or whether the action turned out to be inappropriate more unexpectedly.
-Using user actions as granularity allows developers to undo and redo the changes associated with specific and rememberable actions.
+
+
+
+
+
+
+% For object versioning in systems like the Lively Kernel, we propose alternative, version-aware references to manage multiple versions of objects.
+% These version-aware references know the available versions for an object and resolve to one of those.
+% That is, a version-aware reference encapsulates the multiplicity of different objects representing versions for conceptually one object.
+% To be able to re-establish complete development states, the state of all objects of the programming runtime needs to be accessed via these version-aware references.
+% To save a version of the runtime, versions of all objects are preserved, which also entails that the side effects to the state of other programs, for example processes living on servers, or to databases are not preserved with this approach.
+% A version of an object is, in the simplest case, a full copy of an object---also an object and also part of the application memory.
+% To re-establish a version of the runtime, the version-aware references all choose versions of objects that were preserved together and that form the object graph of a particular runtime state.
+% That is, version-aware references can be resolved transitively to the state as it was when the versions were preserved.
+
+
+% Figure~\ref{fig:VersionAwareReference} shows a version-aware reference and three objects:
+% one \emph{Person} object and two different objects representing versions of conceptually one \emph{address} object.
+% The person holds the version-aware reference to the two address objects in its \emph{address} slot.
+% The version-aware reference can resolve to both, dynamically using context information to decide which one should currently be accessed.
+% That is, neither one of the address versions is hard-wired to be the active version.
+% The address objects are two different versions of the same object: both represent the \emph{same} address object and that address object was changed in-between versions.
+% It was, thus, just copied to still preserve the previous state.
+% When the person object would have changed instead in-between versions to point to a \emph{different} address object, the person object would have been copied instead and there would be one version of the person object pointing to the first address object and another version of it pointing to the second address object.
+% In that case the two address objects would not be versions of the same object, but the two person objects would.
+% 
+% \begin{figure}[h]
+%     \centering
+%     \includegraphics[width=0.5\textwidth]{figures/4_approach/versionAwareReference.png}
+%     \caption{A Person object with two versions for its address.}
+%     \label{fig:VersionAwareReference}
+% \end{figure}
+% 
+% To resolve a path of an object graph as it was at a particular moment..., versions of objects are created and resolved in a coordinated way.
+% For this, the version-aware references have access to information on which version is currently the one that should be resolved to.
+% This can, for example, be a global version identifier that corresponds to information stored for each version of a version-aware reference, as shown in Figure~\ref{fig:MoreVersionAwareReferences}.
+% This example shows a slightly more comprehensive graph that might result from preserving specific versions while changing particular objects.
+% We have an initial version, \emph{v1}.
+% In this, a \emph{Company} object is created and that refers to a \emph{CEO} object using a version-aware reference.
+% The CEO in turn has an address, also referred to via a version-aware reference.
+% Next, we preserve this version and then, in version \emph{v2}, the same CEO moves to Berlin and, thus, his address gets changed.
+% Therefore, the version-aware reference to the address of the first CEO knows two different versions of the same address object.
+% Finally, to reach the situation shown in Figure~\ref{fig:MoreVersionAwareReferences}, we preserve the second version and change the company's CEO in version \emph{v3}.
+% We can also see that the new CEO also has its own address.
+% Now, given the knowledge that \emph{v3} is preceded by \emph{v2} and that by \emph{v1}, the version-aware references can resolve to three different development states the runtime was in.
+% When, for example, changing the CEO turns out to be a mistake, we can re-establish \emph{v2} and with it the old CEO with its address in Berlin as head of the company.
+% This way, when version-aware references are used consistently for all object relations in a programming runtime, the state of the entire runtime can be set to particular preserved versions.
+% 
+% \begin{figure}[h]
+%     \centering
+%     \includegraphics[width=\textwidth]{figures/4_approach/multipleVersionAwareReferences.png}
+%     \caption{Three versions visible in the version-aware references of a simple object graph.}
+%     \label{fig:MoreVersionAwareReferences}
+% \end{figure}
+% 
+% \todo{add code for the path through the object graph}
+% \todo{add version info (context info) to figures, where necessary}
+% 
+% \todo{add a Figure that shows the three versions of the company object graph separately and incorporate it into the text..}
+% 
+% Which states of the runtime get preserved is not inherent to our approach, but can be different for different use cases. % but also say that versions are created at specific times, specific state preserved (not all situations are recoverable)
+% Programmers could explicitly preserve versions or the programming system could do this implicitly.
+% When the programming system is resposible, each manipulating action of a programmer could, for example, yield a new version of the runtime, so programmers can reason about their concrete steps when undoing changes.
+% Actions that yield new versions could include directly manipulating attributes and composition of graphical elements, editing source code, evaluating do-its, and, for example, clicking buttons of an application.
+% This way, programmers could also always undo every actions, regardless of whether the action was intended as mere exploration and, thus, the current state protected by a version or whether the action turned out to be inappropriate more unexpectedly.
+% Using user actions as granularity allows developers to undo and redo the changes associated with specific and rememberable actions.
 
 
 
