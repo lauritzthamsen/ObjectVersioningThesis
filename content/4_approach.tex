@@ -144,74 +144,33 @@ Further, programmers could always undo actions, regardless of whether they prese
 
 \section{Using Proxies for Version-aware References in the Lively Kernel} \label{sec:APPROACH:2}
 
+
 % TODO STRUCTURE TODO
 
-% why proxies: language-level solution
 
-% what proxies do / how proxies are used as references/version-aware references
 
+% 1. HOW-PROXIES: how proxies can be used as references/version-aware references
+% even though proxies are used, should still be transparent to programmers, should be provided by the system
+% --> source transformations to have proxies be used consistently
+
+% ==> why proxies: language-level solution
+
+
+% 2. PROXY-DETAILS:
 % proxies hold versions
-
 % garbage collection of proxies and versions
 
 % copy-on-write, global versions
 
 
-
-% even though proxies, should still be transparent to programmers, should be provided by the system
-% --> source transformations to have proxies be used consistently
-
-
-
-% design implications
+% 3. DESIGN-IMPLICATIONS
+% design for fine-grained histories (many small versions): costs spread / constant execution overhead (time): (dynamic references) instead of re-wiring hard references, copy-on-write instead of copying all objects for a version
 
 
 
 
 
 
-
-
-
-% rationale for using proxies:
-% (as opposed to providing alternative references on virtual machine-level: language-level solution as there are many different engines used for executing JavaScript (which would all require implementations of version-aware references to have the Lively Kernel with recovery support for all users. also implementation in JavaScript is easier (especially for a first prototype) and does not have to go through any formal review or standardization process, which language features added to JS engines usually do))
-
-
-
-
-
-
-
-
-
-
-% TRANSPARENCY of version-awareness
-
-% transparency requirements: transparent for programmers: programmers should not have to adapt their programs, programmers should not have to distinguish between version-aware and ordinary references
-
-% Version-aware references behave transparently, just like a usual reference to the current version of the object would.
-% They are assigned to variables and get passed around, and, under usual circumstances, programmers do not have to be aware of them.
-% Firstly, programmers should not be required to adapt their programs to use version-aware references.
-% Instead version-aware references should be provided consistently by the programming system.
-% Secondly, there should be no direct references to particular versions of objects.
-% Programmers should not have to distinguish between version-aware references and direct references, while having both direct references to one particular version and a version-aware reference that always refers to current version could also introduce inconsistencies.
-
-
-
-
-
-
-
-
-
-% That is, objects are referred to by references that dynamically and transparently choose one particular version of the objects as they were at a particular moment.
-% When these references are then used for all mutable objects of a runtime, the entire runtime state can be preserved and re-established.
-% 
-% Our concrete solution for implementing this in JavaScript and for the Lively Kernel relies on proxies and source transformations.
-% Using proxies and source transformations allows a language-level solution for alternative references.
-% Versions of objects are also just JavaScript objects and, thus, also in memory.
-% The proxies, in this solution, also contain the versions of the object they stand-in for.
-% This way, when a proxy, which stands in for all versions of conceptually one object, is no longer referred to from anywhere, all versions of an objects are reclaimed by the ordinary JavaScript gargage collector.
 
 
 
@@ -222,6 +181,8 @@ Further, programmers could always undo actions, regardless of whether they prese
 For a concrete solution for the Lively Kernel, we use proxies for version-aware references.
 The proxies intercept object access and forward it to the correct versions.
 
+% Our concrete solution for implementing this in JavaScript and for the Lively Kernel relies on proxies and source transformations.
+% Using proxies and source transformations allows a language-level solution for alternative references.
 
 
 These versioning proxies manage the different versions of an object and can delegate object access to one of these.
@@ -379,3 +340,51 @@ For the same reason, resulting histories can also be fine-grained as for each ve
 % Further, creating many versions is not expected to interrupt the programmers workflow as the execution costs of preserving a version is spread: Instead of copying all objects the moment a version should be preserved, objects are only copied when and in the moment they are subsequentely changed.
 % In general, the approach aims to distribute the cost for object versioning: besides incrementally saving a version, switching the active version is also not interruptive as the version-aware references resolve to versions dynamically and all versions reside as objects in application memory.
 
+
+
+
+
+
+
+
+
+
+
+
+% rationale for using proxies:
+% (as opposed to providing alternative references on virtual machine-level: language-level solution as there are many different engines used for executing JavaScript (which would all require implementations of version-aware references to have the Lively Kernel with recovery support for all users. also implementation in JavaScript is easier (especially for a first prototype) and does not have to go through any formal review or standardization process, which language features added to JS engines usually do))
+
+
+
+
+
+
+
+
+
+
+% TRANSPARENCY of version-awareness
+
+% transparency requirements: transparent for programmers: programmers should not have to adapt their programs, programmers should not have to distinguish between version-aware and ordinary references
+
+% Version-aware references behave transparently, just like a usual reference to the current version of the object would.
+% They are assigned to variables and get passed around, and, under usual circumstances, programmers do not have to be aware of them.
+% Firstly, programmers should not be required to adapt their programs to use version-aware references.
+% Instead version-aware references should be provided consistently by the programming system.
+% Secondly, there should be no direct references to particular versions of objects.
+% Programmers should not have to distinguish between version-aware references and direct references, while having both direct references to one particular version and a version-aware reference that always refers to current version could also introduce inconsistencies.
+
+
+
+
+
+
+
+
+
+% That is, objects are referred to by references that dynamically and transparently choose one particular version of the objects as they were at a particular moment.
+% When these references are then used for all mutable objects of a runtime, the entire runtime state can be preserved and re-established.
+% 
+% Versions of objects are also just JavaScript objects and, thus, also in memory.
+% The proxies, in this solution, also contain the versions of the object they stand-in for.
+% This way, when a proxy, which stands in for all versions of conceptually one object, is no longer referred to from anywhere, all versions of an objects are reclaimed by the ordinary JavaScript gargage collector.
