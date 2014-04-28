@@ -5,103 +5,135 @@
 
 
 
-
-
 \chapter{Object Versioning} \label{chapter:APPROACH}
 
-This chapter introduces our approach to recovering development states in object-oriented programming systems that allow to make changes directly to objects at runtime.
-The approach is based on alternative, version-aware references that manage versions of objects transparently.
+This chapter introduces our approach to recovering development states of object-oriented programming systems that consists of objects.
+Our approach is based on alternative, version-aware references that manage versions of objects transparently.
 As a concrete solution for the Lively Kernel, we present a design based on using proxies for implementing the version-aware references.
-
 
 
 \section{Version-aware References} \label{sec:APPROACH:1}
 
-
-% TODO SECTION STRUCTURE TODO
-
-% multiple versions of one object
-
-% but objects get referred to by variables and other objects (object collaboration) ==> correct version has to be used
-% version-aware references: know the versions of one objects and choose the correct version
-
-% object graphs with version-aware references: particular pathes for particular runtime state
-% global version identifier with which version-aware reference paths are annotated, particular states (not every change to any object creates a version)
-
-% how new versions get created: next global version, copy-on-write (new versions of objects when objects are written to in new versions of the runtime), always one active version that is allowed to be written to
-
-% transparency requirements: transparent for programmers: programmers should not have to adapt their programs, programmers should not have to distinguish between version-aware and ordinary references
-
-% design implications / rationale: design for fine-grained histories (many small versions): costs spread / constant execution overhead (time): (dynamic references) instead of re-wiring hard references, copy-on-write instead of copying all objects for a version
-% ++ copy-on-write is also an optimization of memory requirements: incremental versioning on the granularity of objects
-% ++ objects are kept as readily usable objects in memory (instead of storing versions on disk)
-
-
-
-
-% TODO: section intro
-
-
-
-
-
-when a single object such as an object representing an address, as shown in Figure~\, i
+The development state in a programming system such as the Lively Kernel consists of the state of objects.
+Different versions of the development state, thus, consist of different object states. 
 
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.3\textwidth]{figures/4_approach/1_singleObject.pdf}
-    \caption{}
+    \caption{An \emph{address} object with three properties.}
     \label{fig:SingleObject}
 \end{figure}
+
+An object could, for example, represent an address.
+The state of such an address object could be as shown in Figure~\ref{fig:SingleObject}.
+If the object now gets value for its \lstinline{city} and \lstinline{number} fields, the object's state would be changed.
+As the address object's state is part of the development state, changing the address object also changes the development state.
+If we call our first development state \emph{v1} and the one after making changes to the object \emph{v2}, the address object might look as shown in Figure~\ref{fig:ObjectChanged} in the two versions of the system.
 
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.7\textwidth]{figures/4_approach/2_objectChange.pdf}
-    \caption{}
+    \caption{Two versions of the same \emph{address} object in two versions of the system.}
     \label{fig:ObjectChanged}
 \end{figure}
+
+To preserve the previous development state when making changes, the system needs to preserve the previous states of its objects.
+For this reason, with object versioning, objects are preserved as they were in versions, while changes are made to new versions of the objects.
+When the address object is changed in version \emph{v2} of the system, the system does not change the orginal address object, but a copy of it.
+Subsequentely, there are now two versions of the address object in version \emph{v2}, as shown in Figure~\ref{fig:VersionPreserved}.
+One of these object versions holds the original state, while the other holds the state that the object has in version \emph{v2} of the system.
 
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.7\textwidth]{figures/4_approach/3_previousVersionPreserved.pdf}
-    \caption{}
+    \caption{Preserving the previous version of the \emph{address} object.}
     \label{fig:VersionPreserved}
 \end{figure}
+
+For the single address object, there are now two versions of the object.
+These versions are usual objects.
+They possess no knowledge to which version of the system they belong.
+They store no information that one of them is a copy of the other one.
+Further, references to objects are not changed when simply copying an object.
+For example, when a person object referred to the address object, it will still be referring to the original address object, as shown in Figure~\ref{fig:ReferenceFixedToPreviousVersion}.
 
 \begin{figure}[h]
     \centering
     \includegraphics[width=\textwidth]{figures/4_approach/4_referenceToPreviousVersion.pdf}
-    \caption{}
+    \caption{A reference refers to the previous version of the \emph{address} object.}
     \label{fig:ReferenceFixedToPreviousVersion}
 \end{figure}
 
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.5\textwidth]{figures/4_approach/5_versionAwareReference.pdf}
-    \caption{}
-    \label{fig:VersionAwareReference}
-\end{figure}
+The \lstinline{address} property of the person object would still refer to the previous version of the address object.
+That is, in version \emph{v2} of the system, even after adding values to the fields of the address object, the following statement would still return true when \lstinline{aPerson} refers to the person object:
+
+\iffalse
+\begin{verbatim}\fi
+\begin{code}[lst:example]{}{float}
+aPerson.address.city === null
+\end{code}
+\iffalse
+\end{verbatim}\fi
+
+For this, our approach introduces version-aware references.
+Version-aware references know the available versions for an object and always resolve to one of those.
+Moreover, version-aware references know which version of an object belongs to which version of the runtime.
+Therefore, given information on which version of the runtime is currently supposed to be active, they can resolve to the correct versions.
+Otherwise, the version-aware references behave like ordinary references.
+They can be assigned to variables, object fields, and also get passed around.
+
+When the person now refers to its \lstinline{address} property using a version-aware reference, it can resolve the property always to the current version.
+That is, in version \emph{v2} of the system, the version-aware reference knows both versions of the address object and would, currently, resolve to the second version, as depicted in Figure~\ref{fig:VersionAwareReferenceFollowingVersion2}.
 
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.5\textwidth]{figures/4_approach/6_versionAwareReferenceFollowingVersion2.pdf}
-    \caption{}
+    \caption{A version-aware reference relates the \emph{person} object to both versions of the \emph{address} object.}
     \label{fig:VersionAwareReferenceFollowingVersion2}
 \end{figure}
+
+To change the version of the system only the version identifier, used by version-aware references, needs to be changed.
+That is, to undo the changes to the address object, the version identifier accessible to the version-aware reference of the person object would just need to refer to \emph{v1} again.
+
+Pathes of version-aware references can also be resolved for larger object graphs.
+Figure~\ref{fig:ObjectGraphWithWithReferencesResolvedAlongVersion2} shows an object graph that incorporates the previous example.
+The person object is the \lstinline{CEO} property of a company object.
+While the example currently indicates that version \emph{v2} is active, it also shows a version \emph{v3}, in which the company has a new CEO.
 
 \begin{figure}[h]
     \centering
     \includegraphics[width=\textwidth]{figures/4_approach/7_objectGraphWithVARefs.pdf}
-    \caption{}
+    \caption{Three versions of a \emph{company} object, in which objects are connected through version-aware references.}
     \label{fig:ObjectGraphWithWithReferencesResolvedAlongVersion2}
 \end{figure}
 
+If \lstinline{aCompany} refers to the company object, the following statement would refer to three different values depending on the current version of the system:
+
+\iffalse
+\begin{verbatim}\fi
+\begin{code}[lst:example]{}{float}
+aCompany.CEO.address.number
+\end{code}
+\iffalse
+\end{verbatim}\fi
+
+Evaluating the statement in version \emph{v1} would return the value \lstinline{null}, in version \emph{v2} the value \lstinline{148}, and in version \emph{v3} the value \lstinline{112b}.
+
+This example also shows that the version identifier, used by the version-aware references to choose the correct version of objects, can be related.
+That is, the information that version \emph{v1} is the predecessor of version \emph{v2} can be used to resolve to the \emph{v1}-version of an object when no \emph{v2}-version is avaiable.
+This allows to only create new versions of objects when necessary.
+
+The version identifier needs to be accessible to version-aware references.
+It could be available globally, to have a single active version of the runtime, but could also be scoped more locally such as thread-local or in the dynamic scope of a code block.
+It should, however, not be changed while object relations in an object graph are transitively resolved.
+That is, the version-aware references involved in evaluating the previously presented example statement should be resolved together for one version identifier.
 
 
 
 
 
 
+% old stuff:
 
 
 % For object versioning in systems like the Lively Kernel, we propose alternative, version-aware references to manage multiple versions of objects.
@@ -157,7 +189,19 @@ when a single object such as an object representing an address, as shown in Figu
 % \todo{add version info (context info) to figures, where necessary}
 % 
 % \todo{add a Figure that shows the three versions of the company object graph separately and incorporate it into the text..}
-% 
+%
+
+
+
+
+
+% TODO: make paragraphs from the following info chunks
+
+% NEW VERSIONS
+
+% how new versions get created: next global version, copy-on-write (new versions of objects when objects are written to in new versions of the runtime), always one active version that is allowed to be written to
+
+
 % Which states of the runtime get preserved is not inherent to our approach, but can be different for different use cases. % but also say that versions are created at specific times, specific state preserved (not all situations are recoverable)
 % Programmers could explicitly preserve versions or the programming system could do this implicitly.
 % When the programming system is resposible, each manipulating action of a programmer could, for example, yield a new version of the runtime, so programmers can reason about their concrete steps when undoing changes.
@@ -167,7 +211,9 @@ when a single object such as an object representing an address, as shown in Figu
 
 
 
-% transparency of version-awareness / versions
+% TRANSPARENCY of version-awareness
+
+% transparency requirements: transparent for programmers: programmers should not have to adapt their programs, programmers should not have to distinguish between version-aware and ordinary references
 
 Version-aware references behave transparently, just like a usual reference to the current version of the object would.
 They are assigned to variables and get passed around, and, under usual circumstances, programmers do not have to be aware of them.
@@ -177,7 +223,13 @@ Secondly, there should be no direct references to particular versions of objects
 Programmers should not have to distinguish between version-aware references and direct references, while having both direct references to one particular version and a version-aware reference that always refers to current version could also introduce inconsistencies.
 
 
-% design implications & rationale
+
+
+% DESIGN IMPLICATIONS / RATIONALE
+
+% design for fine-grained histories (many small versions): costs spread / constant execution overhead (time): (dynamic references) instead of re-wiring hard references, copy-on-write instead of copying all objects for a version
+% ++ copy-on-write is also an optimization of memory requirements: incremental versioning on the granularity of objects
+% ++ objects are kept as readily usable objects in memory (instead of storing versions on disk)
 
 The resulting histories can be fine-grained as for each version only changed objects need to be copied.
 Further, creating many versions is not expected to interrupt the programmers workflow as the execution costs of preserving a version is spread: Instead of copying all objects the moment a version should be preserved, objects are only copied when and in the moment they are subsequentely changed.
