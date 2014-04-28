@@ -219,22 +219,11 @@ Further, programmers could always undo actions, regardless of whether they prese
 
 
 
+For a concrete solution for the Lively Kernel, we use proxies for version-aware references.
+The proxies intercept object access and forward it to the correct versions.
 
 
-\section{Using Proxies for Version-aware References} \label{sec:APPROACH:2}
 
-% TODO STRUCTURE TODO
-
-% what proxies do / how proxies are used as references/version-aware references
-
-% source transformations to have proxies be used consistently
-% garbage collection of proxies and versions
-
-% rationale for using proxies:
-% (as opposed to providing alternative references on virtual machine-level: language-level solution as there are many different engines used for executing JavaScript (which would all require implementations of version-aware references to have the Lively Kernel with recovery support for all users. also implementation in JavaScript is easier (especially for a first prototype) and does not have to go through any formal review or standardization process, which language features added to JS engines usually do))
-
-
-For a concrete solution for the Lively Kernel, we propose to use proxies for version-aware references.
 These versioning proxies manage the different versions of an object and can delegate object access to one of these.
 The references that usually refer to objects then need to refer to the proxies for these objects instead. 
 This is accomplished by returning proxies directly when an object is created.
@@ -362,9 +351,31 @@ For this solution, all expressions that create new objects need to return proxie
 
 
 
-Proxies allow a language-level implementation of alternative references in JavaScript:
-Without requiring adaptions to the virtual execution engines, proxies can be inserted to stand-in for objects---so references that usually point directly to objects point to proxies instead---and these proxies can provide versioning information and behavior.
-These proxies are, thus, an alternative to using ordinary references to directly refer to objects.
-That is, some objects can, potentially, still be referred to directly, while objects that should be versioned should be accessed only though proxies.
-In our solution for the Lively Kernel, nearly all objects are only accessed through proxies, except for some particular \emph{root objects} that are not required to be versioned but potentially do refer to other objects via version-aware references.
+% Proxies allow a language-level implementation of alternative references in JavaScript:
+% Without requiring adaptions to the virtual execution engines, proxies can be inserted to stand-in for objects---so references that usually point directly to objects point to proxies instead---and these proxies can provide versioning information and behavior.
+% These proxies are, thus, an alternative to using ordinary references to directly refer to objects.
+% That is, some objects can, potentially, still be referred to directly, while objects that should be versioned should be accessed only though proxies.
+% In our solution for the Lively Kernel, nearly all objects are only accessed through proxies, except for some particular \emph{root objects} that are not required to be versioned but potentially do refer to other objects via version-aware references.
+
+
+
+% DESIGN IMPLICATIONS / RATIONALE
+
+% design for fine-grained histories (many small versions): costs spread / constant execution overhead (time): (dynamic references) instead of re-wiring hard references, copy-on-write instead of copying all objects for a version
+% ++ copy-on-write is also an optimization of memory requirements: incremental versioning on the granularity of objects
+% ++ objects are kept as readily usable objects in memory (instead of storing versions on disk)
+
+
+Version-aware references allow to change versions without stopping the system.
+First, the version-aware references resolve dynamically to particular versions based on context information.
+Only this context information has to be changed to have all references resolve to another version, without updating any of the version-aware references.
+Second, preserving a new version of the runtime also happens incrementally.
+Instead of saving versions of all objects that make up the runtime, when the development state is to be preserved, new versions of objects can be created only when objects subsequentely change.
+Before such writes the previous object states continue to reflect the current state and can, thus, be read for following versions until written.
+This way, as \emph{objects} are copied on writes, versioning happens automatically on the granularity of objects.
+For the same reason, resulting histories can also be fine-grained as for each version only changed objects need to be copied.
+
+
+% Further, creating many versions is not expected to interrupt the programmers workflow as the execution costs of preserving a version is spread: Instead of copying all objects the moment a version should be preserved, objects are only copied when and in the moment they are subsequentely changed.
+% In general, the approach aims to distribute the cost for object versioning: besides incrementally saving a version, switching the active version is also not interruptive as the version-aware references resolve to versions dynamically and all versions reside as objects in application memory.
 
