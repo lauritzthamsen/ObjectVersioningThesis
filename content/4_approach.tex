@@ -156,9 +156,12 @@ The proxies stand-in for multiple versions, intercept all access, and forward to
 Instead of actually providing \emph{alternative references}, proxies are referred to by \emph{ordinary references} and transparently delegate to versions. 
 
 Proxies allow a language-level solution for alternative references.
-That is, we implemented version-aware references without adapting a JavaScript engine.
+That is, we implemented version-aware references without making changes to a JavaScript engine.
 Therefore, our solution can work in many engines without adapting any of the many different JavaScript engines in use today.
 Additionally, even though an implementation at the level of the virtual machine would probably have performance advantages, using proxies for a first implementation is considerably less implementation effort.
+
+
+\subsubsection{Proxies as Alternative, Version-aware References}
 
 Figure~\ref{fig:ProxyBasedVersionAwareReference} exemplifies how a proxy implements a version-aware reference in our solution.
 The proxy connects a \lstinline{person} object with the two versions of its \lstinline{address} property.
@@ -218,7 +221,7 @@ For example, in the following code snippet, there would temporarily exist a vers
 
 \iffalse
 \begin{verbatim}\fi
-\begin{code}[lst:example]{}{float,numbers=left}
+\begin{code}[lst:example]{}{float}
     var person = {name: "Lauritz"};
     
     \\ [preserve first version]
@@ -238,19 +241,47 @@ The \lstinline{address} object is not required to re-establish either version \e
 The reference to the proxy gets, however, gets deleted before a version of the person is preserved and, thus, nothing does prevent the garbage collector from claiming the proxy for the address object with the address object itself.
 
 
+\subsubsection{Versions of the System}
+
+The proxies not only delegate to the correct version of an object, but also create new versions.
+For this the proxies use a \emph{versions of the runtime}.
+
+The versions of the runtime are objects indicating the version the runtime is in.
+Each version object has a \emph{version identifier}.
+It also can have a link to a \emph{predecessor} version and a \emph{successor} version.
+Figure~\ref{fig:SystemVersions} shows an example with four versions that are connected in this way.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{figures/4_approach/8_runtimeVersionObjects.pdf}
+    \caption{Four objects representing four linear versions of the system.}
+    \label{fig:SystemVersions}
+\end{figure}
+
+One of the versions of the runtime is accessible as the \emph{current version} to the proxies.
+Proxies use this current runtime version to decide to which version of an object they currently should forward to.
+That is, only the current runtime version has to be changed to have all proxies forward to different object versions and, thus, to re-establish a previous version of the system.
+To undo the changes made in a version of the runtime, the previous runtime version just needs to be the current version again.
+
+As long as the current version stays the same, the proxies delegate all access to the corresponding version of the object.
+That is, an object version is changed only as long as the associated runtime version is the current version of the system.
+To preserve a version, the system, thus, just have to switch the current version to another runtime version.
+
+If a version of the object does not exist for the current version of the runtime, a new version of the object is copied.
+For this, the latest available version of the object, looked up using the ancestor relations of the current runtime version, is copied.
+This is, however, only necessary when a proxy is about to delegate write access.
+As long as an object is only read, the proxy can report values from a previous version, when no version of the object exist for the current version of the runtime and the old version of the object, thus, still reflects the current state.
+
+The current design of runtime versions does not allow multiple predecessors or multiple successors.
+It, thus, does not support branches, yet.
+It is more intended as a proof-of-concept that version-aware references allow to re-establish versions of the system than a complete versioning system.
 
 
 
 
 
 
-
-
-
-
-
-
-% \subsubsection{Versions of the System}
+% Currently, the versions of the runtime also need to be created explicitly as the versioning is not yet integrated
 
 
 
