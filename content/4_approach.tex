@@ -142,7 +142,7 @@ Further, programmers could always undo actions, regardless of whether they prese
 % TODO: add a summary of the benefits of the version-aware references..
 % 
 % % DESIGN IMPLICATIONS / RATIONALE
-% 
+
 % % design for fine-grained histories (many small versions): costs spread / constant execution overhead (time): (dynamic references) instead of re-wiring hard references, copy-on-write instead of copying all objects for a version
 % % ++ copy-on-write is also an optimization of memory requirements: incremental versioning on the granularity of objects
 % % ++ objects are kept as readily usable objects in memory (instead of storing versions on disk)
@@ -164,29 +164,16 @@ Further, programmers could always undo actions, regardless of whether they prese
 
 
 
+
+
+
+
 \section{Using Proxies for Version-aware References} \label{sec:APPROACH:2}
 
 
-% TODO STRUCTURE TODO
 
 
 
-% 1. HOW-PROXIES: how proxies can be used as references/version-aware references
-% even though proxies are used, should still be transparent to programmers, should be provided by the system
-% --> source transformations to have proxies be used consistently
-
-% ==> why proxies: language-level solution
-
-
-% 2. PROXY-DETAILS:
-% proxies hold versions
-% garbage collection of proxies and versions
-
-% copy-on-write, global versions
-
-
-% 3. DESIGN-IMPLICATIONS
-% design for fine-grained histories (many small versions): costs spread / constant execution overhead (time): (dynamic references) instead of re-wiring hard references, copy-on-write instead of copying all objects for a version
 
 
 
@@ -253,6 +240,40 @@ Checks that would usually compare an object with other objects now compare a pro
 
 
 
+% TODO: how are versions preserved: global versions + copy-on-write
+
+% versions are created.. by programmers or the system..
+
+
+% global version information: linear: versions with predecessors and successors, maybe with a figure..
+
+% % + FIGURE of the versions, haha!!
+
+% These information are used to decide to which particular versions of objects proxies are to delegate at any moment.
+% Given which version of the runtime is currently active, the proxies can choose the corresponding version of the object.
+% 
+% 
+% This way, the proxies transitively all delegate to objects that make up the state of the entire runtime as it was at a particular moment---when the version of the runtime was last active.
+% To preserve a development state, the version of the runtime just has to be changed.
+% 
+% 
+% 
+% The version of the runtime can be global in JavaScript as JavaScript engines use only a single thread and cooperative scheduling.
+% There is, therefore, no way to change which version of each object should be used while a path through an object graph is already partly resolved.
+
+
+
+
+
+
+% TODO: summary
+
+
+% When all objects are referred to through the proxies now, 
+
+% by references that dynamically and transparently choose one particular version of the objects as they were at a particular moment.
+% When these references are then used for all mutable objects of a runtime, the entire runtime state can be preserved and re-established.
+
 
 
 
@@ -266,34 +287,6 @@ Checks that would usually compare an object with other objects now compare a pro
 
 
 % Vorsicht.. TEXT LEICHEN.. !!!!
-
-
-
-
-
-% % 
-% 
-% global version information: linear: versions with predecessors and successors, maybe with a figure..
-% 
-% These information are used to decide to which particular versions of objects proxies are to delegate at any moment.
-% Given which version of the runtime is currently active, the proxies can choose the corresponding version of the object.
-% 
-% 
-% This way, the proxies transitively all delegate to objects that accurately represent the state of the entire runtime as it was at a particular moment---when the version of the runtime was last active.
-% To preserve a development state, the version of the runtime just has to be changed.
-% 
-% 
-% 
-% 
-% The version of the runtime can be global in JavaScript as JavaScript engines use only a single thread and cooperative scheduling.
-% There is, therefore, no way to change which version of each object should be used while a path through an object graph is already partly resolved.
-
-
-
-
-
-
-
 
 
 
@@ -351,8 +344,6 @@ Checks that would usually compare an object with other objects now compare a pro
 
 
 
-% That is, objects are referred to by references that dynamically and transparently choose one particular version of the objects as they were at a particular moment.
-% When these references are then used for all mutable objects of a runtime, the entire runtime state can be preserved and re-established.
 % 
 % Versions of objects are also just JavaScript objects and, thus, also in memory.
 % The proxies, in this solution, also contain the versions of the object they stand-in for.
