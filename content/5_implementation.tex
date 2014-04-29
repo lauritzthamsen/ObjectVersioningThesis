@@ -118,34 +118,7 @@ This version dictionary is used by the handler's \lstinline{currentVersion} func
 Having the handler object hold all the versions of conceptionally one object also takes care of garbage collection.
 When a proxy gets garbage collected, all versions get garbage collected as well.
 
-% TODO: subsubsection / paragraph on garbage collection
-% 
-% In our solution, we used the proxies also to hold all versions of the object they stand-in for.
-% This way, when the proxy is no longer reachable and, thus, eventually garbage collected, all versions of the objects are also collected.
-% For example, in the following code snippet, there would temporarily exist a version-aware reference---a proxy---connecting the \emph{Person} object to an \emph{Address} object, but the reference gets deleted before a version of the person is preserved:
-% 
-% 
-% \iffalse
-% \begin{verbatim}\fi
-% \begin{code}[lst:example]{}{float,numbers=left}
-%     var person = {name: "Lauritz"};
-%     \\ preserve first version
-%     person.currentAddress = {street: "Friedrichstrasse",
-%                          number: "112b",
-%                          city: "Berlin"};
-%     delete person.currentAddress;
-%     \\ preserve second version
-% \end{code}
-% \iffalse
-% \end{verbatim}\fi
-% 
-% That is, the address object is not required to re-establish either \emph{Version 1} or \emph{Version 2} and, thus, nothing should prevent the garbage collector from claiming the proxy for the address object and the address object itself.
-% 
-% 
 
-
-
-% \section{Runtime Versions for a Global Undo/Redo} \label{sec:IMPLEMENTATION:3}
 
 \todo{write a text from the following notes}
 
@@ -153,23 +126,10 @@ global versions (JS execution: single-threaded, cooperative scheduling), linear 
 
 version dictionary: version identifier (runtime version) -> version object
 
-The version also may have a predecessor and a successor.
-This way, for undo and redo the current version of the runtime only has to be set on the predecessor or the successor.
-Preserving the predecessor also allows to preserve versions of objects only on writes as, when objects have not changed in versions, the first available previous version of the object can be read.
-
-\todo{a figure with a couple of version bubbles.. related as predecessors and successors}
-
-When a proxy is created for an object, the object is preserved as the version of the object that belongs to the current version of the runtime.
-On writes, the proxies copy the latest version of the object and then do the write on the copy instead.
-The copy gets marked with the identifier of the new version of the runtime.
-When the proxies now choose a particular version of the object they stand-in for, they all use the version associated with the current version of the runtime or of a previous versions.
-
 copy-on-write for versions of objects: set-trap, apply-trap for some array methods
 shallow copy
 Besides this copy-on-write optimization, another optimization would be to not copy objects completely, but to only store changes.
 this could, for example, also apply prototypical inheritance to have versions that delegate to previous versions and only express the differences between versions.
-
-
 
 some additional logic is required to update state that is not part of the runtime state as, for example, the HTML document presented by browsers.
 redraw of the world as DOM objects / DOM relations are not part of the object versioning in JavaScript: DOM redrawing on undo / redo: DOM is out of versioning scope, doesn’t use version-aware references, has to be changed / redrawn on undo/redo explicitly
