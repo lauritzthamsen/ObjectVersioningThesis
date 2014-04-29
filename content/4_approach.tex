@@ -137,33 +137,14 @@ When the programming system automatically preserves versions, each programmer ac
 This way, programmers can undo and redo the changes associated with specific and rememberable actions.
 Further, programmers could always undo actions, regardless of whether they preserved a version in anticipation of recovery needs or not.
 
-
-
-% TODO: add a summary of the benefits of the version-aware references..
-% 
-% % DESIGN IMPLICATIONS / RATIONALE
-
-% % design for fine-grained histories (many small versions): costs spread / constant execution overhead (time): (dynamic references) instead of re-wiring hard references, copy-on-write instead of copying all objects for a version
-% % ++ copy-on-write is also an optimization of memory requirements: incremental versioning on the granularity of objects
-% % ++ objects are kept as readily usable objects in memory (instead of storing versions on disk)
-% 
-% 
-% Version-aware references allow to change versions without stopping the system.
-% First, the version-aware references resolve dynamically to particular versions based on context information.
-% Only this context information has to be changed to have all references resolve to another version, without updating any of the version-aware references.
-% Second, preserving a new version of the runtime also happens incrementally.
-% Instead of saving versions of all objects that make up the runtime, when the development state is to be preserved, new versions of objects can be created only when objects subsequentely change.
-% Before such writes the previous object states continue to reflect the current state and can, thus, be read for following versions until written.
-% This way, as \emph{objects} are copied on writes, versioning happens automatically on the granularity of objects.
-% For the same reason, resulting histories can also be fine-grained as for each version only changed objects need to be copied.
-% 
-% 
-% % Further, creating many versions is not expected to interrupt the programmers workflow as the execution costs of preserving a version is spread: Instead of copying all objects the moment a version should be preserved, objects are only copied when and in the moment they are subsequentely changed.
-% % In general, the approach aims to distribute the cost for object versioning: besides incrementally saving a version, switching the active version is also not interruptive as the version-aware references resolve to versions dynamically and all versions reside as objects in application memory.
-% 
-
-
-
+\paragraph{Design Implications}
+The version-aware references allow to preserve versions and re-establish versions of the system without completely halting the program execution.
+That is, the presented approach is incremental, not a stop-the-world approach.\\
+First, the version-aware references resolve dynamically to particular versions based on context information.
+Only this context information has to be changed to have all references resolve to another version, without updating any of the version-aware references.\\
+Second, preserving a new version of the runtime also happens incrementally.
+Instead of saving versions of all objects that make up the runtime the moment the development state is to be preserved, new versions of objects can be created only when objects subsequentely change.
+Before such writes the previous object states continue to reflect the current state and can, thus, be read for following versions until written.
 
 
 
@@ -234,6 +215,16 @@ Checks that would usually compare an object to other objects now compare a proxy
 
 
 
+
+
+
+
+
+
+% \subsubsection{Versions of the System}
+
+
+
 % TODO: how are versions preserved: global versions + copy-on-write
 
 % versions are created.. by programmers or the system..
@@ -264,19 +255,6 @@ Checks that would usually compare an object to other objects now compare a proxy
 % 
 % The version of the runtime can be global in JavaScript as JavaScript engines use only a single thread and cooperative scheduling.
 % There is, therefore, no way to change which version of each object should be used while a path through an object graph is already partly resolved.
-
-
-
-
-
-
-% TODO: summary
-
-
-% When all objects are referred to through the proxies now, 
-
-% by references that dynamically and transparently choose one particular version of the objects as they were at a particular moment.
-% When these references are then used for all mutable objects of a runtime, the entire runtime state can be preserved and re-established.
 
 
 
