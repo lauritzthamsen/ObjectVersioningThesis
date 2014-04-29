@@ -170,26 +170,18 @@ Further, programmers could always undo actions, regardless of whether they prese
 
 \section{Using Proxies for Version-aware References} \label{sec:APPROACH:2}
 
-
-
-
-
-
-
-
-% 1. HOW-PROXIES
-
 For a concrete solution for the Lively Kernel, we use proxies for version-aware references.
-Instead of actually using \emph{alternative references}, proxies are referred to by \emph{ordinary references} and delegate to versions. 
-That is, the proxies stand-in for multiple versions, intercept all access, and forward to the correct version.
+The proxies stand-in for multiple versions, intercept all access, and forward to the correct version.
+Instead of actually providing \emph{alternative references}, proxies are referred to by \emph{ordinary references} and transparently delegate to versions. 
 
 Proxies allow a language-level solution for alternative references.
-First, even though an implementation at the level of the virtual machine would probably have performance advantages, using proxies for a first implementation is considerably less effort.
-Second, there are many different JavaScript engines and many different versions of those in use today.
-Using proxies an implementation can work in many engines without adapting each one.
+That is, we implemented version-aware references without adapting a JavaScript engine.
+Therefore, our solution can work in many engines without adapting any of the many different JavaScript engines in use today.
+Additionally, even though an implementation at the level of the virtual machine would probably have performance advantages, using proxies for a first implementation is considerably less implementation effort.
 
-Figure~\ref{fig:ProxyBasedVersionAwareReference} exemplifies how a proxy implements a version-aware reference between a \lstinline{person} object and the two versions of its \lstinline{address} property.
-The \lstinline{person} holds an ordinary reference in its \lstinline{address} slot, which, however, refers to a proxy.
+Figure~\ref{fig:ProxyBasedVersionAwareReference} exemplifies how a proxy implements a version-aware reference in our solution.
+The proxy connects a \lstinline{person} object with the two versions of its \lstinline{address} property.
+The \lstinline{person} holds an ordinary reference to the proxy in its \lstinline{address} slot.
 The proxy in turn knows which versions are available for the \lstinline{address} object.
 
 \begin{figure}[h]
@@ -199,9 +191,9 @@ The proxy in turn knows which versions are available for the \lstinline{address}
     \label{fig:ProxyBasedVersionAwareReference}
 \end{figure}
 
-When the \lstinline{address} property of the \lstinline{person} object is used, the proxy needs to forward the access transparently to the correct version.
-Even if the \lstinline{address} property is a proxy, reading, for example, the proxy's \lstinline{city} property needs to return the string \lstinline{'Berlin'} in version \emph{v2} of the system as indicated by Figure~\ref{fig:ProxyBasedVersionAwareReference}.
-That is, evaluating the following statement needs to return true in version \emph{v2}, given \lstinline{aPerson} refers to the \lstinline{person} object:
+When the \lstinline{address} property of the \lstinline{person} object is accessed, the proxy needs to forward the access transparently to a version.
+For example, in version \emph{v2} of the system as indicated by Figure~\ref{fig:ProxyBasedVersionAwareReference}, even if the \lstinline{address} property is a proxy, reading the proxy's \lstinline{city} property has to return the string \lstinline{'Berlin'} .
+That is, given \lstinline{aPerson} refers to the \lstinline{person} object, evaluating the following statement needs to return true in version \emph{v2}:
 
 \iffalse
 \begin{verbatim}\fi
@@ -211,32 +203,34 @@ aPerson.address.city === 'Berlin'
 \iffalse
 \end{verbatim}\fi
 
-Note that the statement does not include any code that is aware of versions.
+Note that the statement does not include any code that reflects any versions.
 In particular, it does not read a specific version from the table of available versions.
-Instead, the proxies need to forward the property read to a specific version transparently.
+Instead, the proxies forward the property read to a specific version transparently.
 
-For this, the proxies need to fulfill these three responsibilities to implement version-aware references:
+For this, the proxies fulfill three responsibilities:
 \begin{enumerate}
-    \item They need to know which versions are available for a particular object.
-    \item They need to choose one particular version among all available dynamically using context information.
-    \item They need to delegate object access transparently to a chosen version.
+    \item They know which versions are available for a particular object.
+    \item They choose one particular version among all available dynamically using context information.
+    \item They delegate object access transparently to a chosen version.
 \end{enumerate}
 
-The proxies required for an implementation of this design are proxies that can intercept all kinds of access and response arbitrarily.
-Such proxies, also referred to as \emph{virtual objects}~\cite{VanCutsem2010PDP}, do not stand-in for a specific object, but are able to forward access to any object.
+The proxies used for the implementation of this design are proxies that can intercept all kinds of access and forward it arbitrarily.
+Such proxies, also referred to as \emph{virtual objects}~\cite{VanCutsem2010PDP}, do not stand-in for a specific object, but can forward access to any object.
 
-Further, besides having proxies that can intercept and forward access and fullfill the stated responsibilities, the proxies also need to be used consistently.
+Besides having proxies that can intercept and forward access and fullfill the stated responsibilities, the proxies also need to be used consistently.
 Ordinary references that usually refer directly to an object now need to refer to the proxy that stands-in for the versions of the object instead.
 
-To use proxies consistently for all mutable objects, proxies are created and returned for new objects right when objects are created.
-All expressions that create new objects return proxies for those objects instead.
-For this, we transform the code before execution and wrap object literals as well as constructor functions into proxies.
-Additionally, we also have proxies always return proxies for return values.
+To use proxies consistently for all mutable objects, we create and return proxies for new objects right when the objects are created.
+That is, all expressions that create new objects need to return proxies for those objects instead.
+For this, we transform the code before it gets executed.
+These source transformations wrap object literals and constructor functions into proxies.
+We also have proxies always return proxies for return values.
 Then, when proxied constructors are used, the proxies return proxies for the new objects.
 
-The reference to the actual object---or, more precisely, the initial version of an object---is only available to the proxy, while the reference to the proxy gets passed around instead of it.
+The reference to the actual object---or, more precisely, the initial version of an object---is only available to the proxy.
+The reference to the proxy gets passed around instead.
 For this reason, all references that would usually point to the same object now point to the same proxy, so that proxies also provide object identity.
-Checks that would usually compare an object with other objects now compare a proxy with other proxies.
+Checks that would usually compare an object to other objects now compare a proxy to other proxies.
 
 
 
@@ -248,6 +242,16 @@ Checks that would usually compare an object with other objects now compare a pro
 % global version information: linear: versions with predecessors and successors, maybe with a figure..
 
 % % + FIGURE of the versions, haha!!
+
+
+% The version also may have a predecessor and a successor.
+% This way, for undo and redo the current version of the runtime only has to be set on the predecessor or the successor.
+% Preserving the predecessor also allows to preserve versions of objects only on writes as, when objects have not changed in versions, the first available previous version of the object can be read.
+% 
+% When a proxy is created for an object, the object is preserved as the version of the object that belongs to the current version of the runtime.
+% On writes, the proxies copy the latest version of the object and then do the write on the copy instead.
+% The copy gets marked with the identifier of the new version of the runtime.
+% When the proxies now choose a particular version of the object they stand-in for, they all use the version associated with the current version of the runtime or of a previous versions.
 
 % These information are used to decide to which particular versions of objects proxies are to delegate at any moment.
 % Given which version of the runtime is currently active, the proxies can choose the corresponding version of the object.
@@ -273,6 +277,22 @@ Checks that would usually compare an object with other objects now compare a pro
 
 % by references that dynamically and transparently choose one particular version of the objects as they were at a particular moment.
 % When these references are then used for all mutable objects of a runtime, the entire runtime state can be preserved and re-established.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
