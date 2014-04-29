@@ -213,6 +213,35 @@ The reference to the proxy gets passed around instead.
 For this reason, all references that would usually point to the same object now point to the same proxy, so that proxies also provide object identity.
 Checks that would usually compare an object to other objects now compare a proxy to other proxies.
 
+As only the proxies hold references to the versions of objects, the versions also get garbage collected with the proxies when the proxies are no longer reachable.
+For example, in the following code snippet, there would temporarily exist a version-aware reference---a proxy---connecting the \lstinline{Person} object to an \lstinline{Address} object:
+
+\iffalse
+\begin{verbatim}\fi
+\begin{code}[lst:example]{}{float,numbers=left}
+    var person = {name: "Lauritz"};
+    
+    \\ [preserve first version]
+    
+    person.currentAddress = {street: "Friedrichstrasse",
+                             number: "112b",
+                             city: "Berlin"};
+    
+    delete person.currentAddress;
+    
+    \\ [preserve second version]
+\end{code}
+\iffalse
+\end{verbatim}\fi
+
+The \lstinline{address} object is not required to re-establish either version \emph{1} or version \emph{2}.
+The reference to the proxy gets, however, gets deleted before a version of the person is preserved and, thus, nothing does prevent the garbage collector from claiming the proxy for the address object with the address object itself.
+
+
+
+
+
+
 
 
 
