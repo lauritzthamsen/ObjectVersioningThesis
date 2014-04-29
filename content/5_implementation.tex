@@ -19,6 +19,100 @@ The chapter also states current limitations.
 
 
 
+
+
+
+
+
+
+
+
+
+% TODO: incorporate the following chunks that previously were part of the Approach chapter
+
+% TODO: when/wherever the following is expressed, the three categories should be three similarly named paragraphs after the initial introduction of the categories in the list
+
+% In JavaScript, there are three different ways to create an object: 
+% \begin{itemize}
+%     \item evaluating literal expressions: e.g. \lstinline|{age: 12}|
+%     \item applying constructor functions: e.g. \lstinline|new Person(12)|
+%     \item calling specific built-in functions: e.g. \lstinline|Object.create(prototype, {age: 12})|
+% \end{itemize}
+
+% We use source transformations to wrap literal expressions consistently into a \emph{proxyFor()} function.
+% That function takes an object as parameter and returns a proxy for it.
+% Besides objects, arrays and functions are also mutable objects in JavaScript.
+% Therefore, we wrap the literal forms of objects, arrays, and functions.
+% For exampe, \lstinline{[aPerson, aCompany]} becomes \lstinline{proxyFor([aPerson, aCompany])}.
+% 
+% In JavaScript, all functions can be constructors and create new objects when called with the \emph{new} operator.
+% Functions expressed as function literals already get proxied with the previous source transformations and the proxies we use for version-aware references intercept different object access differently, so proxies for functions can have a specific constructor-behavior that always returns proxies for newly created objects.
+% 
+% For the functions that create new objects but are built-in and, thus, are not created from literal form, the transformation of literals and proxy behavior is not enough.
+% One category of such built-in functions are built-in constructors.
+% For example, the built-in data types like objects and arrays can be created by evaluating \lstinline{new Object()} and \lstinline{new Array()}, but also by evaluating just \lstinline{Object()} or \lstinline{Array()}.
+% We transform these built-in constructor functions explicity, wrapping each into the proxying function, and also specify the proxies' apply-behavior to also always return proxies.
+% Besides these built-in constructors, there are also very specific built-in functions, that we transform separately to specific alternatives.
+% One example for such functions is the global \lstinline{eval()} function.
+% While the return value of that function also potentially needs to be a reference to a proxy instead of an ordinary object, eval takes arbitrary code which might express an arbitrary object structure and which might, therefore, require multiple references to go through proxies.
+% Therefore, in the specific case of eval, we proxy eval's result but in addition also pass the string argument of \lstinline{eval()} through the source transformations before actually providing it for evaluation.
+
+
+
+
+
+
+% TODO: subsubsection / paragraph on garbage collection
+% 
+% In our solution, we used the proxies also to hold all versions of the object they stand-in for.
+% This way, when the proxy is no longer reachable and, thus, eventually garbage collected, all versions of the objects are also collected.
+% For example, in the following code snippet, there would temporarily exist a version-aware reference---a proxy---connecting the \emph{Person} object to an \emph{Address} object, but the reference gets deleted before a version of the person is preserved:
+% 
+% 
+% \iffalse
+% \begin{verbatim}\fi
+% \begin{code}[lst:example]{}{float,numbers=left}
+%     var person = {name: "Lauritz"};
+%     \\ preserve first version
+%     person.currentAddress = {street: "Friedrichstrasse",
+%                          number: "112b",
+%                          city: "Berlin"};
+%     delete person.currentAddress;
+%     \\ preserve second version
+% \end{code}
+% \iffalse
+% \end{verbatim}\fi
+% 
+% That is, the address object is not required to re-establish either \emph{Version 1} or \emph{Version 2} and, thus, nothing should prevent the garbage collector from claiming the proxy for the address object and the address object itself.
+% 
+% 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 \section{ECMAScript 6 Proxies as Version-aware References} \label{sec:IMPLEMENTATION:1}
 
 % We implemented version-aware references for our approach to object versioning in JavaScript using proxies and source transformations.
