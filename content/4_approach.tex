@@ -294,17 +294,15 @@ For the new version, the proxy copies the most recent version of the object.
 New versions are only necessary when a proxy is about to delegate write access.
 As long as an object is only read, the proxy can report values from a previous version as the old version of the object still reflects the current state.
 
-\paragraph{Proof-of-Concept Design}
-The current design is more intended as a proof-of-concept that version-aware references allow to re-establish versions of the system than as a full versioning system.
-The design does not allow multiple predecessors or multiple successors.
-It, thus, does not support branches, yet.
-It also currently allows to change previously preserved versions of the system.
+\paragraph{Design Implications}
+The current design allows to preserve and re-establish versions of the system.
+Without further components, the versions of objects only exist in memory and are not stored to disk.
+Our current design also does not allow multiple predecessors or multiple successors and, thus, does not support branches, yet.
+It further allows to change previously preserved versions of the system.
 That is, it allows to rewrite the history.
-Copies of objects are not affected by changes to previous versions, but changes to object versions that have not been written to will shine through in subsequent versions of the system.
-In the future, the versioning should allow for branches and merging.
-Changes to previous states can then be handled in branches that programmers can merge into future versions if they want to.
-
-% Currently, the versions of the runtime also need to be created explicitly as the versioning is not yet integrated
+Copies of objects are not affected by changes to previous versions, but changes to object versions that have not been copied shine through in subsequent versions of the system.
+In the future, the versioning might allow for branches and merging.
+Changes to previous states could then be handled in branches that programmers may or may not merge into future versions.
 
 
 
