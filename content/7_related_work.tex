@@ -96,26 +96,32 @@ Further, both use different libraries for source transformations, which our choi
 
 \subsection{Object Graph Versioning}
 
-\todosec{write this subsection from the following notes}
+Object Graph Versioning\cite{Pluquet2009ECP} is an approach to re-establishing previous states of objects.
+With it, fields of objects can be marked as \emph{selected} fields.
+When a snapshot is created, the values of these fields are preserved.
+Therefore, not every state of these fields can be re-established, but states that are part of global snapshots.
+Such snapshots are created explicitly through a particular program statement.
+In general, the approach provides fine-grained control to programmers regarding which fields of which objects should be preserved when.
+Code can be executed using any of the snapshots. 
+% Which snapshot the system currently refers to as active version then decides in which state code is run.
 
-Object Graph Versioning\cite{Pluquet2009ECP} is also an approach to re-establishing previous states of objects.
+The implemenation of Object Graph Versioning is similar to our solution.
+Fields for which previous states refer---analogous to our proxy-based version-aware references---not the values directly, but to chained arrays that manage multiple versions of the state of a field and delegates access to one of them transparently.
+As in our solution, which versions of fields should currently be active is indicated by a global version identifier.
+Vgersions of a field are copied, when the field is written in a global version for which no version of the field exists.
 
-preserving particular states, not every state
+However, individual fields are versioned when programmers explicitly mark them as selected in statements.
+In contrast, our solution versions all objects by default, without requiring any statements in the program for this.
 
-fine-grained control over which fields of which objects are versioned. and programmers also control when versions are created. from their source code.
+Object Graph Versioning aims to support the implementation of applications that require access to previous state of objects, such as undo/redo for specific applications or tools like back-in-time debuggers.
+In contrast, our approach to object versioning aims to support recovery of previous development states when changes turn out inappropriate during the development of applications.
 
-to support the implementation of applications that require access to previous state of objects: for example: rollbacks, back-in-time debugging..
+% the intended usage by programmers is rather different.
+% in contrast to our solution, where all objects are versioned by default and the necessary data structures---our proxies--- are in place through source transformations, programmers need to select which objects and which fields are versioned with Object Graph Versioning using explicit program statements.
 
-technical solution is similar: references to alternative objects, chained arrays with version meta information. similar to how our proxy-based version-aware reference are ordinary references that refer to proxies. 
-a global version identifier that the chained arrays use to decide which value is to be returned and when to create a new version of the field for a new version of the system.
+Reusing parts of the implementation of Object Graph Versioning was not an option as it was implemented in Smalltalk, while our implementation provides recovery support for the Lively Kernel, which is implemented in JavaScript.
 
-however, individual fields are versioned and nothing is versioned by default with Object Graph Versioning.
-the fields that should be versioned need to be selected by the programmer.
-in contrast to our solution, where all objects are versioned by default and the necessary data structures---our proxies--- are in place through source transformations, programmers need to select which objects and which fields are versioned with Object Graph Versioning using explicit program statements.
-
-reusing parts of the implementation of Object Graph Versioning was not an option as it was implemented in Smalltalk, while the Lively Kernel for which we provide our notion of object versioning is implemented in JavaScript.
-
-different intent: Object Graph Versioning is intended to support implementing undo mechanisms as well as reverse engineering and debugging tools, not intended to be used for exploration during development through automatic CoExist-like recovery support.
+% different intent: Object Graph Versioning is intended to support implementing undo mechanisms as well as reverse engineering and debugging tools, not intended to be used for exploration during development through automatic CoExist-like recovery support.
 
 % while it is possible to version all fields, the approach is based on versioning fields: versions of objects referred to from various fields need be referred to from various fields, not from a
 % instead of having a single version-aware reference know all versions of an object, fields 
