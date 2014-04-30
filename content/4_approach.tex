@@ -243,43 +243,66 @@ The reference to the proxy gets, however, gets deleted before a version of the p
 
 \subsubsection{Versions of the System}
 
-The proxies not only delegate to the correct version of an object, but also create new versions.
-For this the proxies use a \emph{versions of the runtime}.
+Besides delegating to the correct version, proxies also create new versions of an object.
+For both proxies use a \emph{version of the system}.
 
-The versions of the runtime are objects indicating the version the runtime is in.
-Each version object has a \emph{version identifier}.
-It also can have a link to a \emph{predecessor} version and a \emph{successor} version.
-Figure~\ref{fig:SystemVersions} shows an example with four versions that are connected in this way.
+The version of the system is an object indicating the version the system is in.
+It has a \emph{version identifier} and can have a link to a \emph{predecessor} version and a \emph{successor} version.
+Figure~\ref{fig:SystemVersions} shows an example with three versions that are related in this way.
+In the example, version \emph{v2} is the current version of the system.
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=\textwidth]{figures/4_approach/8_runtimeVersionObjects.pdf}
+    \includegraphics[width=\textwidth]{figures/4_approach/8_systemVersions.pdf}
     \caption{Four objects representing four linear versions of the system.}
     \label{fig:SystemVersions}
 \end{figure}
 
-One of the versions of the runtime is accessible as the \emph{current version} to the proxies.
-Proxies use this current runtime version to decide to which version of an object they currently should forward to.
-That is, only the current runtime version has to be changed to have all proxies forward to different object versions and, thus, to re-establish a previous version of the system.
-To undo the changes made in a version of the runtime, the previous runtime version just needs to be the current version again.
+The current version of the system is accessible to the proxies.
+Proxies use it to decide to which version of an object they currently should forward to.
+Figure~\ref{fig:ProxyUseSystemVersion} shows the versions of an object in context of the versions of the runtime.
+In this example, there are two versions of the object that perfectly correspond to the two versions of the system.
+The current version of the system is \emph{v2} and, therefore, the version the proxy currently forwards access to is version \emph{v2} of the object.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{figures/4_approach/9_proxyUsesSystemVersion.pdf}
+    \caption{A proxy with two versions of an object in context of the versions of the system.}
+    \label{fig:ProxyUseSystemVersion}
+\end{figure}
 
 As long as the current version stays the same, the proxies delegate all access to the corresponding version of the object.
-That is, an object version is changed only as long as the associated runtime version is the current version of the system.
-To preserve a version, the system, thus, just have to switch the current version to another runtime version.
+That is, a version of an object is changed only as long as its version matches the current version of the system.
 
-If a version of the object does not exist for the current version of the runtime, a new version of the object is copied.
-For this, the latest available version of the object, looked up using the ancestor relations of the current runtime version, is copied.
-This is, however, only necessary when a proxy is about to delegate write access.
-As long as an object is only read, the proxy can report values from a previous version, when no version of the object exist for the current version of the runtime and the old version of the object, thus, still reflects the current state.
+\emph{To re-establish a previous version}, the current system version has just to be set to its predecessor.
+In that case, the proxies forward access to previous versions of the objects.
 
-The current design of runtime versions does not allow multiple predecessors or multiple successors.
+\emph{To preserve a version}, the current system version also just has to be another version.
+The proxies forward access to objects of the other version or, when no such version of the object exist, create a new version.
+
+A situation, in which a new version of an object has to be created, is shown by Figure~\ref{fig:NewVersion}.
+Given the previous example situation, when in a new version \emph{v3} of the system, a proxy receives write access but only has a \emph{v1} and a \emph{v2} version for its object, the proxy creates a new version of the object.
+For the new version, the proxy copies the most recent version of the object.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{figures/4_approach/10_newVersionOfAnObject.pdf}
+    \caption{A new version of an object needs is created for a new version of the system.}
+    \label{fig:NewVersion}
+\end{figure}
+
+New versions are only necessary when a proxy is about to delegate write access.
+As long as an object is only read, the proxy can report values from a previous version as the old version of the object still reflects the current state.
+
+\paragraph{Proof-of-Concept Design}
+The current design is more intended as a proof-of-concept that version-aware references allow to re-establish versions of the system than as a full versioning system.
+The design does not allow multiple predecessors or multiple successors.
 It, thus, does not support branches, yet.
-It is more intended as a proof-of-concept that version-aware references allow to re-establish versions of the system than a complete versioning system.
-
-
-
-
-
+It also currently allows to change previously preserved versions of the system.
+That is, it allows to rewrite the history.
+Copies of objects are not affected by changes to previous versions, but changes to object versions that have not been written to will shine through in subsequent versions of the system.
+In the future, the versioning should allow for branches and merging.
+Changes to previous states can then be handled in branches that programmers can merge into future versions if they want to.
 
 % Currently, the versions of the runtime also need to be created explicitly as the versioning is not yet integrated
 
