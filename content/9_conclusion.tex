@@ -3,11 +3,36 @@
 \todosec{Missing Section: Conclusion}
 
 % Approach
+with our approach to recovery of develoment states in programming systems such as the Lively Kernel 
+
+% is based on versioning objects.
+% object versioning, version-aware references, to recovery
 
 % Significance, Practical applications
+
 
 % Future work
 In the future, 
 
 % Summary sentence
 Nevertheless,
+
+
+
+
+
+% Our approach for this is based on alternative, version-aware references that manage versions of objects transparently. That is, objects are referred to by references that dynamically and transparently choose one particular version of the objects as they were at a particular moment. When these references are then used for all mutable objects of a runtime, the entire runtime state can be preserved and re-established.
+% 
+% Our concrete solution for implementing this in JavaScript and for the Lively Kernel relies on proxies and source transformations. Using proxies and source transformations allows a language-level solution for alternative references. Ver- sions of objects are also just JavaScript objects and, thus, also in memory. The proxies, in this solution, also contain the versions of the object they stand-in for. This way, when a proxy, which stands in for all versions of conceptually one object, is no longer referred to from anywhere, all versions of an objects are reclaimed by the ordinary JavaScript gargage collector.
+
+
+
+% We implemented version-aware references for our approach to object versioning in JavaScript using proxies and source transformations. This way, our prototype does not require changes to JavaScript engines, but only a certain JavaScript language feature. In particular, it requires the Direct Proxies1 as proposed with Version 6 of ECMAScript, the standard that JavaScript follows. These proxies can implement specific behavior to handle various kinds of access to them. In our implementation, these proxies are used to delegate all access to a particular version of the object they stand in for. To have these proxies intercept access to all mutable objects for which versions should be preserved, our prototype uses a combination of source transformations and proxy behavior. In particular, the moment mutable objects get created, proxies get created for the new objects and references to the proxies are returned instead of references to the actual objects. The proxies then preserve and choose versions of their object corresponding to a global version identifier. This version identifier effectively declares one particular state of the programming runtime, consisting of those versions of objects that are associated with that runtime state, to be read and written. Therefore, to change the entire runtime state as, for example, an undo and redo would require only the global version identifier needs to be changed.
+
+
+
+% When programmers unexpectedly introduce problems to the functionality, per- formance, or design of their applications, they might want to recover a previous development state. In programming systems like Lively, where programmers often work at runtime on objects, a development state consists of the state of objects, which includes object-specific behavior. To be able to recover such a development state, comprehensive recovery support for Lively must, therefore, preserve versions of objects.
+% 
+% Our approach for this is based on alternative, version-aware references that manage versions of objects transparently. That is, objects are referred to by references that dynamically and transparently choose one particular version of the objects as they were at a particular moment. When these references are then used for all mutable objects of a runtime, the entire runtime state can be preserved and re-established.
+% 
+% Our concrete solution for implementing this in JavaScript and for the Lively Kernel relies on proxies and source transformations. Using proxies and source transformations allows a language-level solution for alternative references. Ver- sions of objects are also just JavaScript objects and, thus, also in memory. The proxies, in this solution, also contain the versions of the object they stand-in for. This way, when a proxy, which stands in for all versions of conceptually one object, is no longer referred to from anywhere, all versions of an objects are reclaimed by the ordinary JavaScript gargage collector.
