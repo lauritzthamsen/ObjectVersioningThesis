@@ -4,7 +4,7 @@ This chapter presents two categories of related work:
 
 \begin{enumerate}
     \item Approaches related to our motivation and, thus, to providing previous versions of system state when there is a need for recovery.
-    \item Approaches related to technical solution and, thus, to combining changes into first-class objects that can be scoped dynamically.
+    \item Approaches related to technical solution and, thus, to combining changes into first-class objects that can be activated dynamically.
 \end{enumerate}
 
 
@@ -92,6 +92,34 @@ In comparison, Worlds provides a language construct to support explicitly experi
 Other differences between Worlds and our approach are mainly on the implementation level.
 Our implementation in JavaScript does not prevent garbage collection as Worlds does.
 Further, both use different libraries for source transformations, which our choice does faster and without relying on JavaScript exceptions for backtracking.
+
+
+\subsection{Object Graph Versioning}
+
+\todosec{write this subsection from the following notes}
+
+Object Graph Versioning\cite{Pluquet2009ECP} is also an approach to re-establishing previous states of objects.
+
+preserving particular states, not every state
+
+fine-grained control over which fields of which objects are versioned. and programmers also control when versions are created. from their source code.
+
+to support the implementation of applications that require access to previous state of objects: for example: rollbacks, back-in-time debugging..
+
+technical solution is similar: references to alternative objects, chained arrays with version meta information. similar to how our proxy-based version-aware reference are ordinary references that refer to proxies. 
+a global version identifier that the chained arrays use to decide which value is to be returned and when to create a new version of the field for a new version of the system.
+
+however, individual fields are versioned and nothing is versioned by default with Object Graph Versioning.
+the fields that should be versioned need to be selected by the programmer.
+in contrast to our solution, where all objects are versioned by default and the necessary data structures---our proxies--- are in place through source transformations, programmers need to select which objects and which fields are versioned with Object Graph Versioning using explicit program statements.
+
+reusing parts of the implementation of Object Graph Versioning was not an option as it was implemented in Smalltalk, while the Lively Kernel for which we provide our notion of object versioning is implemented in JavaScript.
+
+different intent: Object Graph Versioning is intended to support implementing undo mechanisms as well as reverse engineering and debugging tools, not intended to be used for exploration during development through automatic CoExist-like recovery support.
+
+% while it is possible to version all fields, the approach is based on versioning fields: versions of objects referred to from various fields need be referred to from various fields, not from a
+% instead of having a single version-aware reference know all versions of an object, fields 
+
 
 \subsection{Context-oriented Programming}
 
