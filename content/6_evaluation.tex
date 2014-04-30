@@ -135,16 +135,15 @@ In this experiment, we did not preserve any versions of the development state.\\
 This way, we only measure the overhead of the proxy-based version-aware references themselves as each of those refers to only one version---the original objects, which are present both with version-aware references and without.
 We decided to load an empty Lively Kernel world to measure the overhead in a minimal runtime, while expecting the overhead to grow linearly with the number of proxied objects.
 
-
-\paragraph{Results}
-As shown in Figure~\ref{fig:MemoryOverheadForReferences}, loading an empty the Lively Kernel world requires three times more space with proxies than without proxies.
-
-\begin{figure}[h]
+\begin{figure}[h!]
     \centering
     \includegraphics[width=\textwidth]{figures/6_evaluation/1_memoryOverhead.pdf}
     \caption{Memory consumption when starting a Lively Kernel world with and without proxies.}
     \label{fig:MemoryOverheadForReferences}
 \end{figure}
+
+\paragraph{Results}
+As shown in Figure~\ref{fig:MemoryOverheadForReferences}, loading an empty the Lively Kernel world requires three times more space with proxies than without proxies.
 
 \paragraph{Discussion}
 Even without preserving multiple versions of any object, the system requires more space when loaded with versioning proxies.
@@ -175,18 +174,17 @@ In particular, we did the following:
     \item We changed the state to be state \textcircled{3} and measured the memory again.
 \end{enumerate}
 
-\paragraph{Results}
-As shown in Figure~\ref{fig:MemoryOverheadForVersions}, the memory consumption is not very different for the three situations.
-The second state required the most memory for the JavaScript runtime, while the memory consumption of the third state is in-between the first and the second.
-That is, in this example, the space required for preserving the two states of the morphic objects is insignificant to the space already required for running a Lively Kernel world.
-
-\begin{figure}[h]
+\begin{figure}[h!]
     \centering
     \includegraphics[width=\textwidth]{figures/6_evaluation/2_memoryForVersions.pdf}
     \caption{Memory consumed by the same runtime at three different moments in time, after preserving the previous states.}
     \label{fig:MemoryOverheadForVersions}
 \end{figure}
 
+\paragraph{Results}
+As shown in Figure~\ref{fig:MemoryOverheadForVersions}, the memory consumption is not very different for the three situations.
+The second state required the most memory for the JavaScript runtime, while the memory consumption of the third state is in-between the first and the second.
+That is, in this example, the space required for preserving the two states of the morphic objects is insignificant to the space already required for running a Lively Kernel world.
 
 \paragraph{Discussion}
 Our implementation does not copy all objects for each version, but only creates copies when objects subsequentely change, effectively storing only the differences between runtime versions.
@@ -218,17 +216,17 @@ Measuring the Octane benchmark suite highlights how the execution of eight JavaS
 We ran the Octane benchmarks\footnote{Note: We reduced the input size to the Splay benchmark by an order of magnitude to prevent the browser from prompting for user input during the benchmark's execution. The prompt is triggered due to the long time required to run the benchmark. It cannot be disabled and would influence the benchmark result.} with and without previous transformation of the benchmark code and, therefore, with or without version-aware references.
 The source transformations for this were done separately and are not reflected in these results.
 
-\paragraph{Results}
-Figure~\ref{fig:ExecutionOverhead} shows how much more time the benchmarks take when their source is transformed before execution and references are, therefore, version-aware.
-Executing the benchmarks takes between 90 and 405 times longer with version-aware references than without.
-On average the slowdown of a single benchmark is, thus, a 187.5 times.
-
 \begin{figure}[h]
     \centering
     \includegraphics[width=\textwidth]{figures/6_evaluation/3_executionOverhead.pdf}
     \caption{Execution overhead for proxy-based version-aware references compared to ordinary JavaScript references.}
     \label{fig:ExecutionOverhead}
 \end{figure}
+
+\paragraph{Results}
+Figure~\ref{fig:ExecutionOverhead} shows how much more time the benchmarks take when their source is transformed before execution and references are, therefore, version-aware.
+Executing the benchmarks takes between 90 and 405 times longer with version-aware references than without.
+On average the slowdown of a single benchmark is, thus, a 187.5 times.
 
 
 \subsubsection{Microbenchmarks}
@@ -263,16 +261,17 @@ The three typical interaction we chose investigate are: bringing up the halo but
 We chose these three interactions as they are expected to be among the more impacted interactions compared to, for example, interactions that are more browser-supported and less reliant on JavaScript execution such as dragging elements around the screen.
 All three interaction trigger code from multiple different modules, including event handling code, rendering code, and tool-specific code.
 
-\paragraph{Results}
-Figure \ref{fig:LivelyInteractionsOverhead} shows the results, which are comparable for all three interactions.
-Each of these interactions takes on average 43 times the time when triggered after the system's was loaded with proxies.
-
 \begin{figure}[h]
     \centering
     \includegraphics[width=\textwidth]{figures/6_evaluation/4_LivelyInteractionsOverhead.pdf}
     \caption{Execution overhead for selected user interactions in the Lively Kernel.}
     \label{fig:LivelyInteractionsOverhead}
 \end{figure}
+
+\paragraph{Results}
+Figure \ref{fig:LivelyInteractionsOverhead} shows the results, which are comparable for all three interactions.
+Each of these interactions takes on average 43 times the time when triggered after the system's was loaded with proxies.
+
 
 
 \subsubsection{Loading a World in the Lively Kernel}
