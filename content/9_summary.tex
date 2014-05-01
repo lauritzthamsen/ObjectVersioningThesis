@@ -1,23 +1,33 @@
-\chapter{Conclusion} \label{chapter:CONCLUSION}
-
-\todosec{Missing Section: Conclusion}
+\chapter{Summary} \label{chapter:SUMMARY}
 
 % Approach
-with our approach to recovery of develoment states in programming systems such as the Lively Kernel 
+This work presented an approach to preserving access to previous states of programming systems such as the Lively Kernel.
+The approach is based on alternative, version-aware references that transparently manage different versions of objects.
+This version-aware references always refer dynamically to particular versions to consistute a system state.
+To which version they refer can, however, easily be changed to allow to re-establish a different state of the system.
 
-% is based on versioning objects.
-% object versioning, version-aware references, to recovery
+We presented a design for the approach that relies on proxies for version-aware references instead of on adapting existing execution engines.
+Instead of actually prodiving alternative references, ordinary references refer to proxies and proxies forward access transparently to the right versions.
+Transforming the sources before execution proxies allows to create and return proxies immediately when objects are created. 
+This way, the references to proxies are passed around and all access goes through the proxies.
+Also, only the proxies refer to the versions of an object and both are reclaimed together by the ordinary gargabe collector.
+The design based on proxies allows to implement version-aware references without any adaptions to execution engines, while the source transformations make the necessary adaptions to programs automatically.
 
 % Significance, Practical applications
+We implemented and evaluated this approach to object versioning for the Lively Kernel and in JavaScript.
+The implementation allows to preserve and re-establish versions of the running Lively Kernel.
+That is, programmers can use the implementation to make commits of the system state and undo any changes subsequentely made to objects.
 
+Our evaluation shows that the version-aware references behave correctly in the situations tested and that their memory overhead appears to be practical. The execution overhead, however, is not yet practical.
+The execution of JavaScript benchmark programs takes three orders of magnitude more time than without our system.
 
 % Future work
-In the future, 
+In the future, we want to make our system more practical.
+For this, we want to improve the performance of our implementation.
+In addition, the system should preserve versions automatically and support developers in finding versions when recovery is necessary.
 
 % Summary sentence
-Nevertheless,
-
-
+Nevertheless, our solution already can preserve access to previous states of the Lively Kernel.
 
 
 
