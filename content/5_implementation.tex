@@ -420,7 +420,7 @@ The \emph{set}-trap sometimes needs to unwrap the assigned value when that value
 This is for example the case with the \lstinline{onreadystatechange} slot of \emph{XMLHttpRequest} objects.
 This particular slot holds functions as callbacks of asynchronous HTTP requests, which, however, do not get called when these functions are proxies.
 
-The unwrapping a particular version from a proxy for an asynchronous callback is potentially problematic.
+Unwrapping a particular version from a proxy for an asynchronous callback is potentially problematic.
 Though JavaScript does get executed with a single thread using cooperative scheduling by all popular browsers, other concurrent scripts might get executed and switch the global version before the callback can be called.
 It is, however, unlikely that a callback function's \emph{properties} are changed while waiting for the response and even bad programming style as it introduces dependencies on network timing even without proxies.
 Therefore, our implementation currently does not provide a workaround for this specific case, even though we are aware of this potential problem. 
@@ -433,34 +433,38 @@ As the arguments to these methods is not handled in traps, because strings are n
 
 
 
-
-
-
-
 \section{Limitations of the Implementation}
 
-\todosec{write this section from the following notes}
-
-% content: limitations of our implementation that are not directly related to the state of the preliminary implementation of the proxies.. except for the general limitation that these proxies have to be available, e.g. experimental javascript enabled in chrome
-
-our implementation is based on and requires the ECMAScript 6 Direct Proxies to be available.
-however, as these are at the moment only part of the next draft of ECMAScript and not yet finalized, the implementation only works when the nevertheless are available, which is currently.. recent versions of Chrome with experimental JavaScript explicitly enabled and in recent versions of Firefox
 
 
-% TODO: Limitations for Concurrent JavaScript
+% content: limitations of our implementation that are not directly related to the state of the preliminary implementation of the proxies / for which we have no workaround .. except for the general limitation that these proxies have to be available, e.g. experimental javascript enabled in chrome
+
+
+\subsubsection{Availabilty of ECMAScript 6 Proxies}
+
+Our implementation requires the ECMAScript 6 Direct Proxies to be available.
+These are, however, part of the next draft of ECMAScript, which has currently not been finalized, as described in \ref{sec:IMPLEMENTATION:4}.
+For this reason, our implementation works only in recent versions of Firefox and Chrome that already implement preliminary versions of the proxies.
+For Chrome, user needs to enable the proxies through explicitly setting the \emph{Experimental JavaScript}-option.
+
+Even if the Direct Proxies are available, the current implementation impedes debugging.
+Proxies are partly implemented by a library and every trapped object access is visible in multiple frames in the debugger.
+That is, the stack of the debugger is cluttered with frames that belong to the proxy implementation, not to the application source code.
+
+In addition, the development tools in Chrome do not handle proxies correctly under all circumstances.
+In particular, hovering variables that are currently bound to proxies yields JavaScript errors and stepping into a proxied functions does not work.
+
+% Besides impacting code execution, the current implementation of object versioning for the Lively Kernel also with certain programming tasks.
+% Though the version-aware references should be transparent to programmers, in the current proxy-based implementation proxies show during debugging.
+% However, the developer tools show the original source code, despite the implementation's transformations of the sources.
+
+
+
+\subsubsection{Concurrent JavaScript}
 
 single-threaded and cooperative scheduling, but setTimeout / setInterval... stop asynchronous actions from following versions when undoing... source transformations, which scripts belongs to which version
 
 
-
-% TODO: Usability: Impact on Debugging
-
-adds lots of low-level frames due to the partly native but also partly shim implementation of proxies..
-
-dev tools don’t yet handle proxies well (hovering, labels, stepping into), but we have at least source maps, so developers can debug the original code and not the result of our source transformation
-Besides impacting code execution, the current implementation of object versioning for the Lively Kernel also with certain programming tasks.
-Though the version-aware references should be transparent to programmers, in the current proxy-based implementation proxies show during debugging.
-However, the developer tools show the original source code, despite the implementation's transformations of the sources.
 
 
 
