@@ -24,7 +24,7 @@ We implemented the version-aware references for our approach to object versionin
 This way, our prototype does not require changes to JavaScript engines, but only a certain JavaScript language feature.
 In particular, it requires the \emph{Direct Proxies}\footnote{\url{http://wiki.ecmascript.org/doku.php?id=harmony:direct_proxies}, accessed February 3rd, 2014} as proposed with Version 6 of ECMAScript, the next standard of JavaScript.
 
-\subsubsection{Proxies Trap and Forward Access}
+\subsubsection{Proxies Handler and Traps}
 
 The behavior of the proxies is specified by a \emph{Handler} object, an object that is supplied when the proxy is created.
 The handler can implement specific methods, called \emph{Traps}.
@@ -154,20 +154,11 @@ That is, while a JavaScript script runs, the global version cannot be changed by
 % Besides this copy-on-write optimization, another optimization would be to not copy objects completely, but to only store changes.
 % this could, for example, also apply prototypical inheritance to have versions that delegate to previous versions and only express the differences between versions.
 
-When the system version changes, the next access to proxies returns the state of the system version for objects of the JavaScript runtime.
-Certain JavaScript objects, however, provide only access to the HTML elements that the browser renders.
-As these cannot be copied like usual JavaScript objects, we do not version these element objects.
-The graphical state is, however, completeyl captured by the Lively Kernel's morphs, which are ordinary JavaScript objects and versioned.
-Thus, when the system version changes, we update the HTML document from the current set of visible morphs in the new version.
-
-
-
-
-
-
-
-
-
+\paragraph{Scope of the Versions}
+Using the proxies and system versions, the state of all mutable JavaScript objects can be preserved and re-established.
+Certain host objects in JavaScript engines, however, cannot be versioned.
+For example, the objects that only represent the HTML elements the browser renders cannot be copied.
+For this reason, when the system version changes, we update the HTML document from the current set of visible morphs.
 
 
 
@@ -193,6 +184,7 @@ Thus, when the system version changes, we update the HTML document from the curr
 To have the proxies intercept access to all mutable objects, objects need to be accessed only via proxies.
 This is achieved by creating proxies when objects get created and then returning references to the proxies instead of the objects.
 Our implementation uses a combination of source transformations and proxy behavior to return proxies from expressions that otherwise would return new objects.
+This way, programs do not have to be adapted manually to run with our implementation of object versioning.
 
 In JavaScript, there are three different ways to create an object: 
 \begin{itemize}
