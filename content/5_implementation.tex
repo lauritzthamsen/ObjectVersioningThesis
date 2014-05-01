@@ -435,40 +435,33 @@ As the arguments to these methods is not handled in traps, because strings are n
 
 \section{Limitations of the Implementation}
 
+The current implementation has three limitations.
 
-
-% content: limitations of our implementation that are not directly related to the state of the preliminary implementation of the proxies / for which we have no workaround .. except for the general limitation that these proxies have to be available, e.g. experimental javascript enabled in chrome
-
-
-\subsubsection{Availabilty of ECMAScript 6 Proxies}
-
+\paragraph{Availability of ECMAScript 6 Proxies}
 Our implementation requires the ECMAScript 6 Direct Proxies to be available.
-These are, however, part of the next draft of ECMAScript, which has currently not been finalized, as described in \ref{sec:IMPLEMENTATION:4}.
+The proxies are, however, part of the next version of ECMAScript, which has currently not been finalized, as described in \ref{sec:IMPLEMENTATION:4}.
 For this reason, our implementation works only in recent versions of Firefox and Chrome that already implement preliminary versions of the proxies.
 For Chrome, user needs to enable the proxies through explicitly setting the \emph{Experimental JavaScript}-option.
 
-Even if the Direct Proxies are available, the current implementation impedes debugging.
-Proxies are partly implemented by a library and every trapped object access is visible in multiple frames in the debugger.
+\paragraph{Proxies Impede Developer Tools}
+The current implementation of proxies impedes debugging.
+As proxies are partly implemented by a library, every trapped object access is visible in multiple frames in the debugger.
 That is, the stack of the debugger is cluttered with frames that belong to the proxy implementation, not to the application source code.
-
-In addition, the development tools in Chrome do not handle proxies correctly under all circumstances.
+In addition, the developer tools in Chrome do not handle proxies correctly under all circumstances.
 In particular, hovering variables that are currently bound to proxies yields JavaScript errors and stepping into a proxied functions does not work.
 
-% Besides impacting code execution, the current implementation of object versioning for the Lively Kernel also with certain programming tasks.
-% Though the version-aware references should be transparent to programmers, in the current proxy-based implementation proxies show during debugging.
-% However, the developer tools show the original source code, despite the implementation's transformations of the sources.
+\paragraph{Concurrent JavaScript}
+Even though JavaScript is executed with a single thread, scripts can be executed concurrently.
+Scripts can be started from events and explicitly from other scripts using the \lstinline{setTimeout()} or the \lstinline{setInterval()} function.
+Switching the system version can be problematic for such concurrently running scripts.
+For example, the Lively Kernel makes use of the \lstinline{setInterval()} function to repeatedly execute a method of an object.
+Re-establishing a previous version can, however, interfere with such ticking behavior as the object or its method can be unavailable in a previous version.
+For this reason, we stop scripts from future versions, when the system version changes.
+We did, however, not succeed in finding a way to restart the scripts again, when the future versions are re-established.
+Thus, subsequentely undoing and redoing changes might stop concurrent scripts.
+
+% single-threaded and cooperative scheduling, but setTimeout / setInterval... stop asynchronous actions from following versions when undoing... source transformations, which scripts belongs to which version
 
 
-
-\subsubsection{Concurrent JavaScript}
-
-single-threaded and cooperative scheduling, but setTimeout / setInterval... stop asynchronous actions from following versions when undoing... source transformations, which scripts belongs to which version
-
-
-
-
-
-
-
-% Nevertheless, our implementation is functional and integrated with the Lively Kernel.
-% It allows programmers to undo and redo changes and is publicly available\footnote{\url{http://github.com/LivelyKernel/LivelyKernel/commit/858aca8c5ac0f203061823f463fda9b434131636}}.
+% Even with these limitations our implementation is functional and integrated with the Lively Kernel.
+% It allows programmers to undo and redo changes and is publicly available\footnote{\url{https://github.com/LivelyKernel/LivelyKernel/tree/object-versioning}}.
