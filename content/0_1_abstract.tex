@@ -3,15 +3,31 @@
 % Abstract / Zusammenfassung
 %
 \begin{abstract}
-  % Motivation
-  % Problem
 
-\todosec{Missing Section: Abstract (english)}
+% Background
+The Lively Kernel is a programming system that allows to construct applications from objects.
+Dedicated tools allow programmers to manipulate the state and behavior of objects at runtime.
+Programmers are encouraged to make changes directly and receive immediate feedback on their actions.
 
-  % Approach
-  % Conclusion
+% Problem Statement
+When programmers, however, make mistakes in such programming systems, the state of objects ends up differently than desired.
+In such cases, programmers need to undo the effects their actions had on objects.
+Recovering object states is often error-prone and time consuming.
+Programmers either have to edit objects manually or re-load parts of their applications.
 
-  The english abstract.
+% Approach
+This thesis presents an approach to object versioning for systems like the Lively Kernel.
+Access to previous versions of objects is preserved using alternative, version-aware references.
+These references dynamically choose versions of objects and, thereby, re-establish preserved states of the system. 
+
+% Results
+We present a design based on proxies and an implementation for the Lively Kernel.
+An evaluation shows that the Lively Kernel can run with these proxy-based version-aware references and they allow to preserve and re-establish states of system.
+The memory overhead of using these version-aware references is reasonable.
+The execution overhead though is currently problematic.
+
+% Conclusion
+With faster proxies, however, the solution could be used to provide practical recovery support to programmers.
 
 \end{abstract}
 
