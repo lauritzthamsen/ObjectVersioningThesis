@@ -5,15 +5,15 @@
 \begin{abstract}
 
 % Background
-The Lively Kernel is a programming system that allows to construct applications from objects.
-Dedicated tools allow programmers to manipulate the state and behavior of objects at runtime.
+Programming systems such as the Lively Kernel allow to construct applications from objects.
+Dedicated tools enable programmers to manipulate the state and behavior of objects at runtime.
 Programmers are encouraged to make changes directly and receive immediate feedback on their actions.
 
 % Problem Statement
-When programmers, however, make mistakes in such programming systems, the state of objects ends up differently than desired.
-In such cases, programmers need to undo the effects their actions had on objects.
-Recovering object states is often error-prone and time consuming.
-Programmers either have to edit objects manually or re-load parts of their applications.
+When programmers, however, make mistakes in such a programming system, they want to undo the effects their actions had on objects.
+For this, programmers either have to edit objects manually or re-load parts of their applications.
+Changes are also often spread across many objects.
+Recovering object states is, therefore, often error-prone and time consuming.
 
 % Approach
 This thesis presents an approach to object versioning for systems like the Lively Kernel.
@@ -22,12 +22,11 @@ These references dynamically choose versions of objects and, thereby, re-establi
 
 % Results
 We present a design based on proxies and an implementation for the Lively Kernel.
-An evaluation shows that the Lively Kernel can run with these proxy-based version-aware references and they allow to preserve and re-establish states of system.
-The memory overhead of using these version-aware references is reasonable.
-The execution overhead though is currently problematic.
-
+An evaluation shows that the Lively Kernel can run with these proxy-based version-aware references and that preserved states of system can be effectively re-established.
+The memory overhead of the version-aware references is reasonable.
+Their execution overhead is, however, currently problematic.
 % Conclusion
-With faster proxies, however, the solution could be used to provide practical recovery support to programmers.
+Yet, with faster proxies, the solution could be used to provide practical recovery support to programmers.
 
 \end{abstract}
 
