@@ -218,9 +218,8 @@ Therefore, in the specific case of eval, we proxy eval's result but in addition 
 
 \subsubsection{Source Transformations}
 
-The source transformations for introducing our proxy-based version-aware references wrap the original expressions into the \lstinline{proxyFor} function, which returns a proxy for an object.
+The source transformations for introducing our proxy-based version-aware references wrap the original expressions into a \lstinline{proxyFor} function, which returns a proxy for an object.
 The transformations of literal objects, arrays, and functions are shown by example in Table~\ref{table:literalTransforms}.
-
 
 \begin{table}[h]
 \begin{center}
@@ -301,37 +300,29 @@ To nevertheless return the same proxy, which also is necessary for identity chec
 This \emph{Proxy Table} is a weak-key map and does prevent the version object used as keys from being gargabe collected when their proxies get garbage collected.
 Therefore, the following statement yields true for an arbitrary object \lstinline{obj}: \lstinline{proxyFor(obj) === proxyFor(obj)}.
 
+% \todo{add something about when the versioning source transformations are done and which parts of the system are currently versioned}
+% TODO: source transformations enabled right after the object versioning code, i.e. the implementation of the proxies and the source transformation, which are both themselves implemented using ordinary javascript code, gets loaded. by patching the eval that is used for evaluated modules that get loaded with an eval(transformSource.. so modules are not versioned, but classes / layers / traits are.. e.g. a class is versioned, so in different versions there might be different class-side state... so, for example, modules are currently in our implementation the roots of the version-aware reference graphs that prevent garbage collection, 
+
+
+\paragraph{Implementation of Source Transformations}
+Our implementation uses \emph{UglifyJS}\footnote{\url{http://github.com/mishoo/UglifyJS2}, accessed March 12, 2014} for all source transformations.
+UglifyJS parses source code without relying on JavaScript exceptions.
+Therefore, when code is transformed before evaluation and the transformation steps do not yield exceptions that could be caught by an open debugger.
+In addition, UglifyJS supports Source Maps \todo{\url{https://docs.google.com/document/d/1U1RGAehQwRypUTovF1KRlpiOFze0b-_2gc6fAH0KY0k/edit\#heading=h.ue4jskhddao6}, accessed May 2, 2014}.
+This way, the browser's developer tools, including the debugger, present the original sources, even though transformed code is executed.
+
+
+
 
 
 \subsubsection{Returning Proxies From Proxied Constructors}
 
 When objects get created through applying functions with the \lstinline{new} operator, the freshly created objects also need to be proxied.
 However, as the functions are already proxied through source transformations of function literals and the built-in \lstinline{Function} constructor, our implementation does not transform the applications of the \lstinline{new} operator, but uses the \emph{construct} trap to return proxies from constructor applications.
-The last line of code of the \lstinline{construct} function of our proxy handler is therefore: \lstinline{return this.ensureProxied(newInstance)}.
+The last line of code of the \lstinline{construct} function of our proxy handler is therefore: \lstinline{return this.ensureProxied(newInstance)}.\\
 This is also true for the \emph{apply} trap, because, for example, the \lstinline{Array} and \lstinline{Object} functions also create objects when called without the \lstinline{new} operator and, for example, the built-in function \lstinline{Object.create(proto)} also returns a new object.
 In fact, with our proxy handler the \emph{get}-trap also makes sure to return always proxy in this fashion.
 So, wrapping \lstinline{Object} is enough to have \lstinline{Object.create(proto)} return a proxy: \lstinline{Object.create(proto)} transforms to \lstinline{proxyFor(Object).create(proto)} and getting the property \emph{create} then returns a proxy for the function, which when applied also returns a proxy.
-
-
-
-\subsubsection{Implementation of Source Transformations}
-
-
-Our implementation uses \emph{UglifyJS}\footnote{\url{http://github.com/mishoo/UglifyJS2}, accessed March 12, 2014} for all source transformations.
-UglifyJS parses source code without relying on JavaScript exceptions.
-Therefore, when code is transformed before evaluation and the transformation steps do not yield exceptions that could be caught by an open debugger.
-
-In addition, UglifyJS supports Source Maps \todo{\url{https://docs.google.com/document/d/1U1RGAehQwRypUTovF1KRlpiOFze0b-_2gc6fAH0KY0k/edit\#heading=h.ue4jskhddao6}, accessed May 2, 2014}.
-This way, the browser's developer tools, including the debugger, present the original sources, even though transformed code is executed.
-
-
-% \todo{add something about when the versioning source transformations are done and which parts of the system are currently versioned}
-% TODO: source transformations enabled right after the object versioning code, i.e. the implementation of the proxies and the source transformation, which are both themselves implemented using ordinary javascript code, gets loaded. by patching the eval that is used for evaluated modules that get loaded with an eval(transformSource.. so modules are not versioned, but classes / layers / traits are.. e.g. a class is versioned, so in different versions there might be different class-side state... so, for example, modules are currently in our implementation the roots of the version-aware reference graphs that prevent garbage collection, 
-
-
-
-
-
 
 
 
