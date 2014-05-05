@@ -2,9 +2,10 @@
 
 % Approach
 This work introduced an approach to preserving access to previous states of programming systems such as the Lively Kernel.
-The approach is based on version-aware references that transparently manage different versions of objects.
-Each of these references resolves dynamically to one of multiple versions of an object.
-To which versions exactly can be easily changed for the entire system and, thereby, different preserved states can be re-established.
+The approach is based on version-aware references.
+These references manage different versions of objects transparently.
+They resolve to one of multiple versions of objects and to which ones can be easily changed.
+Thereby, different preserved states can be re-established.
 
 We presented a design for our approach that uses proxies for version-aware references.
 Instead of actually using alternative references, ordinary references refer to proxies and proxies forward access transparently to the right versions.
@@ -12,22 +13,22 @@ The design allows to implement version-aware references without any adaptions to
 For each new object that is created, a proxy is created and returned instead of the object.
 Thus, references to proxies are passed around and all access goes through the proxies.
 Moreover, only the proxies refer to the versions of an object.
-Therefore, the versions of an object are reclaimed together with the object's proxy by the ordinary gargabe collector.\\
+So, the versions of an object are reclaimed together with the object's proxy by the ordinary garbage collector.\\
 Returning new proxies for new objects is achieved automatically using source transformations.
-Programs are transformed when loaded and, thus, do not have to be adapted manually for versioning with our solution.
+Programs are transformed when loaded and, thus, do not have to be adapted manually.
 
 % Significance, Practical applications
 We implemented and evaluated our approach to object versioning in JavaScript.
-The implementation is integrated with the Lively Kernel.
+Furthermore, we integrated the implementation with the Lively Kernel.
 It enables programmers to commit and re-establish versions of the system.
-For this, only a global version identifier has to be changed.
-The proxies then create and choose versions of objects dynamically according to the global version identifier.
+For this, only a global version identifier has to be changed to switch versions.
+The proxies then choose and create versions of objects according to the global version identifier when they intercept access.
 This way, the costs for preserving and re-establishing versions is distributed accross object interactions and the implementation is optimized for fine-grained histories.
 
 Our evaluation shows that the version-aware references behave correctly in the situations tested.
 The memory overhead appears reasonable.
 The execution overhead, however, is not yet practical.
-For example, the execution of eight JavaScript benchmarks takes currently three orders of magnitude more time with our version-aware references.
+For example, the execution of eight JavaScript benchmarks takes currently three orders of magnitude more time than usual with our version-aware references.
 
 % Future work
 In the future, the implementation could be improved by reducing the execution overhead.
