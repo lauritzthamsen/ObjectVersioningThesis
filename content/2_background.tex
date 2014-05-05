@@ -1,37 +1,42 @@
 \chapter{Background} \label{chapter:BACKGROUND}
 
 This chapter describes prototype-based programming, the Lively Kernel, and CoExist.
-These topics are relevant for this thesis as we present an approach for providing CoExist-like recovery support in prototype-based programming systems, which we implemented for the Lively Kernel system.
+These works are the background of this thesis as it introduces an approach towards CoExist-like recovery support in prototype-based programming systems, which we implemented for the Lively Kernel.
 
 \section{Prototype-based Programming}
 
-Prototype-based programming is object-oriented programming in which applications are constructed using objects, without requiring developers to define classes first.
-Examples for genereal-purpose programming languages or systems that implement prototype-based programming are Self, JavaScript, and Kevo~\cite{Taivalsaari1992Kevo}.
-In addition, many end-user programming systems, including Scratch~\cite{Maloney2010SPL}, Etoys~\cite{Kay2005Etoys}, Fabrik~\cite{Ingalls1988FVP}, and Lively Frabrik~\cite{Lincke2009LFW}, also enable users to express their programs through particular objects.
+Prototype-based programming is object-oriented programming in which applications are created directly with objects, without requiring developers to define classes first.
+Examples for general-purpose programming languages that implement prototype-based programming are Self, JavaScript, and Kevo~\cite{Taivalsaari1992Kevo}.
+Many end-user programming systems such as Scratch~\cite{Maloney2010SPL}, Etoys~\cite{Kay2005Etoys} and Fabrik~\cite{Ingalls1988FVP}, and Lively Fabrik~\cite{Lincke2009LFW} also enable users to express their programs through objects.
 
 \paragraph{Similar Objects Without Classes}
 Self and JavaScript incorporate prototypical inheritance.
 They allow objects to inherit state and behavior directly from other objects through delegation: an object has a prototype to which it delegates when looking up a property in the object itself yields no results.
-Kevo, in constrast, does not provide this kind of delegation, but instead allows to make full copies of objects, so objects in Kevo do not share behavior or state.
-Programmers can create new objects with initially the same state and behavior as existing ones, but all objects remain self-contained.
+In Self, objects are created by cloning other objects and, this, operation also sets the prototype: The clone's prototype is the original object.
+In JavaScript, objects are created from constructor functions and the functions determine the prototypes of objects.
+Kevo, in constrast, does not provide prototypical inheritance.
+In Kevo, programmers can only make full copies of objects.
+That is, programmers can create new objects with initially the same state and behavior as existing objects, but all objects remain self-contained.
 That is, in Kevo, changing an object only changes that particular object and a particular object can only be changed by directly changing it, not by changing any other artifact.
-To adapt many objects at once in Kevo, programmers can only use so-called \emph{module operations} that are evaluated on a group of objects. 
+To adapt many objects at once, programmers can only use so-called \emph{module operations} that are evaluated for a group of objects. 
 
-Despite this difference in whether properties can be shared among objects and how, thus, families of objects can be affected, prototype-based programming always allows to build programs from particular objects, in contrast to the class-based style of object-oriented programming, in which programs are expressed in more abstract definitions of structure and behavior.
-In prototype-based programming, the parts of a program are objects with particular state, specific examples rather than general categories.
+Despite this difference in whether properties can be shared among objects and how, therefore, families of objects can be affected, prototype-based programming always allows to build programs from particular objects.
+This is the fundamental difference to the class-based style of object-oriented programming, in which programs are expressed with more abstract definitions of structure and behavior.
+In prototype-based programming, the parts of a program are objects with particular state.
+All parts are specific examples rather than general categories.
 
 There are different advantages associated with this kind of programming:
 \begin{itemize}
-    \item \cite{Taivalsaari1996CVP} and \cite{Ungar1987SPS} argue that it might be easier for programmers to understand concrete examples than to grasp abstract classes. A concrete example provides particular values for its state and, in case of objects with a visual appearance, can be actually looked at.
+    \item \cite{Taivalsaari1996CVP} and \cite{Ungar1987SPS} suggest that it might be easier for programmers to understand concrete examples than to grasp abstract classes. A concrete example provides particular values for its state and, in case of objects with a visual appearance, can be actually looked at.
     \item \cite{Ungar1987SPS} and \cite{Borning1986CVP} describe how prototype-based programming makes it easier to introduce one-of-a-kind objects with their own structure or behavior.
-    \item \cite{Borning1986CVP} and \cite{Maloney1995Mor} make the point that especially editing visual objects can be more concrete with prototypes. Instead of writing code to define the appearance of objects, programmers can manipulate particular visual objects directly. Programmers could, for example, use the mouse to manipulate properties like the size, position, or to combine multiple basic elements into one composition. This way, programmers always see intermediate states and do not only receive feedback on explicit test runs in-between edit-compile-load cycles. 
+    \item \cite{Borning1986CVP} and \cite{Maloney1995Mor} argue that especially editing visual objects can be more concrete with prototypes. Instead of writing code that describes the appearance of objects, programmers can manipulate visual objects directly. Programmers could, for example, use the mouse to manipulate properties like the size, position, or to combine multiple elements. This way, programmers always see intermediate states instead of only receiving feedback on explicit test runs in-between edit-compile-load cycles. 
 \end{itemize}
 
 \paragraph{Editing Objects At Runtime}
 Many prototype-based programming systems, including all the examples given in this section, allow to manipulate objects at runtime.
-Scratch, Etoys, Fabrik, Lively Fabrik, the Lively kernel, and Self also all provide tools to manipulate graphic objects and their behavior directly.
-Such graphical objects range from basic objects like primitive shapes over interactive widgets to applications like presentation software or programming tools.
-Programming at runtime, prototype-based programming, and direct manipulation of graphical objects seem properties that suit each other.
+Scratch, Etoys, Fabrik, Lively Fabrik, the Lively kernel, and Self also all provide tools dedicated to manipulating graphical objects directly.
+Such graphical objects range from basic objects like primitive shapes to complete applications like presentation software or programming tools.
+Prototype-based programming, programming at runtime, and direct manipulation of graphical objects seem to be properties that suit each other.
 
 
 \section{The Lively Kernel}
