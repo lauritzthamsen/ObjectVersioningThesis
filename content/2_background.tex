@@ -41,32 +41,37 @@ Prototype-based programming, programming at runtime, and direct manipulation of 
 
 \section{The Lively Kernel}
 
-The Lively Kernel is a browser-based programming system in the tradition of both Smalltalk and Self.
+The Lively Kernel is a programming system in the tradition of Smalltalk and Self.
 Development in the Lively Kernel happens at runtime.
-The Lively Kernel incorporates tools and techniques to be completely self-sufficient.
+It incorporates tools and techniques to be completely self-sufficient.
 Thus, programmers can create versions of the Lively Kernel with the Lively Kernel.
+
+The Lively Kernel is also a browser-based system.
+It is implemented in JavaScript and renders to HTML.
 
 \subsubsection{Programming with Prototypes and Classes}
 
-The Lively Kernel is based in the JavaScript programming language.
-Therefore, the system and applications are expressed in a prototype-based object-oriented language that also provides prototypical inheritance.
-At the same time, the Lively Kernel also provides a class system for JavaScript and considerable parts of the system itself are expressed using this class system.
+As the Lively Kernel is based in JavaScript, the system and applications are expressed in a prototype-based object-oriented language that provides prototypical inheritance.
+At the same time, the Lively Kernel also provides a class system and considerable parts of the system are expressed using classes.
 
 One of the system parts expressed through classes is an implementation of Morphic~\cite{Maloney1995Mor}, a framework for developing graphical applications.
 Programmers can alter graphical objects of this framework, which are called \emph{Morphs}, using direct manipulation and through a number of dedicated tools.
-
-While Morphic framework itself is implemented using classes, morphs are an example of objects that are often edited directly and not through adapting existing or creating new classes.
-Though each morph has a class, it can also have object-specific behavior.
+That is, the Morphic framework itself is implemented using classes, morphs are an example of objects that are often edited directly and not through adapting existing or creating new classes.
+Each morph has a class but can also have object-specific behavior.
 Further, morphs can be created both through instantiating a Morphic class and through copying an existing morph.
-The copy operation does not establish a prototypical inheritance relationship between the copy and the original, but instead copies the entire state, including of which class the copy is an instance of.
 This way, the Lively Kernel mixes the class-based with the prototype-based style of object-oriented programming.
+
+The Lively Kernel's copy operation does not establish a prototypical inheritance relationship between the copy and the original.
+Instead it creates a full copy of the original morph's properties, including its class.
+Therefore, even though JavaScript incorporates prototypical inheritance, the Lively Kernel encourages programmers to use classes to share behavior among objects.
 
 \subsubsection{Direct Manipulation of Morphs}
 
-Programmers can change the position of morphs by dragging and the composition by an alternative dragging, which is called \emph{grabbing}.
-That is, the composition of morphs is also part of Morphic and a morph can have submorphs.
+Programmers can change the position of morphs by \emph{dragging} and the composition by an alternative dragging, called \emph{grabbing}.
+The composition of morphs is also part of Morphic and a morph can have submorphs.
 This way, morphs are not limited to to be basic shapes or simple widgets, but can be entire user interfaces of arbitrary applications.
-The Lively Kernel provides a set of manipulation tools, called \emph{Halos}, as shown in Figure~\ref{fig:Halos}, that developers can bring up directly at morphs.
+
+The Lively Kernel provides a set of manipulation tools, called \emph{Halos}, as shown in Figure~\ref{fig:Halos}, that developers can bring up for each morph.
 The different halo buttons allow, for example, to resize~\textcircled{R}, rotate~\textcircled{T}, and copy~\textcircled{C} morphs.
 
 \begin{figure}[h]
@@ -76,28 +81,29 @@ The different halo buttons allow, for example, to resize~\textcircled{R}, rotate
     \label{fig:Halos}
 \end{figure}
 
-Other halo buttons open specific tools, which are shown in Figure~\ref{fig:LivelyTools}, to further manipulate morphs:
+Other halo buttons open specific tools, which are shown in Figure~\ref{fig:LivelyTools}:
 
 \begin{figure}[h]
     \centering
     \includegraphics[width=\textwidth]{figures/2_background/2_LivelyTools.pdf}
-    \caption{The Lively Kernel's tools to manipulate properties of morphs: the Inspector, the Style Editor, and the Object Editor.}
+    \caption{Three Lively Kernel's tools to manipulate morphs: the Inspector, the Style Editor, and the Object Editor.}
     \label{fig:LivelyTools}
 \end{figure}
 
 \begin{enumerate}
-    \item The \emph{Inspector}~\textcircled{1} presents all the values that make up a morph's state. It also has a small code pane at the bottom, which is intended to be used to manipulate the state programmatically.
-    \item The \emph{Style Editor}~\textcircled{2} allows to manipulate certain aspects of a morph's visual appearance. Programmers can use it to, for example, change a morphs color, border width, or the layout of its submorphs.
-    \item The \emph{Object Editor}~\textcircled{3} is a tool dedicated to the object-specific behavior of morphs, which are called \emph{scripts} in the Lively Kernel. It shows all scripts of a particular morph, but also can add and adapt scripts.
+    \item The \emph{Inspector}~\textcircled{1} presents all the values that make up a morph's current state. It also has a small code pane at the bottom that can be used to manipulate the properties programmatically.
+    \item The \emph{Style Editor}~\textcircled{2} allows to manipulate certain aspects of a morph's visual appearance. Programmers can use it to change, for example, a morphs color, border width, or the layout of its submorphs.
+    \item The \emph{Object Editor}~\textcircled{3} is a tool to edit the object-specific behavior of morphs. It shows all scripts of a particular morph and allows programmers to add, remove and edit scripts.
 \end{enumerate}
 
 
 \subsubsection{Saving Morphs to the Shared Parts Bin Repository}
 
-Another tool related to morphs is the Lively Kernel's \emph{Parts Bin}~\cite{Lincke2012LPC}, an object repository to commit and load specific versions of morphs.
-Morphs saved to the Parts Bin are called \emph{parts} to emphasize the ability to reuse any of the morphic applications in the Parts Bin for other applications.
+A related tool is the Lively Kernel's \emph{Parts Bin}~\cite{Lincke2012LPC}, an object repository to commit and load specific versions of morphs.
+Morphs saved to the Parts Bin are called \emph{parts} to emphasize the ability to reuse any of the morphs in the Parts Bin for other morphic applications.
 Figure~\ref{fig:PartsBin} shows the Parts Bin, opened on the \emph{Tools} category, which includes both the Style Editor and the Object Editor.
-Both these tools are examples for graphical applications developed from available parts, with their logic expressed in scripts, and available to users through the Parts Bin.
+Both these tools are examples for graphical applications developed from available parts.
+Their functionality is expressed in scripts and they are available to users through the Parts Bin.
 
 \begin{figure}[h]
     \centering
@@ -106,11 +112,10 @@ Both these tools are examples for graphical applications developed from availabl
     \label{fig:PartsBin}
 \end{figure}
 
-
 The root of the scenegraph of visible morphs is called \emph{World}.
-It is not shared via the Parts Bin, but can be saved as a Web page.
+Worlds are not shared via the Parts Bin, but can be saved as a Web pages.
 A world stores the state of all visible morphs when saved and that state can be reloaded with the world.
-The Lively Kernel is always started with a world.
+
 
 \section{CoExist}
 
