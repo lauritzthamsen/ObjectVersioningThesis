@@ -119,7 +119,7 @@ When a proxy gets garbage collected, JavaScript garbage collector also reclaims 
 
 The proxy handler chooses a \emph{version of an object} according to a global \emph{version of the system}.
 The version of the system is an ordinary JavaScript object with three properties: an \lstinline{ID}, a \lstinline{previousVersion}, and a \lstinline{nextVersion}.
-The current version is always referred to by \lstinline{lively.currentVersion}.
+The current version is always referred to by \lstinline{lively.CurrentVersion}.
 It is, therefore, globally accessible.
 The proxy handler uses system version's \lstinline{ID} to look up the version of the object in its version dictionary.
 
@@ -337,6 +337,9 @@ These workarounds might no longer be necessary once the ECMAScript 6 standard ge
 \subsection{Disabling Target Object Invariants}
 
 % While these are supposed to stand-in for particular objects, their \emph{targets}, they can also be used as fully virtual objects.
+
+\todo{add somehting on \url{http://wiki.ecmascript.org/doku.php?id=harmony:direct\_proxies\#virtual_objects}}
+% when using the objects as virtual objects as described in in the ECMAScript wiki's documentation... still the invariants..
 
 Using the \emph{harmony-reflect} shim in a recent Chrome, proxies require an actual \emph{target} object even though the current ECMAScript 6 draft says otherwise\footnote{\url{http://people.mozilla.org/~jorendorff/es6-draft.html\#sec-proxy-object-internal-methods-and-internal-slots}, accessed April 15, 2014}.
 
