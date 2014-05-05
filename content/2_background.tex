@@ -120,10 +120,11 @@ A world stores the state of all visible morphs when saved and that state can be 
 \section{CoExist}
 
 CoExist\footnote{\url{http://www.bastiansteinert.org/coexist.html}, accessed February 28, 2014} supports programmers through automatic and continuous versioning.
-CoExist preserves access to each indermediate development state with its respective source code and associated runtime information.
-The states are recorded as separate version in their original order and along with change summaries, associated test results, and screenshots of the development environment.
-Programmers can review their development sessions, inspect the impact each individual change had on test cases, and recover previous development states.
-They can withdraw changes or only re-visit a previous state to recover partial information as, for example, the source code for a specific method.
+CoExist preserves access to each intermediate development state.
+The states are recorded as separate version in their original order. 
+For each version CoExist provides access to diffs, test results, and screenshots of the development environment.
+Programmers can review their programming sessions, inspect the impact each individual change had on test cases, and recover information from previous development states.
+They can withdraw changes completely or only re-visit a previous state to recover partial information as, for example, the source code for a specific method.
 
 \subsubsection{Tools to Recover Previous Development States}
 
@@ -132,40 +133,45 @@ CoExist provides two tools to help programmers benefit from the preserved develo
 \begin{figure}[h]
     \centering
     \includegraphics[width=\textwidth]{figures/2_background/4_coexistTools.pdf}
-    \caption{CoExist's tools to manage the preserved development states: a timeline and a Version Browser.}
+    \caption{CoExist's tools to manage the preserved development states: the \emph{Timeline} and the \emph{Version Browser}.}
     \label{fig:CoExist}
 \end{figure}
 
 \paragraph{Timeline}
-A \emph{timeline} tool at the bottom of the development environment presents each intermediate version through a small rectangle that indicates the impact on test cases: the bottom of the rectangle shows how many test cases passed and failed absolutely, while the top half highlights only test results affected by the changes of this particular version.
+CoExist's \emph{Timeline} tool is located at the bottom of the development environment.
+It shows each intermediate version with a small rectangle that indicates the impact on test cases: the bottom of the rectangle shows how many test cases passed and failed absolutely, while the top highlights only test results affected by the changes made for this particular version.
 Hovering above such a version rectangle indicates what exactly changed in terms of methods and classes.
 Clicking a version provides access to its source code and more information on test results, but also allows to re-establish the version.
 
 \paragraph{Version Browser}
-Besides the timeline of versions, a \emph{Version Browser} tool shows changes in a different layout and separately for different source code modules.
-It presents the same information on test cases, but also offers diffs and how the development environment appeared visually in each version through screenshots.
+Besides the timeline of versions, a \emph{Version Browser} tool shows changes in a different layout.
+For each package it shows the changes made in that package.
+It presents the same information on test cases, but also includes a diff view.
+Moreover, it provides a screenshot for each version that shows how the development environment looked like when the version was created.
 
 \emph{In summary}, the tools support programmers in re-tracing their steps, understanding the impact of their actions, and in recovering information from previous development states.
 
 
 \subsubsection{Benefits of Continuous Versioning}
 
-CoExist is intented to reduce the effort that programmers usually put into recovery and, thereby, to encourage programmers to explore their ideas through actual development more often.
+CoExist is intented to reduce the effort that programmers put into recovery and, thereby, to encourage programmers to explore their ideas through making changes to the code.
 
 Without CoExist, either compensational or precautionary actions are necessary for recovery.
-When programmers unintentionally introduce errors, decrease performance, or harm the program design, they can manually repair improperly changed code.
-Alternatively, programmers can preserve specific versions to be able to easily withdraw changes later.
-That is, they can reduce the cost of recovery by anticipating recovery needs beforehand.
-Preserving versions manually is, however, also an effort and especially so when revision histories are expected to be well-documented and immediately useful.
+When programmers unintentionally introduce errors, decrease performance, or harm the program design, they have to repair changed code.
+They either need to edit the code again or load a previously commited version of the code.
+Editing code of potentially many methods across and many classes is obviously a significant effort and error-prone.
+Loading a previous version is, however, only possible if a version had been commited previously.
+That is, programmers can reduce the cost of recovery by anticipating recovery needs beforehand.
+Preserving versions is, however, also an effort and especially so when revision histories are expected to be well-documented and immediately useful.
 For that, programmers need to assemble changes to meaningful increments, test these, and write helpful commit messages.
-Testing each one directly is also advocated as it can help to find introduced problems directly intead of later analyzing long lists of changes that all could potentially have introduced a problem.
+% Testing each one directly is also advocated as it can help to find introduced problems directly intead of later analyzing long lists of changes that all could potentially have introduced a problem.
 
-CoExist provides tool support for easy and fast recovery.
-Developers do not have to take these explicit precautionary actions, but still are able to undo changes when necessary.
+CoExist's approach to recovery is in contrast easy, and fast.
+Developers do not have to take these explicit precautionary actions, but are still able to undo changes when necessary.
 In this regard, CoExist is similar to undo/redo systems.
-CoExist however provides access to the previous states of the entire system, not just particular source code views or files.
-Further, it provides much more structure, as each version is associated with the static structure of the software system, is related to other versions in a timeline, and accompanied by test results.
+CoExist however provides access to the previous development states of entire systems, not just the code of particular source code files.
+Moreover, it presents preserved versions more structured.
+Each version is associated with the static structure of the software system, related to other versions in a timeline, and accompanied by test results.
 Additionally, making changes to a previous state in CoExist does not overwrite the history, but creates a branch.
 
-Instead of worrying about negative consequences when trying ideas, programmers can focus on their actual programming tasks and rely on CoExist to help in case any action unexpectedly needs to be undone.
-
+\emph{In essence}, instead of worrying about negative consequences, programmers can focus on implementing their ideas and rely on CoExist to help in case any action unexpectedly needs to be undone.
