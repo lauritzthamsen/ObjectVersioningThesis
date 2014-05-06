@@ -55,8 +55,8 @@ This, however, requires developers to implement undos for all possible actions.
 Therefore, an implementation of the command pattern---even for just the existing Lively Kernel tools that manipulate objects---would be rather comprehensive and would also require developers to follow the pattern when implementing new tools.
 Furthermore, the Command pattern is entirely unpractical for undoing the effects of evaluating arbitrary code from the Lively Kernel's workspaces and editors.
 
-Worlds~\cite{Warth2011Wor}, in contrast, is a more generic approach for controlling the scope of side-effects.
-It allows to capture the side-effects of statements into different \emph{worlds}.
+Worlds~\cite{Warth2011Wor}, in contrast, is a more generic approach for controlling the scope of side effects.
+It allows to capture the side effects of statements into different \emph{worlds}.
 These worlds can be used to run code with particular sets of changes being effective.
 Developers could, thus, execute all their actions in separate worlds and discard worlds to return to previous states when necessary.
 Worlds as such, though, requires developers to use a language construct to explicitly create, merge, and discard worlds.
