@@ -83,84 +83,92 @@ The approaches presented in this sections allow to combine changes into first-cl
 
 \subsection{Worlds}
 
-Worlds are a language construct to capture side effects and control the scope of them: changes to the state of objects are by default only effective in the world in which the changes occurred.
-Worlds are first-class values, to be used to execute statements in a particular world.
-A new world can be spawned from an existing world, which establishes a child-parent relationships between the two worlds.
-Developers can commit changes contained in a child world to its parent world, thereby extending the scope of the captured side effects.
-For this, the Worlds approach further includes conditions to prevent inconsistencies as result of commits.
+Worlds provide a language construct for controlling the scope of side effects: changes to the state of objects are by default only effective in the \emph{world} in which the changes occurred.
+These worlds are first-class values and can be used to execute statements with particular side effects being active.
+A new world can be spawned from an existing world, which establishes a child-parent relationship between the two worlds.
+Developers can commit changes from a child world to its parent world, thereby extending the scope of the captured side effects.
+For this, the Worlds approach includes conditions to prevent inconsistencies as result of commits.
 
-In comparison, Worlds provides a language construct to support explicitly experimenting with different states of the runtime, while object versioning allows to preserve versions of the entire runtime intented to be created implicitly and continuously: Our approach does not include extensions to the host programming languages and no conditions under which versions of the runtime should be merged into predecessor versions.
+In comparison, Worlds provides a language construct for experimenting with different states of the system, while object versioning allows to preserve versions of the system to recover previous states: Our approach does not include extensions to the host programming languages and no conditions for combining versions with their predecessor versions, but provides a basis for CoExist-like continuous versioning and recovery tools.
 
-Other differences between Worlds and our approach are mainly on the implementation level.
+Other differences between Worlds and our approach regard the implementations.
 Our implementation in JavaScript does not prevent garbage collection as Worlds does.
-Further, both use different libraries for source transformations, which our choice does faster and without relying on JavaScript exceptions for backtracking.
+Further, both use different libraries for source transformations.
+Our source transformations are faster and do not use JavaScript exceptions.
 
 
 \subsection{Object Graph Versioning}
 
-Object Graph Versioning\cite{Pluquet2009ECP} allows access to previous states of objects.
-With it, fields of objects can be marked as \emph{selected} fields.
+Object Graph Versioning\cite{Pluquet2009ECP} allows programmers to preserve access to previous states of objects.
+Fields of objects can be marked as \emph{selected} fields.
 When a snapshot is created, the values of these selected fields are preserved.
-That is, not every state can be re-established, but states that are part of explicit global snapshots. 
+That is, not every state can be re-established, but states that are part of global snapshots. 
 The approach, thus, provides fine-grained control to programmers regarding which fields of which objects should be preserved when.
 
-The implemenation of Object Graph Versioning is similar to our solution.
-Analogous to our proxy-based version-aware references, selected fields refer not to their values directly, but to chained arrays that manage the multiple versions of a field and delegate access to the current version transparently.
-Further, the chained arrays also decide which version to retrieve and when to create new versions using a global version identifier.
-However, in constrast to our sulution, individual fields are versioned and only when programmers explicitly mark them as selected.
+The technical solution is similar to our design.
+Analogous to our proxy-based version-aware references, selected fields do not refer directly to their actual values, but to chained arrays that manage multiple versions of the state of a field and delegate access to the current version transparently.
+The chained arrays decide which version to retrieve and when to create new versions using a global version identifier.
+In constrast to our sulution, individual fields are versioned and only when programmers explicitly mark them as selected.
 
-Object Graph Versioning aims to support the implementation of applications that require access to previous states of objects such as application-specific undo/redo or tools like back-in-time debuggers.
-In contrast, our approach to object versioning aims to support recovery of entire system states when changes turn out inappropriate during the development of applications.
-
-Reusing parts of Object Graph Versioning for our solution was not an option.
-It was implemented in Smalltalk, while our implementation provides recovery support for the Lively Kernel, which is implemented in JavaScript.
+Object Graph Versioning aims to support implementing application-specific undo/redo or tools like back-in-time debuggers.
+In contrast, our approach to object versioning aims to support recovery of previous system states during the development of arbitrary applications.
 
 
 \subsection{Context-oriented Programming}
 
-Context-oriented Programming~\cite{Hirschfeld2008COP} adds dedicated language constructs for dynamic behavior adaptions.
-Depending on context information, COP allows to enable and disable layers, which contain variations to be executed instead or around methods of object-oriented base programs, at runtime.
+Context-oriented Programming~\cite{Hirschfeld2008COP} adds dedicated language constructs for dynamic behavior variations.
+Depending on context information, COP allows to enable and disable layers, which contain methods to be executed instead or around methods of the base programs.
 Context information can be any information which is computationally accessible.
-Different implementation of COP provide different mechansims to scope the activation of layers: for example, layers can be activated explicitly for a particular scope of the program or globally for the entire runtime.
-In ContextJS~\cite{Lincke2011OIC} it is even possible to activate layers only for specific objects.
+Layers can be enabled and disabled at runtime.
+Different implementations of COP provide different mechanisms to scope the activation of layers: for example, layers can be activated explicitly for a particular scope or globally for the entire runtime.
+In ContextJS~\cite{Lincke2011OIC} it is even possible to activate layers for specific objects.
 
-In comparison to our approach, COP also allows to group changes to the system and which of those sets of changes are active can be changed dynamically.
-However, while COP concentrates on behavior variations, our approach recognizes changes to both state and behavior.
-COP supports the composition of multiple indepedent layers, while with object versioning runtime versions are related more permanently in ancestor relationships and only one version is active at a given point in time.
-COP further aims on separating heterogeneous cross-cutting concerns, while the motivation of object versioning is supporting developers to recover previous development states.
-However, \cite{Lincke2012SCS} showed that COP can also allow developers to experiment with changes to a system: developers may implement their proposed changes to behavior in layers, not to primarily at modularize context-dependent adaptions, but to not change the system permanently and instead be able to recover the original system easily.
-This requires developers to make experiments explicitly though---explicitly creating layers and explicitly moving code from layers back to the base system once experiments are considered finished, at least when developers want to maintain the original modularization of the system.
+In comparison to our approach, COP allows to activate combinations of layers, while our system executes code using a single active version.
+In COP layers are indepedent, while our versions are predecessors and successors of each other.
+
+COP aims at supporting the separation of heterogeneous cross-cutting concerns, while object versioning aims at supporting developers with the recovery of previous states.
+\cite{Lincke2012SCS}, however, showed that COP can also be used to experiment with changes to a system: developers can implement experimental changes to behavior in layers, not to modularize context-dependent adaptions, but to be able to scope changes dynamically and recover the original system behavior easily.
+However, this requires programmers to make experiments explicitly.
+They need to use layers for their adaptions, enable the layers for test runs, and move code from layers back to the base system when experiments are successes and they want to maintain the original modularization of the system.
+COP also allows only behavior variations, while our approach recognizes changes to both state and behavior.
 
 
 \subsection{ChangeBoxes}
 
-ChangeBoxes~\cite{Denker2007EEC} is an approach to capture and scope changes to a system in first-class entities, also called ChangeBoxes.
-A ChangeBox can embody changes to multiple elements of a software system such as adding a field, removing a method, or renaming a class.
-The approach does not constrain how changes get grouped into ChangeBoxes, but every change to the system has be encapsulated in a ChangeBox.
-Each ChangeBox can be used for deriving the set of changes for the scope of a running process.
+ChangeBoxes~\cite{Denker2007EEC} is an approach to capturing and scoping changes to a system using first-class entities, called ChangeBoxes.
+A ChangeBox can contain changes to multiple elements of a software system such as adding a field, removing a method, or renaming a class.
+The approach does not constrain how changes get grouped into ChangeBoxes, but every change has to be encapsulated by a ChangeBox.
+Each ChangeBox can be used for setting the set of active changes for the scope of a running process.
 This way, multiple running processes can view the system differently by using different ChangeBoxes.
-ChangeBoxes can have ancestor relationships and merge changes from multiple ancestors.
-Using these ancestor relations, ChangeBoxes can be used to review the evolution of systems and to undo changes.
+ChangeBoxes can have ancestor relations and merge changes from multiple ancestors.
+With the ancestor relations, ChangeBoxes can be used to review the evolution of systems and to undo changes.
 
-The ChangeBoxes approach is similar to our approach as changes to the system are grouped into versions and these can be used to run code in different versions of the runtime.
-Further, both solutions are also comparable in that there is no definite notion in how exactly changes are to be grouped.
-Our object versioning approach, however, is intended to be used to group changes associated with developer actions and a simple global undo/redo mechanism to undo inappropriate actions is built into our solution.
+The ChangeBoxes approach is similar to our approach as changes to the system are grouped into first-class objects and these can be used to run code in different versions of the runtime.
+Furthermore, with both solutions there is no definite notion in how changes are grouped into versions.
+Our object versioning approach is intended to be used to group changes associated with developer actions and a simple global undo/redo mechanism to undo inappropriate actions is built into our solution.
 To actually undo changes ChangeBoxes, in contrast, is rather tedious~\cite{Steinert2012COE}.
-Furthermore, ChangeBoxes recognizes only changes to the static elements of a software system such as packages, classes, methods, and fields, while object versioning allows to also version the state and behavior of objects.
+Moreover, ChangeBoxes recognizes only changes to the static elements of a software system such as packages, the structure of classes, and methods.
+Object versioning, in contrast, preserves the state and behavior of objects.
 
 
 \subsection{Practical Object-oriented Back-in-Time Debugging}
 
-Practical Object-oriented Back-in-Time Debugging~\cite{Lienhard2008POB} is a logging-based approach to back-in-time debugging that uses alternative references to preserve the history of each object.
-These alternative references, called Aliases, are actually objects, part of the application memory, and contain information about the history and origin of the values stored in objects.
-Aliases are not passed around, but instead are created for each read or write of an object field or an array and for each reference passed as parameter.
-Each of these aliases refers to an actual value, but also to another alias---its predecessor---representing the value previously stored by a field and to the alias that was used to create this new alias from---its origin.
-An alias and its origin both refer to the same value, but provide different information as their creation context, which always is a particular method.
+Practical Object-oriented Back-in-Time Debugging~\cite{Lienhard2008POB} is a logging-based approach to back-in-time debugging that uses alternative references to preserve the history of objects.
+These alternative references, called \emph{Aliases}, are actually objects and part of the application memory.
+These objects contain information about the history and origin of the values stored in fields.
+Aliases are not passed around, but instead are created for each read or write of a field and for each value passed as parameter.
+Each alias refers to an actual value, but also to another alias---its \emph{predecessor}---representing the value previously stored by a field and to the alias that was used to create this new alias from---its \emph{origin}.
+An alias and its origin both refer to the same value, but provide different information on their creation context, which is a particular method.
 That is, the origin link can be used to follow the object's ``flow'' through the program.
-Each alias also records a timestamp when created and with this information the predecessor link can be followed to read a value as it was at a particular moment in time.
+Each alias also records a timestamp on its creation and with this information the predecessor link can be followed to read a value as it was at a particular moment in time.
 
-In comparison, there is not just one alias object for every mutable object, but as many as there are references to that object, whereas there is always only one version-aware reference for every mutable object with our approach.
-Further, an alias object has time-stamped predecessors for the values stored in a field, while our version-aware references hold versions of an object that correspond to particular discrete versions of the runtime.
-That is, with the presented back-in-time debugging solution its possible to recreate all states the system was in and also retrace the flow of all values, while our system stores only particular meaningful versions that, for example, might correspond to developer actions.
-Another difference lies in the expected usage extent: the alias references are intended to be used only for explicit debugging sessions, while our version-aware reference are intended to be used always.
+In comparison, with aliases it is possible to recreate all states the system was in and also retrace the flow of all values, while our system stores only particular versions.
+Such versions could, for example, correspond to programmer interactions, so that programmers can undo the effects of particular actions easily.
+Another difference between object versioning with version-aware references and reverse engineering with aliases is the existence of modes.The alias references are intended to be used in explicit debugging sessions, while our version-aware reference are intended to be used at all times.
+
+% there is not just one alias object for every mutable object, but as many as there are references to that object, whereas there is always only one version-aware reference for every mutable object with our approach.
+% Further, an alias object has time-stamped predecessors for the values stored in a field, while our version-aware references hold versions of an object that correspond to particular discrete versions of the runtime.
+
+
+
 
