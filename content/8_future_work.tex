@@ -10,7 +10,7 @@ As described in this chapter, we want to improve the performance of our implemen
 
 Our current implementation reduces the speed of JavaScript code execution and, with that, also the responsiveness of many of the tools of the Lively Kernel considerably, as presented in Section~\ref{sec:DISCUSSION:2}.
 Our proxy-based version-aware references select dynamically to which version of an object any access should be delegated.
-Therefore, even for a single version of the runtime and, thus, only one version for each object, there is a constant overhead for resolving the version-aware references.
+Therefore, even for a single version of the system and, thus, only one version for each object, there is a constant overhead for resolving the version-aware references.
 Thus, when we want to speed-up the execution of JavaScript code, we need to reduce the time it takes to resolve a version-aware references, which is currently done by having proxies intercept and forward access to the correct target.
 
 We use the Direct Proxies that the ECMAScript 6 standard will add to the JavaScript language.
@@ -109,5 +109,5 @@ Similarly, they might want to try an alternative idea without loosing all versio
 That is, they might want to create a branch of changes as an alternative to the main line of versions.
 Further, besides moving freely between versions of the runtime as well as creating and deleting lines of history, they also probably will want to recover particular state from particular versions.
 Such state could be a particular version of a graphical application part they are working on, but also could be the state of a tool such as a code browser currently opened on a specific source code module.
-For this, we want to support developers in copying particular state or whole objects from one version of the runtime to another.
+For this, we want to support developers in copying particular state or whole objects from one version of the system to another.
 
