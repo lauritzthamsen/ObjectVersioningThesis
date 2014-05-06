@@ -22,7 +22,7 @@ There are three different approaches to a better performance of the system when 
 \begin{description}
     \item[Faster proxies] The proxies are not yet fully supported by browsers and it seems reasonable to expect better performance in the future.
     \item[Fewer proxies] Proxies could be used only for system parts for which state should be versioned.
-    \item[Alternative proxies] Instead of using the JavaScript proxies, similar and currently faster indirections could be provided by JavaScript functions and further source transformations.
+    \item[An alternative to proxies] Instead of using the JavaScript proxies, similar and currently faster indirections could be provided by JavaScript functions and further source transformations.
 \end{description}
 
 \paragraph{Faster Proxies}
@@ -38,7 +38,7 @@ These objects are only necessary during parsing, which often only needs to retur
 In fact, given JavaScript's single-threaded and cooperative execution it would not even be possible to switch the version during parsing with the current implementation.
 So, there wont, for example, be multiple versions for any of the objects only created as intermediate results of a parser, rendering version-aware reference to such temporary objects irrelevant, while they, however, currently still impede performance significantly.
 
-\paragraph{Alternative Proxies}
+\paragraph{An Alternative to Proxies}
 Equivalent indirections as provided with the proxy handler traps can be significantly faster when provided manually through custom JavaScript functions and source transformations, as indicated in Section~\ref{sec:DISCUSSION:2}.
 This suggests an alternative to using the Direct Proxies.
 We could still use objects as stand-ins for the many versions of an object, but implement the delegation behavior currently provided in proxy traps with ordinary JavaScript functions, which we could use consistently through further source transformations.\\
