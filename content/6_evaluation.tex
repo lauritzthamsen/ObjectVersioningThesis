@@ -165,13 +165,13 @@ Although we expect the memory usage for versions to be highly dependent on the d
 
 \paragraph{Method}
 % what?
-To measure how much memory is required for preserving versions of the runtime state, we measured the memory consumed at three different moments in a simple scenario, which are highlighted as \textcircled{1}, \textcircled{2}, and \textcircled{3} in Figure~\ref{fig:MemoryOverheadForVersions}.
+To measure how much memory is required for preserving versions of the runtime state, we measured the memory consumed at three different moments in a simple scenario, which are highlighted as \circnum{1}, \circnum{2}, and \circnum{3} in Figure~\ref{fig:MemoryOverheadForVersions}.
 The memory measured is not limited to the memory required for versions, but is instead the memory used by the entire JavaScript runtime.
 In particular, we did the following:
 \begin{enumerate}
-    \item We measured the memory consumed for the state \textcircled{1} and then commited the version of the runtime.
-    \item We changed the state to be state \textcircled{2}, measured the memory again, and commited that version.
-    \item We changed the state to be state \textcircled{3} and measured the memory again.
+    \item We measured the memory consumed for the state \circnum{1} and then commited the version of the runtime.
+    \item We changed the state to be state \circnum{2}, measured the memory again, and commited that version.
+    \item We changed the state to be state \circnum{3} and measured the memory again.
 \end{enumerate}
 
 \begin{figure}[h!]
@@ -189,11 +189,11 @@ That is, in this example, the space required for preserving the two states of th
 \paragraph{Discussion}
 Our implementation does not copy all objects for each version, but only creates copies when objects subsequentely change, effectively storing only the differences between runtime versions.
 Therefore, the memory required for preserving versions of the runtime depends on how objects change compared to the predecessor version.
-Except for not visible objects created due to mouse interactions, the state \textcircled{2} consists of the same objects as state \textcircled{1}, but holds multiple versions of the state of the involed morphs and, therefore, the memory footprint increases, but only slightly.
+Except for not visible objects created due to mouse interactions, the state \circnum{2} consists of the same objects as state \circnum{1}, but holds multiple versions of the state of the involed morphs and, therefore, the memory footprint increases, but only slightly.
 The memory required for the entire JavaScript runtime---not only for preserving versions---does not always increase as there are also temporary objects that are not preserved with any version.
 Such temporary objects include the state of JavaScript objects that represent HTML document elements.
 These objects can be derived from preserved morph states and, thus, do not have to be preserved.
-For this reason, it does not seem odd that state \textcircled{3} requires less memory than state \textcircled{2}, even though from the third state both previous states can be re-established.\\
+For this reason, it does not seem odd that state \circnum{3} requires less memory than state \circnum{2}, even though from the third state both previous states can be re-established.\\
 \emph{In summary}, the memory overhead for preserving different versions of the runtime does not increase exactly linearly with the number of versions and does not only depend on how many objects are part of the versioned states, but instead highly depends on the differences between preserved versions.
 
 
