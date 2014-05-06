@@ -1,48 +1,51 @@
 \chapter{Future Work} \label{chapter:FUTURE_WORK}
 
-In the future, we want to make our solution more practically useful for developers.
-As described in this chapter, we want to improve the performance of our implementation and provide appropriate tool support to developers.
+In the future, we would like our solution to become more practically useful for developers.
+As described in this chapter, this could be achieved by improving the performance of our implementation and providing tool support.
 
-\todo{once the other chapters are written, i need to check the references of this chapter}
+\section{Improving the Performance} \label{sec:FUTURE_WORK:1}
 
+Our current implementation introduces a significant overhead to JavaScript execution as presented in Section~\ref{sec:EVALUATION:4}.
+This also reduces the responsiveness of many Lively Kernel tools considerably.
 
-\section{Improving the Performance of Our Implementation} \label{sec:FUTURE_WORK:1}
+Our proxy-based version-aware references trap read and write access and forward to the correct versions.
+The correct versions are selected dynamically on access.
+Thus, even for a single version of the system and only one version for each object, there is a constant overhead for resolving the version-aware references.
+When we want to speed-up the execution of JavaScript code, we need to reduce the time it takes to resolve version-aware references.
 
-Our current implementation reduces the speed of JavaScript code execution and, with that, also the responsiveness of many of the tools of the Lively Kernel considerably, as presented in Section~\ref{sec:DISCUSSION:2}.
-Our proxy-based version-aware references select dynamically to which version of an object any access should be delegated.
-Therefore, even for a single version of the system and, thus, only one version for each object, there is a constant overhead for resolving the version-aware references.
-Thus, when we want to speed-up the execution of JavaScript code, we need to reduce the time it takes to resolve a version-aware references, which is currently done by having proxies intercept and forward access to the correct target.
+Our implementation uses the Direct Proxies that the ECMAScript 6 standard will add to the JavaScript language.
+As discussed in Section~\ref{sec:EVALUATION:4}, our specific proxy behavior---delegate to a changing version of an essentially unrelated object---is currently only an order of magnitude slower than the default behavior---delegate the access unchanged to the proxy's constant target.
+A slowdown of two orders of magnitude is introduced just by using proxies, independent of any version-aware behavior.
 
-We use the Direct Proxies that the ECMAScript 6 standard will add to the JavaScript language.
-As discussed in Section~\ref{sec:DISCUSSION:2}, our specific proxy behavior---delegate to a changing version of an essentially unrelated object---is currently only an order of magnitude slower than the default behavior---delegate the access unchanged to the proxy's constant target.
-Two orders of magnitude are introduced just by using proxies, independent of any version-awareness.
-
-There are three different approaches to a better performance of the system when version-aware references are used:
+There are three different approaches to improving the performance of our implementation of version-aware references:
 
 \begin{description}
-    \item[Faster proxies] The proxies are not yet fully supported by browsers and it seems reasonable to expect better performance in the future.
+    \item[Faster proxies] The proxies are not yet fully supported by browsers and we expect better performance in the future.
     \item[Fewer proxies] Proxies could be used only for system parts for which state should be versioned.
-    \item[An alternative to proxies] Instead of using the JavaScript proxies, similar and currently faster indirections could be provided by JavaScript functions and further source transformations.
+    \item[An alternative to proxies] Instead of using the JavaScript proxies, similar custom indirections could be provided using JavaScript functions and source transformations.
 \end{description}
 
 \paragraph{Faster Proxies}
-At the time of writing, the ECMAScript 6 specification is still only a draft.
-We are able to use these proxies already because the Chrome browser implements an earlier, now deprecated specification of the proxies as an experimental feature and because there is a library that provides the Direct Proxies on top of the deprecated style of proxies, as also discussed in Section~\ref{sec:IMPLEMENTATION:1}.
-However, given that the proxies are marked as experimental feature in Chrome and currently partly implemented as JavaScript library---instead by the JavaScript engine--- as well as on top of the deprecated variant, it seems reasonable to expect performance gains once ECMAScript 6 gets finalized and implemented by the JavaScript engines.
+At the time of writing, the ECMAScript 6 specification that includes the Direct Proxies is only a draft.
+We are able to use these proxies already because Chrome and Firefox implement earlier proposals of the proxies and a library provides the Direct Proxies on top of these, as discussed in Section~\ref{sec:IMPLEMENTATION:4}.
+However, given that the Direct Proxies are marked as experimental feature in Chrome and currently partly implemented by JavaScript library instead by the JavaScript engines, it seems reasonable to expect performance improvements once ECMAScript 6 is finalized and implemented completely by the JavaScript engines.
 
 \paragraph{Fewer Proxies}
-We could use proxies less deliberately and especially not for objects for which we wont have different versions anyways.
-One example for a system part that would not need to version objects would be one of the Lively Kernel's parsers.
-The particular parser, based on the JavaScript implementation of OMeta~\cite{Warth2007OOL}, creates many objects while parsing code.
-These objects are only necessary during parsing, which often only needs to return a success or failure.
-In fact, given JavaScript's single-threaded and cooperative execution it would not even be possible to switch the version during parsing with the current implementation.
-So, there wont, for example, be multiple versions for any of the objects only created as intermediate results of a parser, rendering version-aware reference to such temporary objects irrelevant, while they, however, currently still impede performance significantly.
+We could use proxies less deliberately.
+Objects for which always only a single version exist are not required to be proxied.
+One example for a group of objects that do not need to be versioned are the intermediate results of the Lively Kernel's OMeta~\cite{Warth2007OOL} parser.
+The parser creates many objects while parsing code.
+These objects are only necessary during parsing, which in the end often only needs to return a success or failure.
+In fact, given JavaScript's single-threaded and cooperative execution it would not even be possible to switch the system version during parsing.
+So, there will be no previous versions for any of the objects only created as intermediate results of the parser.
+The version-aware references to such temporary objects, however, still impede performance significantly.
 
 \paragraph{An Alternative to Proxies}
-Equivalent indirections as provided with the proxy handler traps can be significantly faster when provided manually through custom JavaScript functions and source transformations, as indicated in Section~\ref{sec:DISCUSSION:2}.
-This suggests an alternative to using the Direct Proxies.
-We could still use objects as stand-ins for the many versions of an object, but implement the delegation behavior currently provided in proxy traps with ordinary JavaScript functions, which we could use consistently through further source transformations.\\
-These source transformations could look similar to the following transformation:
+Equivalent indirections as provided by the proxies can be faster when provided manually through custom JavaScript functions and source transformations, as discussed in Section~\ref{sec:EVALUATION:4}.
+This suggests an alternative to using proxies.
+We could still use objects as stand-ins for the versions of an object, but implement the delegation behavior with ordinary JavaScript functions.
+These functions could be inserted automatically by source transformations.
+The source transformations could look similar to the following transformation:
 
 \begin{center}
     \begin{tabular}{ lll }
@@ -50,9 +53,9 @@ These source transformations could look similar to the following transformation:
     \end{tabular}
 \end{center}
 
-From these three approaches, implementing an alternative to the ECMAScript 6 proxies promises the best short-term results.
-Using proxies only for parts of the system that should be versioned would only be a sufficient optimization if these parts would not require a speedup, which they, however, currently do.
-Waiting for faster proxy implementations in the JavaScript engine might work, but is no short-term solution as there is no official due date for the ECMAScript 6 specification yet.
+From these three approaches, using an alternative to proxies promises the fastest results.
+Using proxies only for parts of the system that should be versioned would only be sufficient if these parts would not require performance improvements, which they, however, currently do.
+Waiting for faster proxy implementations in the JavaScript engine might work, but is no short-term solution as an release date for the ECMAScript 6 specification has not yet been announced.
 
 
 \section{Providing Recovery Tools}

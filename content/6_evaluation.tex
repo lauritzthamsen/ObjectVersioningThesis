@@ -9,7 +9,7 @@ Regarding practicability, we evaluated the impact of proxy-based version-aware r
 For the tests, we used a standard benchmark suite and the Lively Kernel.
 
 
-\section{Test Setup}
+\section{Test Setup} \label{sec:EVALUATION:1}
 
 We tested our implementation with a standard JavaScript benchmark suite, the Lively Kernel, and a particular machine configuration, as described in this section.
 
@@ -62,7 +62,7 @@ We used Chrome for all experiments as the Lively Kernel currently works best in 
 
 
 
-\section{Functionality: Versions of the Lively Kernel Runtime} \label{sec:DISCUSSION:1}
+\section{Functionality: Versions of the Lively Kernel Runtime} \label{sec:EVALUATION:2}
 
 We tested whether the version-aware references forward to particular versions correctly both with benchmarks and with the Lively Kernel, as described in this section, and did this continuously during the implementation of our approach.
 
@@ -119,7 +119,7 @@ Further, the current implementation already allows to use many features and re-e
 
 
 
-\section{Practicability: Additonal Memory Consumption} \label{sec:DISCUSSION:2}
+\section{Practicability: Additonal Memory Consumption} \label{sec:EVALUATION:3}
 
 We measured the memory overhead of just the version-aware references, without preserving any version, and also present the memory used when multiple versions of a small example scenario are preserved.
 
@@ -198,7 +198,7 @@ For this reason, it does not seem odd that state \circnum{3} requires less memor
 
 
 
-\section{Practicability: Impact on Execution Speed} \label{sec:DISCUSSION:3}
+\section{Practicability: Impact on Execution Speed} \label{sec:EVALUATION:4}
 
 We measured the overhead the proxies impose on the execution of benchmarks and certain functionality of the Lively Kernel.
 A discussion of the results follows at the end of this section.
