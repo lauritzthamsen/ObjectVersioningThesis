@@ -4,17 +4,17 @@
 This work introduced an approach to preserving access to previous states of programming systems such as the Lively Kernel.
 The approach is based on version-aware references.
 These references manage different versions of objects transparently.
-They resolve to one of multiple versions of objects and to which ones can be easily changed.
+They resolve to one of multiple versions of objects and to which ones can easily be changed.
 Thereby, different preserved states can be re-established.
 
 We presented a design for our approach that uses proxies for version-aware references.
 Instead of actually using alternative references, ordinary references refer to proxies and proxies forward access transparently to the right versions.
 The design allows to implement version-aware references without any adaptions to existing execution engines---neither for alternative references nor for garbage collection of versions.\\
-For each new object that is created, a proxy is created and returned instead of the object.
+For each new object that is created, a proxy is created and returned instead of the new object.
 Thus, references to proxies are passed around and all access goes through the proxies.
 Moreover, only the proxies refer to the versions of an object.
 So, the versions of an object are reclaimed together with the object's proxy by the ordinary garbage collector.\\
-Returning new proxies for new objects is achieved automatically using source transformations.
+Returning new proxies for new objects is achieved using source transformations.
 Programs are transformed when loaded and, thus, do not have to be adapted manually.
 
 % Significance, Practical applications
@@ -37,4 +37,4 @@ In addition, the system should preserve relevant versions automatically and supp
 % Summary sentence
 Nevertheless, the presented solution already enables programmers to preserve and re-establish versions of the Lively Kernel.
 Programmers can commit versions of the system and, subsequentely, undo and redo changes made in-between those versions.
-That is, with our solution, the Lively Kernel provides not only tools to making changes directly to objects, but also tools to recovering previous states when such changes turn out to be inappropriate.
+That is, with our solution, the Lively Kernel provides not only tools for making changes directly but also tools for undoing changes when necessary.
