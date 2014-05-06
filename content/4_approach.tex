@@ -36,24 +36,23 @@ To be able to recover previous system states after making changes, the previous 
 For this reason, with object versioning, versions of objects are preserved, while changes are made to new versions of the objects.
 A version of an object is, in the simplest case, a full copy of an object.
 When the \lstinline{address} object is changed in version \emph{v2} of the system, the system does not change the orginal \lstinline{address} object but the copy.
-Subsequentely, there are two \lstinline{address} objects in version \emph{v2}, as shown in Figure~\ref{fig:VersionPreserved}.
-One of the two versions holds the original state, while the other holds the state that the object has in version \emph{v2} of the system.
 
-\begin{figure}[h]
+\begin{figure}[h!]
     \centering
     \includegraphics[width=0.7\textwidth]{figures/4_approach/3_previousVersionPreserved.pdf}
     \caption{Preserving the previous version of the \emph{address} object.}
     \label{fig:VersionPreserved}
 \end{figure}
 
-For the single \lstinline{address} object, there are now two versions of the object.
-These versions hold no information that indicates to which version of the system they belong to.
+There are now two versions of the \lstinline{address} objects in version \emph{v2}, as shown in Figure~\ref{fig:VersionPreserved}.
+One of the objects holds the original state, while the other holds the state that the object should have in version \emph{v2} of the system.
+The two objects hold no information that indicates to which version of the system they belong to.
 They also store no information that one object is a copy of the other one.
-At the same time, references to objects remain unchanged after copying objects.
-For example, there could have been a \lstinline{person} object with an \lstinline{address} property referring to the \lstinline{address} object.
+At the same time, references to objects remain unchanged.
+For example, there could have been a \lstinline{person} object referring to the \lstinline{address} object.
 This reference would still be referring to the original \lstinline{address} object, even in version \emph{v2} of the system, as shown in Figure~\ref{fig:ReferenceFixedToPreviousVersion}.
 
-\begin{figure}[h]
+\begin{figure}[h!]
     \centering
     \includegraphics[width=\textwidth]{figures/4_approach/4_referenceToPreviousVersion.pdf}
     \caption{A reference refers to the previous version of the \emph{address} object.}
