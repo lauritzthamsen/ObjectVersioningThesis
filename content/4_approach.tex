@@ -161,17 +161,15 @@ Before such writes the previous object states continue to reflect the current st
 
 \section{Using Proxies for Version-aware References} \label{sec:APPROACH:2}
 
-For a concrete solution for the Lively Kernel, we use proxies for version-aware references.
-The proxies stand-in for multiple versions, intercept all access, and forward to the correct version.
-Instead of actually providing \emph{alternative references}, proxies are referred to by \emph{ordinary references} and transparently delegate to versions. 
+We used proxies to implement version-aware references in JavaScript for the Lively Kernel.
+Instead of actually requiring \emph{alternative references}, proxies are referred to by \emph{ordinary references} and transparently delegate to versions. 
+This way, proxies allow a language-level implementation of version-aware references that works with existing JavaScript engines.
 
-Proxies allow a language-level solution for alternative references.
-That is, we implemented version-aware references without making changes to a JavaScript engine.
-Therefore, our solution can work in many engines without adapting any of the many different JavaScript engines in use today.
-Additionally, even though an implementation at the level of the virtual machine would probably have performance advantages, using proxies for a first implementation is considerably less implementation effort.
+% Additionally, even though an implementation at the level of the virtual machine would probably have performance advantages, using proxies for a first implementation is considerably less implementation effort.
 
+% Proxies stand-in for multiple versions, intercept all access, and forward to the correct version.
 
-\subsubsection{Proxies as Alternative, Version-aware References}
+\subsubsection{Proxies as Version-aware References}
 
 Figure~\ref{fig:ProxyBasedVersionAwareReference} exemplifies how a proxy implements a version-aware reference in our solution.
 The proxy connects a \lstinline{person} object with the two versions of its \lstinline{address} property.
@@ -185,9 +183,9 @@ The proxy in turn knows which versions are available for the \lstinline{address}
     \label{fig:ProxyBasedVersionAwareReference}
 \end{figure}
 
-When the \lstinline{address} property of the \lstinline{person} object is accessed, the proxy needs to forward the access transparently to a version.
+When the \lstinline{address} property of the \lstinline{person} object is accessed, the proxy forwards the access transparently to a version.
 For example, in version \emph{v2} of the system as indicated by Figure~\ref{fig:ProxyBasedVersionAwareReference}, even if the \lstinline{address} property is a proxy, reading the proxy's \lstinline{city} property has to return the string \lstinline{'Berlin'} .
-That is, given \lstinline{aPerson} refers to the \lstinline{person} object, evaluating the following statement needs to return true in version \emph{v2}:
+Given \lstinline{aPerson} refers to the \lstinline{person} object, evaluating the following code snippet needs to return \lstinline{true} in version \emph{v2}:
 
 \iffalse
 \begin{verbatim}\fi
@@ -197,7 +195,7 @@ aPerson.address.city === 'Berlin'
 \iffalse
 \end{verbatim}\fi
 
-Note that the statement does not include any code that reflects any versions.
+The statement does not include any version information.
 In particular, it does not read a specific version from the table of available versions.
 Instead, the proxies forward the property read to a specific version transparently.
 
@@ -208,14 +206,17 @@ For this, the proxies fulfill three responsibilities:
     \item They delegate object access transparently to a chosen version.
 \end{enumerate}
 
-The proxies used for the implementation of this design are proxies that can intercept all kinds of access and forward it arbitrarily.
-Such proxies, also referred to as \emph{virtual objects}~\cite{VanCutsem2010PDP}, do not stand-in for a specific object, but can forward access to any object.
+The proxies used for the implementation of this design are proxies that can intercept and forward read and write access.
+Such proxies, also referred to as \emph{virtual objects}~\cite{VanCutsem2010PDP}, do not stand-in for specific objects, but can forward access to any object.
+
+
+\subsubsection{Accessing Objects Consistently Through Proxies}
 
 Besides having proxies that can intercept and forward access and fullfill the stated responsibilities, the proxies also need to be used consistently.
-Ordinary references that usually refer directly to an object now need to refer to the proxy that stands-in for the versions of the object instead.
+Ordinary references that usually refer to an object now need to refer to the proxy that stands-in for the object instead.
 
-To use proxies consistently for all mutable objects, we create and return proxies for new objects right when the objects are created.
-That is, all expressions that create new objects need to return proxies for those objects instead.
+To use proxies consistently for all mutable objects, we create and return proxies for all new objects.
+All expressions that create new objects return proxies for those objects instead.
 For this, we transform the code before it gets executed.
 These source transformations wrap object literals and constructor functions into proxies.
 We also have proxies always return proxies for return values.
@@ -232,15 +233,15 @@ For example, in the following code snippet, there would temporarily exist a vers
 \iffalse
 \begin{verbatim}\fi
 \begin{code}[lst:example]{}{float}
-    var person = {name: "Lauritz"};
+    var person = {name: "Joe"};
     
     \\ [preserve first version]
     
-    person.currentAddress = {street: "Friedrichstrasse",
-                             number: "112b",
-                             city: "Berlin"};
+    person.address = {street: "Kantstr.",
+                      number: "148",
+                      city: "Berlin"};
     
-    delete person.currentAddress;
+    delete person.address;
     
     \\ [preserve second version]
 \end{code}
@@ -253,17 +254,15 @@ The reference to the proxy gets, however, gets deleted before a version of the p
 
 \subsubsection{Versions of the System}
 
-Besides delegating to the correct version, proxies also create new versions of an object.
-For both proxies use a \emph{version of the system}.
+Proxies delegate to and create versions of an objet using a \emph{version of the system}.
 
-The version of the system is an object indicating the version the system is in.
-It has a \emph{version identifier} and can have a link to a \emph{predecessor} version and a \emph{successor} version.
-Figure~\ref{fig:SystemVersions} shows an example with three versions that are related in this way.
+A version of the system is an object that has a \emph{version identifier}, a \emph{predecessor} version, and a \emph{successor} version.
+Figure~\ref{fig:SystemVersions} shows an example with three system versions.
 In the example, version \emph{v2} is the current version of the system.
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=\textwidth]{figures/4_approach/8_systemVersions.pdf}
+    \includegraphics[width=0.58\textwidth]{figures/4_approach/8_systemVersions.pdf}
     \caption{Four objects representing four linear versions of the system.}
     \label{fig:SystemVersions}
 \end{figure}
@@ -276,23 +275,23 @@ The current version of the system is \emph{v2} and, therefore, the version the p
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=\textwidth]{figures/4_approach/9_proxyUsesSystemVersion.pdf}
+    \includegraphics[width=0.92\textwidth]{figures/4_approach/9_proxyUsesSystemVersion.pdf}
     \caption{A proxy with two versions of an object in context of the versions of the system.}
     \label{fig:ProxyUseSystemVersion}
 \end{figure}
 
 As long as the current version stays the same, the proxies delegate all access to the corresponding version of the object.
-That is, a version of an object is changed only as long as its version matches the current version of the system.
+Therefore, a version of an object is changed only when it is the version for the current version of the system.
 
-\emph{To re-establish a previous version}, the current system version has just to be set to its predecessor.
-In that case, the proxies forward access to previous versions of the objects.
+\emph{To re-establish a previous version}, the current system version has to be set to its predecessor.
+In that case, proxies forward access to previous versions of the objects.
 
-\emph{To preserve a version}, the current system version also just has to be another version.
+\emph{To preserve a version}, the current system version has to be set to another version.
 The proxies forward access to objects of the other version or, when no such version of the object exist, create a new version.
 
-A situation, in which a new version of an object has to be created, is shown in Figure~\ref{fig:NewVersion}.
-Given the previous example situation, when in a new version \emph{v3} of the system, a proxy receives write access but only has a \emph{v1} and a \emph{v2} version for its object, the proxy creates a new version of the object.
-For the new version, the proxy copies the most recent version of the object.
+A situation in which a new version of an object is created is shown in Figure~\ref{fig:NewVersion}.
+In a new version \emph{v3} of the system, the proxy receives write access but has no version of its object for \emph{v3}.
+It, therefore, copies the most recent version of the object and forwards the write access to the new version.
 
 \begin{figure}[h]
     \centering
@@ -304,26 +303,38 @@ For the new version, the proxy copies the most recent version of the object.
 New versions are only necessary when a proxy is about to delegate write access.
 As long as an object is only read, the proxy can report values from a previous version as the old version of the object still reflects the current state.
 
-\paragraph{Discussion}
+
+\subsubsection{Discussion}
+
 The current design allows to preserve and re-establish versions of the system.
-Without further components, the versions of objects only exist in memory and are not stored to disk.
-Our current design also does not allow multiple predecessors or multiple successors and, thus, does not support branches, yet.
-It further allows to change previously preserved versions of the system.
-That is, it allows to rewrite the history.
+Without further components, however, these versions only exist in memory and are not stored to disk.
+
+Our current design does not support multiple predecessors or successors.
+
+Another limitation of the current design is that the state of previous versions can be changed.
 Copies of objects are not affected by changes to previous versions, but changes to object versions that have not been copied shine through in subsequent versions of the system.
+
 In the future, the versioning might allow for branches and merging.
 Changes to previous states could then be handled in branches that programmers may or may not merge into future versions.
 
 
 
-% TODO: how are versions preserved: global versions + copy-on-write
-
-% versions are created.. by programmers or the system..
 
 
-% global version information: linear: versions with predecessors and successors, maybe with a figure..
 
-% % + FIGURE of the versions, haha!!
+
+
+
+
+
+
+
+
+
+% Vorsicht.. TEXT LEICHEN.. !!!!
+
+
+
 
 
 % The version also may have a predecessor and a successor.
@@ -363,23 +374,6 @@ Changes to previous states could then be handled in branches that programmers ma
 
 % the proxies represent multiple different versions of an object and do not delegate to any of those by default.
 % Instead, they choose one of potentially many versions of an object to delegate to dynamically.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-% Vorsicht.. TEXT LEICHEN.. !!!!
-
-
 
 
 
