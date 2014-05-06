@@ -1,14 +1,18 @@
 \chapter{Object Versioning} \label{chapter:APPROACH}
 
-This chapter introduces our approach to recovering development states of object-oriented programming systems that consists of objects.
-Our approach is based on alternative, version-aware references that manage versions of objects transparently.
-As a concrete solution for the Lively Kernel, we present a design based on using proxies for implementing the version-aware references.
+This chapter introduces our approach to recovering previous system states in an object-oriented programming system.
+The approach is based on alternative, version-aware references that manage versions of objects transparently.
+For the Lively Kernel, we present a design that uses proxies for implementing the version-aware references.
 
 
 \section{Version-aware References} \label{sec:APPROACH:1}
 
-The development state in a programming system such as the Lively Kernel consists of the state of objects.
-In different versions of the system, the available objects have different states. 
+In different versions of a system such as the Lively Kernel, the objects have different states. 
+
+\subsubsection{Versions of Objects}
+
+For example, an object could represent an address.
+The state of this \emph{address} object is shown in Figure~\ref{fig:SingleObject}.
 
 \begin{figure}[h]
     \centering
@@ -17,25 +21,23 @@ In different versions of the system, the available objects have different states
     \label{fig:SingleObject}
 \end{figure}
 
-For example, an object could represent an address.
-The state of such an \emph{address} object could be as shown in Figure~\ref{fig:SingleObject}.
-If the object now gets values for its \lstinline{city} and \lstinline{number} fields, the object's state would be changed.
-As the address object's state is part of the development state, changing the address object also changes the development state.
-If we call our first development state version \emph{v1} and the one after making changes to the object version \emph{v2}, the state of the address object is different for the two versions of the system, as shown in Figure~\ref{fig:ObjectChanged}.
+If the object gets values assigned to its \lstinline{city} and \lstinline{number} fields, the object's state is changed.
+As the address object's state is part of the system state, changing the address object changes the system state.
+If we call the initial state version \emph{v1} and the state after making changes to the object version \emph{v2}, the state of the address object is different for the two versions of the system, as shown in Figure~\ref{fig:ObjectChanged}.
 
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.7\textwidth]{figures/4_approach/2_objectChange.pdf}
-    \caption{Two versions of the same \emph{address} object in two versions of the system.}
+    \caption{Two versions of an \emph{address} object in two versions of the system.}
     \label{fig:ObjectChanged}
 \end{figure}
 
-To preserve the previous development state when making changes, the system needs to preserve the previous states of its objects.
+To be able to recover previous system states after making changes, the previous object states need to be accessible.
 For this reason, with object versioning, versions of objects are preserved, while changes are made to new versions of the objects.
-A version of an object is, in the simplest case, a full copy of an object---also an object.
-That is, when the address object is changed in version \emph{v2} of the system, the system does not change the orginal address object but a copy of it.
-Subsequentely, there are now two address objects in version \emph{v2}, as shown in Figure~\ref{fig:VersionPreserved}.
-One of these object versions holds the original state, while the other holds the state that the object has in version \emph{v2} of the system.
+A version of an object is, in the simplest case, a full copy of an object.
+When the \lstinline{address} object is changed in version \emph{v2} of the system, the system does not change the orginal \lstinline{address} object but the copy.
+Subsequentely, there are two \lstinline{address} objects in version \emph{v2}, as shown in Figure~\ref{fig:VersionPreserved}.
+One of the two versions holds the original state, while the other holds the state that the object has in version \emph{v2} of the system.
 
 \begin{figure}[h]
     \centering
@@ -44,12 +46,12 @@ One of these object versions holds the original state, while the other holds the
     \label{fig:VersionPreserved}
 \end{figure}
 
-For the single address object, there are now two versions of the object.
-These versions hold no knowledge to which version of the system they belong.
-They also store no indication that one of them is a copy of the other one.
-At the same time references to objects are not changed when simply copying an object.
-For example, there could have been a person object with an \lstinline{address} property referring to the address object.
-This reference will still be referring to the original address object, even in version \emph{v2} of the system, as shown in Figure~\ref{fig:ReferenceFixedToPreviousVersion}.
+For the single \lstinline{address} object, there are now two versions of the object.
+These versions hold no information that indicates to which version of the system they belong to.
+They also store no information that one object is a copy of the other one.
+At the same time, references to objects remain unchanged after copying objects.
+For example, there could have been a \lstinline{person} object with an \lstinline{address} property referring to the \lstinline{address} object.
+This reference would still be referring to the original \lstinline{address} object, even in version \emph{v2} of the system, as shown in Figure~\ref{fig:ReferenceFixedToPreviousVersion}.
 
 \begin{figure}[h]
     \centering
@@ -58,7 +60,7 @@ This reference will still be referring to the original address object, even in v
     \label{fig:ReferenceFixedToPreviousVersion}
 \end{figure}
 
-That is, even after adding values to the fields of the address object, the following statement would still return true when \lstinline{aPerson} is the person object:
+That is, even after adding values to the fields of the \lstinline{address} object, the following statement would still return true when \lstinline{aPerson} refers to the \lstinline{person} object:
 
 \iffalse
 \begin{verbatim}\fi
@@ -68,31 +70,35 @@ aPerson.address.city === null
 \iffalse
 \end{verbatim}\fi
 
+
+\subsubsection{Version-aware References}
+
 For this, our approach to object versioning uses \emph{version-aware references}.
-Version-aware references know the available versions for an object and always resolve to one of those.
-Moreover, version-aware references know which version of an object belongs to which version of the runtime.
-Using context information the version-aware references resolve to the correct version dynamically.
+Version-aware references know the available versions of an object and always resolve to one of those.
+Moreover, version-aware references know which version of an object belongs to which version of the system.
+Using context information, the version-aware references resolve to the correct version dynamically.
 That is, none of the versions is hard-wired to be the active version.
 
 Otherwise, the version-aware references behave like ordinary references.
-They can be assigned to variables, object fields, and also get passed around.
+They can be assigned to variables, object fields, and get passed around.
 
-When the \lstinline{person} object now holds a version-aware reference as its \lstinline{address} property, it can resolve the reference to the current version.
-That is, the version-aware reference knows both versions of the address object and would resolve to the second version in version \emph{v2} of the system, as depicted in Figure~\ref{fig:VersionAwareReferenceFollowingVersion2}.
+When the \lstinline{person} object now holds a version-aware reference as its \lstinline{address} property, it can resolve the reference to the correct version.
+The version-aware reference knows both versions of the address object.
+In version \emph{v2} of the system, it resolves to the second version of the object, as shown in Figure~\ref{fig:VersionAwareReferenceFollowingVersion2}.
 
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.5\textwidth]{figures/4_approach/5_versionAwareReferenceFollowingVersion2.pdf}
-    \caption{A version-aware reference relates the \emph{person} object to both versions of the \emph{address} object.}
+    \caption{A version-aware reference relates a \emph{person} object to both versions of its \emph{address} property.}
     \label{fig:VersionAwareReferenceFollowingVersion2}
 \end{figure}
 
 In the same way, multiple version-aware references can be resolved together as a path through a graph of versions.
-The version-aware references all choose versions of objects that belong to the same state and that form the object graph of a particular runtime state.
+The version-aware references all choose versions of objects that belong to the same system state and, thereby, form the object graph of that state.
 
-Figure~\ref{fig:ObjectGraphWithWithReferencesResolvedAlongVersion2} shows an object graph that incorporates the previous example.
-The previously presented \lstinline{person} object is here the \lstinline{CEO} property of a \lstinline{company} object.
-While the example currently indicates that version \emph{v2} is active, it also shows a version \emph{v1} and a version \emph{v2}.
+Figure~\ref{fig:ObjectGraphWithReferencesResolvedAlongVersion2} shows an object graph that incorporates the previous example.
+The previously presented \lstinline{person} object is here a \lstinline{company} object's \lstinline{CEO} property.
+While the example shows that version \emph{v2} is active, it also indicates a version \emph{v1} and a version \emph{v2} of the system.
 In version \emph{v1}, the company's CEO has incomplete address information.
 In version \emph{v3}, the company has a new CEO.
 
@@ -100,10 +106,18 @@ In version \emph{v3}, the company has a new CEO.
     \centering
     \includegraphics[width=\textwidth]{figures/4_approach/6_objectGraphWithVersonAwareReferences.pdf}
     \caption{Three versions of a \emph{company} object, in which objects are connected through version-aware references.}
-    \label{fig:ObjectGraphWithWithReferencesResolvedAlongVersion2}
+    \label{fig:ObjectGraphWithReferencesResolvedAlongVersion2}
 \end{figure}
 
-Given \lstinline{aCompany} refers to the company object, the following statement would refer to three different values depending on the current version of the system:
+
+\subsubsection{Versions of the System}
+
+To establish different versions of the system, the version-aware references have to resolve to different versions of objects.
+The version-aware references choose versions dynamically following a \emph{version identifier}.
+That is, only this version identifier has to be changed to have version-aware references resolve to other versions of objects.
+For example, to undo the changes made with version \emph{v2} of the system, the version identifier would need to be set to \emph{v1} again.
+
+Given the example situation from Figure~\ref{fig:ObjectGraphWithReferencesResolvedAlongVersion2} and given \lstinline{aCompany} refers to the \lstinline{company} object, the following statement would refer to three different values depending on the current version identifier:
 
 \iffalse
 \begin{verbatim}\fi
@@ -114,35 +128,32 @@ aCompany.CEO.address.number
 \end{verbatim}\fi
 
 Evaluating the statement in version \emph{v1} would return the value \lstinline{null}, in version \emph{v2} the value \lstinline{148}, and in version \emph{v3} the value \lstinline{112b}.
-That is, to change the version of the system only the version identifier---the context information used by version-aware references to decide to which version they should resolve---needs to be changed.
-To undo the changes to the address object and re-establish the previous development state, the version identifier would just need to be set to \emph{v1} again.
 
-This example also shows that the version identifiers can be related: the information that version \emph{v1} is the predecessor of version \emph{v2} can be used to resolve to the \emph{v1}-version of an object when no \emph{v2}-version is available.
+The information that version \emph{v1} is the predecessor of version \emph{v2} can be used to resolve to the \emph{v1}-version of an object when no \emph{v2}-version is available.
 This allows to only create new versions of objects when necessary.
 
 The version identifier needs to be accessible to version-aware references.
-It could be available globally, to have a single active version of the runtime, but could also be scoped more locally such as thread-local or in the dynamic scope of a code block.
-It should, however, not be changed while object relations in an object graph are transitively resolved.
-That is, the version-aware references involved in evaluating the previously presented example statement should be resolved together for one version identifier.
+It could be available globally, to have a single active version of the system, but could also be scoped more locally such as thread-local or in the dynamic scope of a code block.
+It should, however, not be changed while multiple version-aware references of an object graph are transitively resolved.
+That is, the version-aware references involved in evaluating the previous example statement should be resolved together using one version identifier.
 
-To be able to actualy re-establish development states with our approach now, two requirements need to be fullfilled:
+To be able to actually re-establish a particular version of the system with our approach now, two requirements need to be fullfilled:
 First, all mutable objects of the programming runtime need to be accessed via version-aware references.
-Second, the version of the runtime that should be re-established need to have been preserved.
-That is, the versions of objects reflecting the specific development state need to be available for the references.
+Second, the particular version of the system needs to be available.
+The version-aware references need to have access to the versions of objects that make up the particular system state.
 
-With our approach, specific versions can be preserved.
-That is, not every state is recoverable, but specific states need to be preserved.
+With our approach, not every state is recoverable, but specific states have to be preserved.
 Programmers could preserve versions explicitly or the programming system could do this implicitly.
 When the programming system automatically preserves versions, each programmer actions could implicitly create a new version of the system.
-This way, programmers can undo and redo the changes associated with specific and rememberable actions.
-Further, programmers could always undo actions, regardless of whether they preserved a version in anticipation of recovery needs or not.
+This way, programmers can undo and redo the changes of specific actions, regardless of whether they preserved a version in anticipation of recovery needs or not.
 
-\paragraph{Design Implications}
-The version-aware references allow to preserve versions and re-establish versions of the system without completely halting the program execution.
+\subsubsection{Discussion}
+
+The version-aware references allow to preserve and re-establish versions of the system without completely halting the program execution.
 That is, the presented approach is incremental, not a stop-the-world approach.\\
 First, the version-aware references resolve dynamically to particular versions based on context information.
 Only this context information has to be changed to have all references resolve to another version, without updating any of the version-aware references.\\
-Second, preserving a new version of the runtime also happens incrementally.
+Second, preserving a new version of the system also happens incrementally.
 Instead of saving versions of all objects that make up the runtime the moment the development state is to be preserved, new versions of objects can be created only when objects subsequentely change.
 Before such writes the previous object states continue to reflect the current state and can, thus, be read for following versions until written.
 
@@ -280,7 +291,7 @@ In that case, the proxies forward access to previous versions of the objects.
 \emph{To preserve a version}, the current system version also just has to be another version.
 The proxies forward access to objects of the other version or, when no such version of the object exist, create a new version.
 
-A situation, in which a new version of an object has to be created, is shown by Figure~\ref{fig:NewVersion}.
+A situation, in which a new version of an object has to be created, is shown in Figure~\ref{fig:NewVersion}.
 Given the previous example situation, when in a new version \emph{v3} of the system, a proxy receives write access but only has a \emph{v1} and a \emph{v2} version for its object, the proxy creates a new version of the object.
 For the new version, the proxy copies the most recent version of the object.
 
@@ -294,7 +305,7 @@ For the new version, the proxy copies the most recent version of the object.
 New versions are only necessary when a proxy is about to delegate write access.
 As long as an object is only read, the proxy can report values from a previous version as the old version of the object still reflects the current state.
 
-\paragraph{Design Implications}
+\paragraph{Discussion}
 The current design allows to preserve and re-establish versions of the system.
 Without further components, the versions of objects only exist in memory and are not stored to disk.
 Our current design also does not allow multiple predecessors or multiple successors and, thus, does not support branches, yet.
@@ -317,24 +328,24 @@ Changes to previous states could then be handled in branches that programmers ma
 
 
 % The version also may have a predecessor and a successor.
-% This way, for undo and redo the current version of the runtime only has to be set on the predecessor or the successor.
+% This way, for undo and redo the current version of the system only has to be set on the predecessor or the successor.
 % Preserving the predecessor also allows to preserve versions of objects only on writes as, when objects have not changed in versions, the first available previous version of the object can be read.
 % 
-% When a proxy is created for an object, the object is preserved as the version of the object that belongs to the current version of the runtime.
+% When a proxy is created for an object, the object is preserved as the version of the object that belongs to the current version of the system.
 % On writes, the proxies copy the latest version of the object and then do the write on the copy instead.
-% The copy gets marked with the identifier of the new version of the runtime.
-% When the proxies now choose a particular version of the object they stand-in for, they all use the version associated with the current version of the runtime or of a previous versions.
+% The copy gets marked with the identifier of the new version of the system.
+% When the proxies now choose a particular version of the object they stand-in for, they all use the version associated with the current version of the system or of a previous versions.
 
 % These information are used to decide to which particular versions of objects proxies are to delegate at any moment.
-% Given which version of the runtime is currently active, the proxies can choose the corresponding version of the object.
+% Given which version of the system is currently active, the proxies can choose the corresponding version of the object.
 % 
 % 
-% This way, the proxies transitively all delegate to objects that make up the state of the entire runtime as it was at a particular moment---when the version of the runtime was last active.
-% To preserve a development state, the version of the runtime just has to be changed.
+% This way, the proxies transitively all delegate to objects that make up the state of the entire runtime as it was at a particular moment---when the version of the system was last active.
+% To preserve a development state, the version of the system just has to be changed.
 % 
 % 
 % 
-% The version of the runtime can be global in JavaScript as JavaScript engines use only a single thread and cooperative scheduling.
+% The version of the system can be global in JavaScript as JavaScript engines use only a single thread and cooperative scheduling.
 % There is, therefore, no way to change which version of each object should be used while a path through an object graph is already partly resolved.
 
 
@@ -408,7 +419,7 @@ Changes to previous states could then be handled in branches that programmers ma
 % They are also referred to consistently instead of the object.
 % This allows to have and use particular versions of particular objects.
 % However, to enable programmers to undo and redo arbitrary changes to the entire development state, our solution needs to preserve and choose versions of all objects in a coordinated way and be able to establish particular versions of the entire runtime instead of just of single objects.
-% Our solution to this is declaring versions of the runtime and, then, annotating versions of objects with the version of the runtime they are part of.
+% Our solution to this is declaring versions of the runtime and, then, annotating versions of objects with the version of the system they are part of.
 
 
 
