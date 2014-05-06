@@ -10,7 +10,7 @@ To exemplify how developers work directly on objects in the Lively Kernel, we wi
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=\textwidth]{figures/3_motivation/1_magnifierButton.png}
+    \includegraphics[width=0.8\textwidth]{figures/3_motivation/1_magnifierButton.png}
     \caption{The Object Editor with its magnifier button highlighted with a red outline.}
     \label{fig:MagnifierButton}
 \end{figure}
@@ -45,7 +45,7 @@ Finally, the users adds the result of these manipulations, visible in \circnum{4
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=\textwidth]{figures/3_motivation/3_buildingTheButton.png}
+    \includegraphics[width=0.8\textwidth]{figures/3_motivation/3_buildingTheButton.png}
     \caption{Directly manipulating a button morph.}
     \label{fig:ButtonBuilding}
 \end{figure}
@@ -87,6 +87,13 @@ Besides these accidental changes, well-intentioned changes can turn out to be \e
     \item \textbf{Inappropriate changes through scripts}: The user could make a mistake in a workspace snippet that is intended to manipulate morph properties programmatically. Such a snippet can change any number of properties of many objects, so re-establishing a previous state would be a laborious task.
 \end{itemize}
 
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.7\textwidth]{figures/3_motivation/4_workspaceDoIt.png}
+    \caption{The button's \lstinline{onMouseMove} script with a text selection.}
+    \label{fig:onMouseOverScript}
+\end{figure}
+
 \paragraph{Explorative Script Evaluation}
 Potentially undesirable changes might also be introduced a programmer explores the behavior of objects by evaluating scripts.
 The Object Editor always manipulates the scripts of a specific object and programmers can evaluate code directly for that target object.
@@ -95,13 +102,6 @@ For example, the user could be working on the button's \lstinline{onMouseMove} s
 These lines, as shown in Figure~\ref{fig:onMouseOverScript}, would add the rectangle to the current target.
 Evaluating just the selecting line would do this without checking the conditions usually right before or setting the state right after these lines.
 Thus, evaluating this selection allows to test the highlighting behavior, but leaves the system in a state that it would normally not be in.
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.7\textwidth]{figures/3_motivation/4_workspaceDoIt.png}
-    \caption{The button's \lstinline{onMouseMove} script with a text selection.}
-    \label{fig:onMouseOverScript}
-\end{figure}
 
 \begin{figure}[h]
     \centering
