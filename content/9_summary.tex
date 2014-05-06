@@ -18,17 +18,17 @@ Returning new proxies for new objects is achieved automatically using source tra
 Programs are transformed when loaded and, thus, do not have to be adapted manually.
 
 % Significance, Practical applications
-We implemented and evaluated our approach to object versioning in JavaScript.
-Furthermore, we integrated the implementation with the Lively Kernel.
+We implemented our approach to object versioning in JavaScript for the Lively Kernel.
 It enables programmers to commit and re-establish versions of the system.
 For this, only a global version identifier has to be changed to switch versions.
-The proxies then choose and create versions of objects according to the global version identifier when they intercept access.
-This way, the costs for preserving and re-establishing versions is distributed accross object interactions and the implementation is optimized for fine-grained histories.
+The proxies then choose and create versions of objects accordingly when they intercept access.
+This way, the costs for preserving and re-establishing versions is distributed accross object interactions and the implementation is optimized for preserving access to fine-grained histories.
 
-Our evaluation shows that the version-aware references behave correctly in the situations tested.
-The memory overhead appears reasonable.
-The execution overhead, however, is not yet practical.
-For example, the execution of eight JavaScript benchmarks takes currently three orders of magnitude more time than usual with our version-aware references.
+We evaluated our implementation with benchmarks and the Lively Kernel.
+The version-aware references behave correctly in the situations tested.
+The memory overhead is reasonable.
+The execution overhead is, however, not yet practical.
+For example, the execution of eight JavaScript benchmarks takes currently three orders of magnitude more time with our version-aware references.
 
 % Future work
 In the future, the implementation could be improved by reducing the execution overhead.
@@ -37,36 +37,4 @@ In addition, the system should preserve relevant versions automatically and supp
 % Summary sentence
 Nevertheless, the presented solution already enables programmers to preserve and re-establish versions of the Lively Kernel.
 Programmers can commit versions of the system and, subsequentely, undo and redo changes made in-between those versions.
-That is, with our solution, the Lively Kernel provides not only tools to making changes directly to objects, but also tools to recovering previous states when changes turn out to be inappropriate.
-
-%  to use those versions to undo subsequent changes.
-% And, when changes turn out to be inappropriate, previously preserved versions can easily be re-establihed
-% 
-% New versions of objects are only created when necessary
-% 
-% 
-% can already be used to preserve access to previous states of the Lively Kernel system.
-% 
-% preserve fine-grained histories of the state of a programming system
-% 
-% efficient 
-% 
-% the solution does not require adaptions to neither programs nor execution engines, 
-% 
-
-
-% Our approach for this is based on alternative, version-aware references that manage versions of objects transparently. That is, objects are referred to by references that dynamically and transparently choose one particular version of the objects as they were at a particular moment. When these references are then used for all mutable objects of a runtime, the entire runtime state can be preserved and re-established.
-% 
-% Our concrete solution for implementing this in JavaScript and for the Lively Kernel relies on proxies and source transformations. Using proxies and source transformations allows a language-level solution for alternative references. Ver- sions of objects are also just JavaScript objects and, thus, also in memory. The proxies, in this solution, also contain the versions of the object they stand-in for. This way, when a proxy, which stands in for all versions of conceptually one object, is no longer referred to from anywhere, all versions of an objects are reclaimed by the ordinary JavaScript gargage collector.
-
-
-
-% We implemented version-aware references for our approach to object versioning in JavaScript using proxies and source transformations. This way, our prototype does not require changes to JavaScript engines, but only a certain JavaScript language feature. In particular, it requires the Direct Proxies1 as proposed with Version 6 of ECMAScript, the standard that JavaScript follows. These proxies can implement specific behavior to handle various kinds of access to them. In our implementation, these proxies are used to delegate all access to a particular version of the object they stand in for. To have these proxies intercept access to all mutable objects for which versions should be preserved, our prototype uses a combination of source transformations and proxy behavior. In particular, the moment mutable objects get created, proxies get created for the new objects and references to the proxies are returned instead of references to the actual objects. The proxies then preserve and choose versions of their object corresponding to a global version identifier. This version identifier effectively declares one particular state of the programming runtime, consisting of those versions of objects that are associated with that runtime state, to be read and written. Therefore, to change the entire runtime state as, for example, an undo and redo would require only the global version identifier needs to be changed.
-
-
-
-% When programmers unexpectedly introduce problems to the functionality, per- formance, or design of their applications, they might want to recover a previous development state. In programming systems like Lively, where programmers often work at runtime on objects, a development state consists of the state of objects, which includes object-specific behavior. To be able to recover such a development state, comprehensive recovery support for Lively must, therefore, preserve versions of objects.
-% 
-% Our approach for this is based on alternative, version-aware references that manage versions of objects transparently. That is, objects are referred to by references that dynamically and transparently choose one particular version of the objects as they were at a particular moment. When these references are then used for all mutable objects of a runtime, the entire runtime state can be preserved and re-established.
-% 
-% Our concrete solution for implementing this in JavaScript and for the Lively Kernel relies on proxies and source transformations. Using proxies and source transformations allows a language-level solution for alternative references. Ver- sions of objects are also just JavaScript objects and, thus, also in memory. The proxies, in this solution, also contain the versions of the object they stand-in for. This way, when a proxy, which stands in for all versions of conceptually one object, is no longer referred to from anywhere, all versions of an objects are reclaimed by the ordinary JavaScript gargage collector.
+That is, with our solution, the Lively Kernel provides not only tools to making changes directly to objects, but also tools to recovering previous states when such changes turn out to be inappropriate.
