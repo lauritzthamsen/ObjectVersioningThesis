@@ -60,57 +60,59 @@ Waiting for faster proxy implementations in the JavaScript engine might work, bu
 
 \section{Providing Recovery Tools}
 
-Our implementation allows to preserve and to re-establish versions of the the Lively Kernel runtime, but these versions currently still need to be created explicitly.
-There is no tool support to find relevant versions, to merge changes, and to manage versions with branches.
+Our implementation allows to preserve and re-establish versions of the Lively Kernel system.
+These versions currently still need to be created explicitly and there is a need for tool support to find and manage versions.
 
 
 \subsection{Preserving Versions Automatically}
 
-Currently, developers still need to preserve particular versions, which they might, however, forget or even deliberately decide against after underestimating the risk of a change.
-At the same time, it takes effort to assess the risk of upcoming changes, to run appropriate tests to check the current state, and to commit a version.
-For these reasons, similar to CoExist, we want the system to preserve a fine-grained history automatically.
-Developers should be able to recover versions that they have not explicitly preserved previously.
+With our implementation, programmers need to preserve particular versions explicitly.
+Preserving versions explicitly is a significant effort.
+It is time consuming to assess the risk of upcoming changes, run appropriate tests to check the current state, and commit a version.
+Moreover, programmers might forget to preserve versions or even deliberately decide against it after underestimating the risk of changes.
+For these reasons, we want the system to preserve a fine-grained history automatically.
 
-We could conceivably create versions of the runtime for any change to an object.
-However, even if that were technically feasible, developers also need to be able to find and recognize the particular versions they want to recover state from.
-Therefore, we want to preserve versions associated with actions of developers to allow developers to undo changes in easily identifiable chunks, whenever they recognize that actions did not exactly improve their programs.
-In particular, the system could, for example, automatically preserve a version of the state whenever a developer does one of the following actions:
+The system could create versions of the runtime for any change to an object.
+However, even if that were technically feasible, programmers need to be able to find and recognize relevant versions efficiently.
+Therefore, we propose that the system creates versions continuously as proposed by CoExist.
+This allows developers to undo their actions whenever they recognize that the actions did not improve the state of their applications or the programming environment.
+
+The Lively Kernel could automatically preserve versions of the system whenever a developer does any of the following:
 \begin{itemize}
-    \item manipulate a graphical object directly with one of the Lively Kernel's halo tools or through drag and drop
-    \item save or remove a script of an object or a method of a class
+    \item manipulate properties of a morph directly with a halo tool or through drag and drop
+    \item add, remove, or edit a script of a morph or a method of a class
     \item evaluate a code snippet (``Do-It'')
-    \item trigger code execution by clicking a button or pressing a key
+    \item trigger code execution by with a mouse or keyboard interaction
 \end{itemize}
-
 
 \subsection{Tools For Finding and Managing Versions}
 
-Tools should support developers in finding and re-establishing versions, in creating and deleting lines of histories, and in diffing and merging changes.
+The system should support developers in finding and re-establishing relevant states with dedicated tools.
 
 \subsubsection{Finding Relevant Versions}
 
-Besides preserving versions continuously on a granularity helpful to developers, we also want to support developers in finding particular versions of the runtime by adding helpful information to each of the versions.
-For each version the system could present three categories of information:
+Besides preserving versions continuously on a granularity helpful to developers, we want the system to present helpful information to each version.
+The system could present three categories of information:
 
 \begin{description}
-    \item[when] Versions could be accompanied by a timestamp and be presented in a timelime as in CoExist to show relations between versions.
-    \item[how] Versions could be annotated with the kind of action that triggered preserving the version such as whether a developer used a halo button or evaluated a code snippet. This could be supported by recording screenshots or even short screencasts for each version.
-    \item[what] Versions could store information on what was changed between two version: which objects have changed, how these objects changed, and how this affected tests and benchmarks.
+    \item[when] Versions could be accompanied by a timestamp and be presented in a timelime as in CoExist.
+    \item[how] Versions could be annotated with the kind of action that triggered preserving the version such as whether a programmer used a halo button or evaluated a code snippet. This could be supported by recording screenshots or screencasts for versions.
+    \item[what] Versions could store information on what was changed between two version: which objects did change, how these objects changed, and how this affected tests and benchmarks.
 \end{description}
 
-What source code changed can often be indicated by static information as, for example, a class, its module, and the containing file.
-There is, however, less static information for objects.
-In case of Livey, we might be able to present how they relate to the scenegraph of visible objects.
-Further, some graphical objects do have explicit names in the Lively Kernel.
-How objects changed between versions can be presented in a diff view for both state and behavior.
+The change can often be associated with static information as, for example, a class, a module, and a containing file.
+For some objects as, for example, morphs the Lively Kernel could show these static information, but in addition also relate the object to the scenegraph of visible morphs.
+Furthermore, some morphs have individual names.
 
 \subsubsection{Version Management}
 
-When developers have recovery needs and also find the particular previous version they were looking for, they might want to revisit it for different purposes.
-For example, developers might just want to re-establish a particular state of the system to see how an application behaved or looked at that moment.
-Similarly, they might want to try an alternative idea without loosing all versions following the one they are currently revisiting.
-That is, they might want to create a branch of changes as an alternative to the main line of versions.
-Further, besides moving freely between versions of the runtime as well as creating and deleting lines of history, they also probably will want to recover particular state from particular versions.
-Such state could be a particular version of a graphical application part they are working on, but also could be the state of a tool such as a code browser currently opened on a specific source code module.
-For this, we want to support developers in copying particular state or whole objects from one version of the system to another.
+When developers have recovery needs and also find the particular previous state they are looking for, they might want to revisit it for different purposes:
 
+\begin{description}
+    \item[Revisiting previous states] Programmers might want to re-establish a particular state of the system without making changes. For example, they might want to see how an application behaved or appeared at a particular moment without changing neither that state nor the most recent version.
+    \item[Trying alternatives] Programmers might want to try an alternative without loosing all versions following the one they are currently revisiting. Therefore, they might want to create a branch as an alternative to the main line of version history.
+    \item[Recovering previous states] Programmers might want to recover state from one version for another version. For example, they could want to recover a particular version of an application or the state of a tool such as a browser. 
+\end{description}
+
+We want programmers to be able to re-visit versions of the system and to be able to create, merge, and delete lines of history.
+Additionally, programmers should be able to copy particular objects from one version to another.
