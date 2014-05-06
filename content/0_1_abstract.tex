@@ -12,17 +12,17 @@ Programmers are encouraged to make changes directly and receive immediate feedba
 % Problem Statement
 When programmers, however, make mistakes in such programming systems, they need to undo the effects of their actions.
 For this, programmers either have to edit objects manually or re-load parts of their applications.
-Additionally, changes can spread across many objects.
+Moreover, changes can spread across many objects.
 Recovering previous states is, therefore, often error-prone and time consuming.
 
 % Approach
 This thesis presents an approach to object versioning for systems like the Lively Kernel.
 Access to previous versions of objects is preserved using alternative, version-aware references.
-These references choose versions of objects dynamically and, thereby, re-establish preserved states of the system.
+These references resolve to particular versions of objects and, thereby, dynamically re-establish preserved states of the system.
 
 % Results
 This thesis presents a design based on proxies and an implementation for the Lively Kernel.
-Our evaluation shows that the Lively Kernel can be run with our proxy-based version-aware references and that preserved system states can be re-established.
+Our evaluation shows that the Lively Kernel can run with our proxy-based version-aware references and that preserved system states can be re-established.
 The memory overhead of the version-aware references is reasonable, but the execution overhead is not yet practical.
 % Conclusion
 With performance improvements, however, the solution could be used to provide practical recovery support to programmers.
