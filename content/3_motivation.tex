@@ -15,12 +15,12 @@ To exemplify how developers work directly on objects in Lively, we will outline 
     \label{fig:MagnifierButton}
 \end{figure}
 
-The editor itself has been been developed by composing and editing graphical objects directly.
-For this reason, we do not have to adapt any source code modules to change the editor, but rather manipulate particular objects directly.
-The new feature we add in this example is a magnifier button that can show the editor's current editing target.
+The editor itself has been been developed by composing and editing graphical objects.
+For this reason, we do not adapt any source code modules to change the editor, but rather manipulate objects directly.
+The new feature we add in this example is a magnifier button that can show the editor's current target.
 Adding this feature requires to create and add a new button morph to the editor, as shown in Figure~\ref{fig:MagnifierButton}.
 
-The magnifier button implements two features: First, when a programmer hovers over the button, the Object Editor's current target object is highlighted through a transparent overlay. Second, when a programmer clicks the button, the current target selection is revoked and the programmer can visually select the new target of the editor.
+The magnifier button implements two features: First, when a programmer hovers over the button, the Object Editor's current target is highlighted through a rectangular overlay. Second, when a programmer clicks the button, the current target selection is revoked and the programmer can select the new target of the editor.
 This example covers the first of these two behaviors, which is also shown in Figure~\ref{fig:MagnifierBehavior} for an Object Editor currently targeting the character of a game.
 
 \begin{figure}[h]
@@ -32,13 +32,14 @@ This example covers the first of these two behaviors, which is also shown in Fig
 
 \paragraph{Manipulating the Button Morph}
 Before we implement the button's behavior, we first create the button's visual appearance, as shown in Figure~\ref{fig:ButtonBuilding}.
-A basic button, as visible in \textcircled{1}, can be found in the Parts Bin repository.
-We can use the button's halos and, in particular, the resize tool in \textcircled{2} to give the button a smaller and square extent.
+A basic button, as visible in \circnum{1}, can be found in the Parts Bin repository.
+We can use the button's halo buttons and, in particular, the resize tool in \circnum{2} to give the button a smaller and square extent.
 Next, we can load an image showing a magnifier.
-Using drag and drop we can add the image to the button, as done in \textcircled{3}.
-Dropping a morph onto another structurely connects morphs in Lively.
-That is, moving the button around will also move the image accordingly, while saving will also persist both.
-Subsequentely, we can add the result of these direct manipulations, visible in \textcircled{4}, to the object editor.
+Using drag and drop we can add the image to the button, as done in \circnum{3}.
+Dropping a morph onto another creates a parent-child relationship and structurally connects the two morphs.
+That is, moving the button around will also move the image accordingly.
+Saving will also persist both.
+Subsequentely, we can add the result of these direct manipulations, visible in \circnum{4}, to the object editor.
 
 \begin{figure}[h]
     \centering
@@ -47,45 +48,51 @@ Subsequentely, we can add the result of these direct manipulations, visible in \
     \label{fig:ButtonBuilding}
 \end{figure}
 
-All these changes are made directly to the state of objects: the button morph, the magnifier image morph, and the editor morph.
-When programmers edit parts directly in this way, they often see the effects of their actions immediately.
-For example, when adding the button morph to the Object Editor, where the button will be is visible at all times.
-Developers do not need to run any code to check the resulting appearance.
+All these changes are made directly to the state of objects: the button morph, the magnifier image morph, and the editor morph.\\
+When programmers edit parts in this way, they often see the effects of their actions immediately.
+For example, when adding the new button to the Object Editor, the button is visible at all times.
+It is not necessary to run any code to check the resulting appearance.
 
 \paragraph{Scripting the Button Morph}
 Next, the magnifier button needs its behavior.
 We add scripts to the button that lay a translucent rectangle over the current target.
-The implementation of this could include the following: The button knows a transparent rectangle. When the mouse enters the button, the button rezises and adds the rectangle to the world at the position of the target. When the mouse leaves the button, the button removes the rectangle from the world.
-This behavior is, thus, triggered from two scripts of the button morph, which are the the scripts \lstinline{onMouseMove} and \lstinline{onMouseOut}.
-
+The implementation of this could include the following: 
+\begin{itemize}
+    \item The button holds a semitransparent rectangle overlay.
+    \item When the mouse enters the button (\lstinline{onMouseMove}), the button resizes and adds the rectangle to the world at the position of the target.
+    \item When the mouse leaves the button (\lstinline{onMouseOut}), the button removes the rectangle again from the world.
+\end{itemize}
+ 
 When developing such scripts with an Object Editor, the editor allows to evaluate code in the context of its target.
 So, when developers want to test a script or even just specific lines of code, they can often try the behavior directly with the actual target.
 
 
 \section{Recovery Needs When Developing Parts}
 
-While manipulating objects directly, developers might make changes that they subsequentely want to undo.
+While manipulating objects directly, developers might make changes that they later want to undo.
 
-In the previous example developers could, for example, make any of the following mistakes:
+In the previous example we could, for example, make \emph{accidental changes}:
 
 \begin{itemize}
-    \item accidentally grap and move a morph such as the new button and, thereby, change the carefully arranged layout.
-    \item close a morph such as the Object Editor, which contains the new button, and, thus, lose meaningful unsaved changes.
-    \item introduce an an error or a decrease in performance with an edit to a script.
+    \item \textbf{Accidental changes to state}: We could accidentally grap and move a morph such as the new button and, thereby, change the carefully arranged layout. Similarly, we could close a morph such as the Object Editor, which contains the new button, and, thus, lose meaningful unsaved changes.
+    \item \textbf{Accidental changes to scripts}: We could introduce a typographical error or accidentally remove a script. Moreover, we could introduce an error or a decrease in performance with an edit to ascript.
 \end{itemize}
 
-Besides these accidental mistakes, well-intentioned changes can also turn out to be inappropriate.
-When fine-tuning the visual appearance of a morph, for example, a developer might make many changes to the sizes, the positions, and the colors of morphs, only to decide later that a particular intermediate version was most appealing.
-Developers can also change objects through a code snippet from a temporary workspace.
-Such a snippet can change any number of properties of many objects at once, so re-establishing a previous state would be a laborious task.
+Besides these accidental changes, we could also make well-intentioned changes that nervertheless turn out to be \emph{inappropriate changes} later:
 
-Potentially undesirable changes might also be introduced when programmers explore the behavior of objects by evaluating their scripts.
+\begin{itemize}
+    \item \textbf{Inappropriate changes through direct manipulation}: We could make many changes to the sizes, the positions, and the colors of morphs as, for example, when fine-tuning the visual appearance of an interface, only to decide later that a particular intermediate version was most appealing.
+    \item \textbf{Inappropriate changes through scripts}: We could make a mistake in a workspace snippet that is intended to manipulate morph properties programmatically. Such a snippet can change any number of properties of many objects at once, so re-establishing a previous state would be a laborious task.
+\end{itemize}
+
+\paragraph{Explorative Script Evaluation}
+Potentially undesirable changes might also be introduced when programmers explore the behavior of objects by evaluating scripts.
 For example, the Object Editor always manipulates the scripts of a specific object and developers can evaluate code directly for that target object.
 While such evaluation might help to understand the effects of particular code, it might also change the state of objects permanently.
-
-A programmer could edit the button's \lstinline{onMouseMove} script and afterwards could evaluate a few lines of code to quickly test his changes.
-These lines, as shown in Figure~\ref{fig:onMouseOverScript}, would, however, add the rectangle to the current target, without regard to the conditions usually checked before and without setting the state as done right after the selection in the script.
-Thus, while evaluating this selection allows to test the highlighting behavior, it leaves the system in a state that it would normally be in.
+A programmer could be working on the button's \lstinline{onMouseMove} script and could evaluate a few lines of code to quickly test it.
+These lines, as shown in Figure~\ref{fig:onMouseOverScript}, would add the rectangle to the current target without regard to the conditions usually checked before.
+Evaluating only the selected lines would also not set the state as done by the lines right below.
+Thus, evaluating this selection allows to test the highlighting behavior, but leaves the system in a state that it would normally not be in.
 
 \begin{figure}[h]
     \centering

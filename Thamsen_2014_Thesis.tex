@@ -9,15 +9,30 @@
 \PassOptionsToPackage{final}{graphics}
 
 \documentclass[draft,master]{swathesis}
+
+% my additions --- begin
+
 \KOMAoptions{parskip=true}
+
+\lstset{language=JavaScript,extendedchars=true}
+
+\usepackage{pifont}
+\newcounter{dingdistance}
+\setcounter{dingdistance}{191}
+\newcommand{\circnum}[1]{%
+  \addtocounter{dingdistance}{#1}%
+  \ding{\value{dingdistance}}%
+  \setcounter{dingdistance}{191}}
+
 \addbibresource{thesis.bib}
+
+% my additions --- end
+
 
 \usepackage{titlepage}
 \TitlePageStyle[
 subject=master,degree={Master of Science},
 ]{hpi-swa}
-
-\lstset{language=JavaScript,extendedchars=true}
 
 \supervisors{
 Prof.\,Dr.\,Robert Hirschfeld\and
