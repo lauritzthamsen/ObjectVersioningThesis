@@ -35,11 +35,9 @@ We decided to use Octane for our evaluation for three reasons:
 During the implementation of our approach, we continuously tested our prototype with the Lively Kernel to make it practically work.
 
 We developed our system in the Lively Kernel repository.
-The commit we used for the evaluation is \emph{fc6f3b7e7}\footnote{\url{http://github.com/LivelyKernel/LivelyKernel/commits/fc6f3b7e7}, accessed February 17, 2014}.
-
-In the tested version, most of the Lively Kernel's code is passed through our transformations.
-Besides the code of our implementation, only the Lively Kernel's bootstrap code, the module system, and the extensions to built-in types are excluded from the source transformations.
-All modules loaded after these parts of the Lively Kernel's are transformed at load-time.
+The commit we used for the evaluation is \emph{fc6f3b7e7}\footnote{\url{http://github.com/LivelyKernel/LivelyKernel/commits/fc6f3b7e7}, accessed February 17, 2014}. In this version, most of the Lively Kernel's code is passed through our transformations.
+Only the Lively Kernel's bootstrap code, the module system, the extensions to built-in types, and the our implementation are excluded from the source transformations.
+All modules loaded after these parts are transformed at load-time.
 This includes, for example, all classes of the Lively Kernel.
 Transforming these modules enables versioning for the objects created in these modules.
 
@@ -66,7 +64,7 @@ We used Chrome for all experiments as the Lively Kernel currently works best in 
 
 \section{Functionality: Versions of the Lively Kernel Runtime} \label{sec:EVALUATION:2}
 
-We tested whether the version-aware references forward correctly to object versions with benchmarks and with the Lively Kernel, as described in this section.
+We tested whether the version-aware references forward correctly to object versions with benchmarks and with the Lively Kernel.
 
 \subsection{Testing with Benchmarks}
 
@@ -76,56 +74,59 @@ We ran the Octane benchmark suite to test the functionality of our implementatio
 % what was done?
 We transformed the Octane benchmarks with our source transformations, executed the resulting code, and then checked for JavaScript errors and compared the results of running the transformed benchmarks to their usual results.\\
 % why / to test what?
-We did this for to test two aspects.
+We did this to test two aspects.
 First, to test whether our source transformations yield syntactically correct JavaScript code for the benchmarks.
-Second, to test whether the proxy-based implementation of version-aware references, inserted by the source transformations, allows to run the benchmarks without errors and with the same results as when the benchmarks are executed without our implementation.
+Second, to test whether the our proxy-based version-aware references, inserted by the source transformations, allow to run the benchmarks without errors and with the expected results.
 
 
 \paragraph{Results}
 All benchmarks in this suite run without errors and return the same results as when executed without any source transformations.
-That is, at least for these tests, our source transformations produce working source code and our proxy-based version-aware references behave as the object versions they stand-in for.
-The benchmarks and, in particular, the \emph{DeltaBlue} benchmark revealed a problem with using proxies as prototypes of objects, which we reported to the \emph{harmony-reflect} repository\footnote{\url{http://github.com/tvcutsem/harmony-reflect/issues/18}, accessed April 23, 2014} and which turned out to be an issue with the \emph{v8} JavaScript engine itself\footnote{\url{http://code.google.com/p/v8/issues/detail?id=2804}, accessed April 23, 2014}.
+That is, at least for these tests, our source transformations produce working source code and our proxy-based version-aware references forward correctly to object versions.\\
+During the development of our system, the \emph{DeltaBlue} benchmark revealed a problem when proxies are used as prototypes of objects.
+We reported the issue to the \emph{harmony-reflect} repository\footnote{\url{http://github.com/tvcutsem/harmony-reflect/issues/18}, accessed April 23, 2014}.
+The problem was identified as an issue with the \emph{v8} JavaScript engine\footnote{\url{http://code.google.com/p/v8/issues/detail?id=2804}, accessed April 23, 2014}.
 We virtualized the prototype relation among proxies as workaround for this problem in our implementation, but the issue was subsequentely fixed, rendering the implemented workaround redundant.
 
 \paragraph{Discussion}
-The proxies, which implement version-aware references, behave like the respective versions of objects in the situations exhibited in the benchmarks.
-While these benchmarks do not test JavaScript's features systematically, they cover a range of language features.
+The proxies behave like the correct versions of objects in the situations tested by the benchmarks.
+While these benchmarks do not test JavaScript's features systematically, they cover a wide range of language features.
 
 
 \subsection{Testing with the Lively Kernel}
 
 We tested whether the Lively Kernel loads and works with our version-aware references.
-Moreover, we tested whether versions of its state can be preserved.
+Moreover, we tested whether versions of it can be preserved with our implementation.
 
 \paragraph{Method}
 % what was done?
-We transformed the JavaScript modules of the Lively Kernel at load-time to test whether it loads and works as expected with our versioning system.
-We further tested whether the version-aware references and the linear global undo/redo allow to preserve and re-establish versions of the Lively Kernel's JavaScript runtime in practice.
-Here, we tried multiple simple example scenarios, including to undo changes to the state and behavior of basic morphs, to morph compositions, and to the state of more complicated graphical applications as, for example, text editors and developer tools.\\
+We transformed the JavaScript modules of the Lively Kernel at load-time to test whether it loads and works as expected with our versioning system.\\
+Furthermore, we tested whether the version-aware references and the linear global undo/redo allow to preserve and re-establish versions of the Lively Kernel's JavaScript runtime in practice.
+Here, we tried multiple example scenarios, including to undo changes to the state and behavior of basic morphs, to morph compositions, and to the state of more complicated graphical applications as, for example, text editors and developer tools.\\
 % why / to test what?
-With this, we tested that the source transformations yield valid JavaScript code for the modules of the Lively Kernel, that the version-aware references delegate correctly to the versions of objects they stand-in for in Lively, and that the version-aware references are used consistently for all mutable objects.
+With this, we tested that the source transformations yield valid JavaScript code for the modules of the Lively Kernel, that the version-aware references delegate correctly to versions of the objects they stand-in for in Lively, and that the version-aware references are used consistently for all mutable objects.
 
 
 \paragraph{Results}
 The Lively Kernel loads when all of its modules are transformed to use version-aware references.
-Further, most of its basic functionality works as expected and we were able to preserve and re-establish runtime states of multiple examples.
-However, not all functionality works as expected and we were, thus, also not able to re-establish all preserved states. 
-This way, we also learned about the issues of the current state of ECMAScript 6 Direct Proxies in Chrome and implemented the workarounds described in Section~\ref{sec:IMPLEMENTATION:4}.
+Most of its basic functionality works as expected and we were able to preserve and re-establish runtime states of multiple examples.
+However, not all functionality works as expected and we were, thus, also not able to re-establish all preserved states.
+This way, we learned about the many built-in functions that currently do not handle ECMAScript 6 Direct Proxies correctly in Chrome.
+We implemented the workaround described in Section~\ref{subsec:IMPLEMENTATION:4.3}.
 
 \paragraph{Discussion}
-While most of the tested functionality of the the Lively Kernel---including the entire bootstrap process, rendering graphical objects, loading parts from the Lively Kernel's Parts Bin, and using the Lively Kernel's halo controls---work as expected with version-aware references, certain functionality of the Lively Kernel is not yet working correctly or even yields errors.
-The remaining issues here are expected to be problems related to built-in JavaScript functions that do not handle proxies correctly.
-Our implementation already unwraps proxies for many built-in functions, as explained in \ref{sec:IMPLEMENTATION:4}, but the configuration appears to currently not cover all problematic built-in functions, yet.
-However, the used proxies are still an experimental JavaScript feature in Chrome, not yet fully supported, and we expect these issues not to be problems anymore once the proxies get fully implemented by JavaScript engines.
-Further, the current implementation already allows to use many features and re-establish many development states of the Lively Kernel.
-
+Most of the tested functionality of the the Lively Kernel works as expected.
+This includes the entire bootstrap process, rendering graphical objects, loading parts from the Lively Kernel's Parts Bin, and using the Lively Kernel's halo controls.
+However, certain functionality of the Lively Kernel is not yet working correctly or even yields errors.
+The remaining issues here are expected to be problems related to the built-in functions that do not handle proxies correctly.
+Our implementation already unwraps object versions from proxies for many built-in functions, as explained in \ref{subsec:IMPLEMENTATION:4.3}, but the configuration does not cover all problematic built-in functions yet.\\
+At the same time, the proxies are not yet fully supported by Chrome and we expect these issues not to be problems once proxies get fully implemented by Chrome.\\
 
 
 
 \section{Practicability: Additonal Memory Consumption} \label{sec:EVALUATION:3}
 
-We evaluated the memory overhead of the version-aware references, without preserving any version.
-Furthermore, we measured the memory required for preserving example versions.
+We evaluated the memory overhead of the version-aware references.
+Additionally, we measured the memory required for preserving versions.
 
 \subsection{Memory Overhead for Version-aware References}
 
