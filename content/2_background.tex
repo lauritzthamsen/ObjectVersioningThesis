@@ -1,29 +1,17 @@
 \chapter{Background} \label{chapter:BACKGROUND}
 
 This chapter describes prototype-based programming, the Lively Kernel, and CoExist.
-These works are the background of this thesis as it introduces an approach towards CoExist-like recovery support in prototype-based programming systems, which we implemented for the Lively Kernel.
+These works are the background of this thesis as we introduce an approach for providing CoExist-like recovery support in prototype-based programming systems, which we implemented for the Lively Kernel.
 
 \section{Prototype-based Programming}
 
-Prototype-based programming is object-oriented programming in which applications are created directly with objects, without requiring developers to define classes first.
-Examples for general-purpose programming languages that implement prototype-based programming are Self, JavaScript, and Kevo~\cite{Taivalsaari1992Kevo}.
-Many end-user programming systems such as Scratch~\cite{Maloney2010SPL}, Etoys~\cite{Kay2005Etoys} and Fabrik~\cite{Ingalls1988FVP}, and Lively Fabrik~\cite{Lincke2009LFW} also enable users to express their programs through objects.
+Prototype-based programming is object-oriented programming in which applications are created directly with objects, without requiring developers to define classes first.\\
+Self, JavaScript, and Kevo~\cite{Taivalsaari1992Kevo} are prototype-based programming languages.
+Many end-user programming systems such as Scratch~\cite{Maloney2010SPL}, Etoys~\cite{Kay2005Etoys}, and Fabrik~\cite{Ingalls1988FVP} also enable users to express programs using objects.
 
-\paragraph{Similar Objects Without Classes}
-Self and JavaScript incorporate prototypical inheritance.
-They allow objects to inherit state and behavior directly from other objects through delegation: an object has a prototype to which it delegates when looking up a property in the object itself yields no results.
-In Self, objects are created by cloning other objects and, this, operation also sets the prototype: The clone's prototype is the original object.
-In JavaScript, objects are created from constructor functions and the functions determine the prototypes of objects.
-Kevo, in constrast, does not provide prototypical inheritance.
-In Kevo, programmers can only make full copies of objects.
-That is, programmers can create new objects with initially the same state and behavior as existing objects, but all objects remain self-contained.
-That is, in Kevo, changing an object only changes that particular object and a particular object can only be changed by directly changing it, not by changing any other artifact.
-To adapt many objects at once, programmers can only use so-called \emph{module operations} that are evaluated for a group of objects. 
-
-Despite this difference in whether properties can be shared among objects and how, therefore, families of objects can be affected, prototype-based programming always allows to build programs from particular objects.
-This is the fundamental difference to the class-based style of object-oriented programming, in which programs are expressed with more abstract definitions of structure and behavior.
-In prototype-based programming, the parts of a program are objects with particular state.
-All parts are specific examples rather than general categories.
+Prototype-based programming allows to build applications from particular objects.
+This is the fundamental difference to the class-based style of object-oriented programming, in which programs are expressed with classes.
+Each part of a prototype-based program has particular state.
 
 There are different advantages associated with this kind of programming:
 \begin{itemize}
@@ -32,11 +20,24 @@ There are different advantages associated with this kind of programming:
     \item \cite{Borning1986CVP} and \cite{Maloney1995Mor} argue that especially editing visual objects can be more concrete with prototypes. Instead of writing code that describes the appearance of objects, programmers can manipulate visual objects directly. Programmers could, for example, use the mouse to manipulate properties like the size, position, or to combine multiple elements. This way, programmers always see intermediate states instead of only receiving feedback on explicit test runs in-between edit-compile-load cycles. 
 \end{itemize}
 
-\paragraph{Editing Objects at Runtime}
-Many prototype-based programming systems, including all the examples given in this section, allow to manipulate objects at runtime.
-Scratch, Etoys, Fabrik, Lively Fabrik, the Lively kernel, and Self also all provide tools dedicated to manipulating graphical objects directly.
+\paragraph{Editing Graphical Objects at Runtime}
+Many prototype-based programming systems, including the examples given in this section, allow to manipulate objects at runtime.
+Scratch, Etoys, Fabrik, the Lively kernel, and Self all provide tools dedicated to manipulating graphical objects directly.
 Such graphical objects range from basic objects like primitive shapes to complete applications like presentation software or programming tools.
 Prototype-based programming, programming at runtime, and direct manipulation of graphical objects seem to be properties that suit each other.
+
+\paragraph{Similar Objects Without Classes}
+Different prototype-based programming systems implement different approaches for managing objects with similar behavior.
+Self and JavaScript incorporate prototypical inheritance.
+Objects to inherit state and behavior directly from other objects: each object has a \emph{prototype} to which it delegates whenever looking up a property in the object itself yields no results.
+In Self, the prototype of an object is set when objects are cloned: The clone's prototype is the original object.
+In JavaScript, objects are created from constructor functions and the functions's prototypes become the prototypes of objects.\\
+Kevo, in constrast, does not incorporate prototypical inheritance.
+Instead, programmers can only make full copies of objects.
+That is, programmers can create new objects with initially the same state and behavior as existing objects, but all objects remain self-contained.
+Changing an object only changes that particular object and a particular object can only be changed by directly changing it, not by changing any other object.
+To adapt many objects at once, programmers can use so-called \emph{module operations} in Kevo.
+Such module operations are evaluated for groups of objects.
 
 
 \section{The Lively Kernel}
