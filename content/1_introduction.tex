@@ -7,93 +7,93 @@
 \chapter{Introduction} \label{chapter:INTRODUCTION}
 
 % Background
-Programming systems such as Squeak/Smalltalk~\cite{Ingalls1997Squeak,GoldbergRobson83} and REPLs for LISP or Python allow adapting programs while those run.
-Changes to programs in such environments are effective immediately and programmers can often see or test right away what differences their actions make.
+Programming systems such as Squeak/Smalltalk~\cite{Ingalls1997Squeak,GoldbergRobson83} and REPLs for LISP or Python allow adapting programs at runtime.
+Changes to programs in such environments are effective immediately and programmers can see or test right away what differences their actions make.
 Thus, these systems provide immediate feedback to programmers.\\
-A subset of such systems, which includes, for example, Self~\cite{Ungar1987SPS,Ungar2007SEL} and the Lively Kernel~\cite{Ingalls2008LKS,Krahn2009LWD}, are those built around prototype-based object-oriented languages, in which programmers create applications using objects and without having to define classes first.
-In these systems, programmers can inspect and change the state of objects at runtime and add and modify object-specific behavior.
-The results are actual objects, not source code that only abstractly describes potential objects.
+A subset of such systems, which includes, for example, Self~\cite{Ungar1987SPS,Ungar2007SEL} and the Lively Kernel~\cite{Ingalls2008LKS,Krahn2009LWD}, are those built around prototype-based object-oriented languages.
+In prototype-based systems programmers create applications using objects and without having to define classes first.
+In Self and the Lively Kernel, programmers can inspect and change the state and behavior of objects at runtime.
+Programmers create actual objects, not source code that only abstractly describes potential objects.
 
 The Lively Kernel was designed to support this kind of development.
-For this, the Lively Kernel provides tools to directly manipulate the style, the composition, and the scripts of graphical objects.
+It provides tools to directly manipulate the style, composition, and scripts of graphical objects.
 For example, programmers can change the positions and composition of objects directly using the mouse.
-They can use temporary workspaces to manipulate one or many objects programmatically.
-Moreover, they can edit and try methods directly in the context of graphical objects.\\
-For example, to add new functionality to a graphical application, a programmer might copy an existing button object and then directly modify the new button object: move the new button to a sensible position, resize it, set a new label, and add a script to be executed on mouse clicks.
-The programmer makes all changes directly to one button object.
+They can use temporary workspaces to manipulate objects programmatically.
+They can edit and try methods directly in the context of graphical objects.\\
+For example, to add new functionality to a graphical application, a Lively Kernel user might copy an existing button object and then modify the new button object: move the new button to a sensible position, resize it, set a new label, and add a script to be executed on mouse clicks.
+The user makes all changes directly to one button object.
 How this button fits into the application's interface is visible at all time.
 Clicking the button allows to directly test its functionality.
 This way, the Lively Kernel allows for fast feedback, especially during the development of graphical applications.
 
 % Problem
-Changes programmers make to objects---either through specific tools or evaluating code---can, however, also turn out to be inappropriate and still permanently affect objects.
-Programmers can, for example, accidentally change the positions or connect the wrong objects when manipulating applications with mouse interactions.
-They might try a couple of different alternatives as, for example, different color schemes and graphical layouts, only to realize later that an earlier state was most appealing and should be re-established.
-Similarly, programmers might learn in hindsight that making a promising change to an object's scripts actually introduced an error or impacts the application's performance.
-They might make a mistake in a code snippet that then manipulates many objects differently than intented.
+Changes programmers make to objects can turn out to be inappropriate.
+Programmers can, for example, accidentally change positions or connect the wrong objects when manipulating applications with mouse interactions.
+They might try a couple of different alternatives as, for example, different colors and layouts, only to realize later that an earlier state was most appealing.
+Similarly, programmers might learn in hindsight that making a change to an object's scripts introduced an error or impacts the application's performance.
+They might make a mistake in a code snippet that then manipulates many objects.
 Problematic changes can also be introduced when code is evaluated only to understand or test behavior, not to permanently change state.
 
 % So what?
-When changes, however, turn out to be innapropriate, programmers often need to undo them manually.
+When changes, however, turn out to be problematic, programmers often need to undo the changes manually.
 That is, the Lively Kernel does not provide an undo for changes to objects, which is especially at odds with the Lively Kernel's support for trying ideas right away: Developers are able to make changes directly and receive immediate feedback, but do not get support when such changes turn out to be inappropriate.
-Instead, when programmers want to recover a previous development state, they often need to manually reset the state to how it previously was---often using the same tools the changes were initially made with and potentially involving multiple properties of multiple objects changed by multiple developer actions.
-
+Instead, when programmers want to recover a previous development state, they often need to manually reset the state to how it previously was---often using the same tools the changes were initially made with and potentially involving multiple properties of multiple objects changed by multiple developer actions.\\
 The Lively Kernel provides tools to commit and load versions of objects.
 In case such commits exist, programmers can load earlier versions of objects to re-establish previous states.
-However, depending on how far the latest version is from the actually desired state, manual changes might still be necessary.
+Nevertheless, depending on how far the latest version is from the actually desired state, manual changes might still be necessary.
 To keep the effort required to re-establish \emph{any} previous state low, programmers would need to commit many versions.
-Commiting many versions is, however, also a significant effort.
+Commiting many versions is, however, a significant effort.
 Some commits would be made only to protect intermediate states, not to share and document results.
-Especially when the preserved versions should be still usable and documented, programmers would be required to test and describe many versions.
+Especially when the preserved versions should be usable and documented, programmers would be required to test and describe many versions.\\
 \emph{In summary}, recovering previous states of objects in the Lively Kernel is currently a significant effort for programmers.
-They either have to manually re-set changed state or need to take time consuming precautionary actions.\\
+They either have to manually re-set changed state or need to take time consuming precautionary actions.
 
 A typical approach to implementing multi-level undo for the changes to application state is the Command pattern~\cite{GammaHelmJohnsonVlissides95}.
 The Command pattern packages changes into actions.
 These actions can then be recorded to be able to subsequentely undo them.
-This, however, requires developers to implement undos for all possible actions.
-Therefore, an implementation of the command pattern---even for just the existing Lively Kernel tools that manipulate objects---would be rather comprehensive and would also require developers to follow the pattern when implementing new tools.
+This requires developers to implement undos for all possible actions.
+Therefore, an implementation of the command pattern---even for just the existing Lively Kernel tools that manipulate objects---would be rather comprehensive.
+Using the Command pattern would also require developers to follow the pattern when implementing new tools.
 Furthermore, the Command pattern is entirely unpractical for undoing the effects of evaluating arbitrary code from the Lively Kernel's workspaces and editors.
 
 Worlds~\cite{Warth2011Wor}, in contrast, is a more generic approach for controlling the scope of side effects.
 It allows to capture the side effects of statements into different \emph{worlds}.
-These worlds can be used to run code with particular sets of changes being effective.
-Developers could, thus, execute all their actions in separate worlds and discard worlds to return to previous states when necessary.
-Worlds as such, though, requires developers to use a language construct to explicitly create, merge, and discard worlds.
-It, therefore, still needs the programmer to explicitly take precautionary actions, similar to version control systems.
+These worlds can be used to run code with particular sets of changes.
+Developers could create new worlds for all their actions and discard worlds to return to previous states when necessary.
+% Worlds as such, though, requires developers to use a language construct to explicitly create, merge, and discard worlds.
+It, therefore, still requires programmers to explicitly take precautionary actions, similar to version control systems.
 In addition, the implementation of Worlds in JavaScript is not yet practical.
 It, for example, currently prevents garbage collection.
 
-CoExist~\cite{Steinert2012COE,Steinert2014EVA} provides automatic recovery support, without requiring developers to take any precautionary actions beforehand.
+CoExist~\cite{Steinert2012COE,Steinert2014EVA} provides automatic recovery support without requiring developers to take precautionary actions.
 For this, CoExist automatically records versions for every change and, thereby, provides a fine-grained history of intermediate development states.
-To each of the preserved versions programmers can see diff views, screenshots, and test results.
-Programmers can review the changes chronological, examine the impact each change had, and re-establish previous development states.
+Programmers can review the changes chronological, examine the impact each change had, and re-establish previous versions.
 However, CoExist currently recognizes only changes made to the source code of classes.
-It does not preserve the state of objects with its versions.
+Its versions do not include the state of objects.
 
 % Solution
-This thesis proposes to version the entire state of programming runtimes as basis for automatic recovery support in systems like the Lively Kernel.
-In particular, this thesis introduces an approach to preserving and managing versions of all objects using alternative, \emph{version-aware} references.
-Version-aware references are alternative references in that they can refer to multiple versions of objects, but always resolve transparently to one particular version among those.
-Versions of objects are preserved together, so that multiple version-aware references can be resolved transitively to the state of a particular moment.
-For this to be practical, versions of objects can be kept in application memory and the state of all objects can be preserved incrementally, on writes and only for objects that actually change.
-Similarly, to which versions the version-aware references resolve can also be changed without significantly interrupting program execution:
-The version-aware references can decide dynamically to which versions they resolve instead of being hard-wired to specific versions.
+This thesis proposes an approach for versioning the entire state of programming systems as basis for automatic recovery support.
+In particular, the thesis introduces an approach to preserving and managing versions of all objects using alternative, \emph{version-aware} references.
+Version-aware references are alternative references in that they refer to multiple versions of objects.
+They resolve transparently to particular versions.
+Versions of objects are preserved together, so that version-aware references can be resolved transitively to the state of a particular moment.
+For this to be practical, versions of objects are kept in application memory and the state of all versions is preserved incrementally on writes.
+Furthermore, to which versions the version-aware references resolve can also be changed without significantly interrupting program execution:
+The version-aware references decide dynamically to which versions they resolve instead of being hard-wired to specific versions.
 
-We implemented version-aware references for the Lively Kernel in JavaScript, on the level of the language using proxies and, thus, without requiring adaptions to established execution engines.
-Proxies implement version-aware references.
-They stand in for references: conventional references point to them and they delegate all object access--all kinds of read and write operations--transparently to one particular version of the object they can stand in for.
-A combination of the versioning behavior of proxies and automatic source transformation allow to introduce and use these proxies consistently for all objects.
-This way, the entire runtime state is versioned to undoing changes to all kinds of objects.
+We implemented our approach in JavaScript.
+The implementation does not require adaptions to established execution engines.
+Proxies are used to implement version-aware references: conventional references point to the proxies and the proxies delegate all object interactions transparently to particular versions of objects.
+Source transformations introduce proxies consistently for all objects.
+Therefore, programmers do not need to adapt programs manually.
 
-We designed and implemented this approach to object versioning for the Lively Kernel with the intention to provide CoExist-like recovery support in the future.
-Therefore, this approach supports fine-grained histories of development states---many, but still particular versions of the entire runtime that can correspond to developer actions and can be re-established quickly.
-It also allows to easily enhance preserved development states with further information such as test results, screenshots, and diffs.
-That is, the presented solution is a basis for practical recovery support with continuously preserved fine-grained histories of system states.
+The approach supports fine-grained histories of development states.
+Not every state can be re-established, but versions that have been preserved.
+In this, the presented solution is a basis for recovery support that continuously preserves versions.
 
 \section{Contributions}
 
-The goal of this work is to provide recovery object versioning for programming systems like the Lively Kernel.
+The goal of this work is to provide object versioning for the Lively Kernel.
 To that effect, the main contributions of this thesis are the following:
 
 \begin{itemize}
