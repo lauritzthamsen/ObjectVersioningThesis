@@ -8,7 +8,7 @@ For the evaluation, we used the setup described in the following section.
 
 We evaluated our implementation with the benchmark suite, the Lively Kernel version, and the machine configuration described in this section.
 
-\subsection{The Octane JavaScript Benchmark Suite}
+\subsection{The Octane Benchmark Suite}
 
 % what?
 We used the \emph{Octance} benchmark suite\footnote{\url{http://code.google.com/p/octane-benchmark/}, accessed February 3, 2014, at version 26} to evaluate the behavior and performance of our implementation.
@@ -29,7 +29,7 @@ We decided to use Octane for our evaluation for three reasons:
 \end{itemize}
 
 
-\subsection{The Lively Kernel System}
+\subsection{The Lively Kernel}
 
 % what?
 During the implementation of our approach, we continuously tested our prototype with the Lively Kernel to make it practically work.
@@ -52,7 +52,7 @@ We tested our implementation with the Lively Kernel for two reasons:
 \end{itemize}
 
 
-\subsection{Test Machine}
+\subsection{The Test Machine}
 
 % what?
 All tests and measurements were done on a Macbook Air with an 2 GHz Intel Core i7 and 8 GB main memory, using Mac OS X 10.9.1, and the most recent stable release of Chrome on February 18, 2014, which was version \emph{32.0.1700.107}.
@@ -66,7 +66,7 @@ We used Chrome for all experiments as the Lively Kernel currently works best in 
 
 \section{Functionality: Versions of the Lively Kernel Runtime} \label{sec:EVALUATION:2}
 
-We tested whether the version-aware references forward to particular versions correctly both with benchmarks and with the Lively Kernel, as described in this section, and did this continuously during the implementation of our approach.
+We tested whether the version-aware references forward correctly to object versions with benchmarks and with the Lively Kernel, as described in this section.
 
 \subsection{Testing with Benchmarks}
 
@@ -94,7 +94,8 @@ While these benchmarks do not test JavaScript's features systematically, they co
 
 \subsection{Testing with the Lively Kernel}
 
-We tested whether the Lively Kernel loads and works as expected when our version-aware references are used.
+We tested whether the Lively Kernel loads and works with our version-aware references.
+Moreover, we tested whether versions of its state can be preserved.
 
 \paragraph{Method}
 % what was done?
@@ -123,11 +124,12 @@ Further, the current implementation already allows to use many features and re-e
 
 \section{Practicability: Additonal Memory Consumption} \label{sec:EVALUATION:3}
 
-We measured the memory overhead of just the version-aware references, without preserving any version, and also present the memory used when multiple versions of a small example scenario are preserved.
+We evaluated the memory overhead of the version-aware references, without preserving any version.
+Furthermore, we measured the memory required for preserving example versions.
 
 \subsection{Memory Overhead for Version-aware References}
 
-The version-aware references have an impact on memory consumption that has to be practical.
+The version-aware references introduce a constant memory consumption.
 
 \paragraph{Method}
 % what was done?
@@ -162,8 +164,7 @@ The memory overhead, however, does not appear to be problematic at the moment.
 
 \subsection{Memory Usage for Preserving Versions}
 
-Besides the memory required for the proxies, there is also memory required for preserving multiple versions of the runtime.
-Although we expect the memory usage for versions to be highly dependent on the differences between preserved states, we still present a simple example scenario here.
+Besides the memory required for proxies, memory is required for preserving versions of the runtime.
 
 \paragraph{Method}
 % what?
@@ -202,13 +203,14 @@ For this reason, it does not seem odd that state \circnum{3} requires less memor
 
 \section{Practicability: Impact on Execution Speed} \label{sec:EVALUATION:4}
 
-We measured the overhead the proxies impose on the execution of benchmarks and certain functionality of the Lively Kernel.
+We measured the overhead the proxies impose on the execution of benchmarks and the Lively Kernel.
 A discussion of the results follows at the end of this section.
 
 
 \subsection{Measuring Benchmarks}
 
-The Octane benchmark suite shows how the proxies currently slow down a variety of different JavaScript programs, while two microbenchmarks show the specific cost of using the proxy-based version-aware references.
+The Octane benchmark suite shows how the proxies currently slow down a variety of different JavaScript programs.
+Two microbenchmarks compare resolving proxy-based version-aware references to following ordinary references.
 
 \subsubsection{Octane Benchmark Suite}
 
@@ -233,7 +235,8 @@ On average the slowdown of a single benchmark is, thus, a 187.5 times.
 
 \subsubsection{Microbenchmarks}
 
-We implemented microbenchmarks to analyze the overhead the proxies impose on resolving references---the time proxies take to forward access to a particular version.
+We implemented microbenchmarks to analyze the overhead the proxies impose on references.
+In particular, the two microbenchmarks show how much time the proxies require to intercept and forward property reads to object versions.
 
 \paragraph{Method}
 In the first setup, we resolved a reference between two objects a million times, where the reference is either an ordinary reference or a proxy-based version-aware reference.
@@ -249,11 +252,11 @@ That is, even the default proxy behavior slows down the microbenchmark close to 
 
 \subsection{Measuring the Lively Kernel}
 
-We measured the overhead of a few typical user interactions and also how much longer it takes to load a simple Lively Kernel world.
+We measured the overhead of a few typical user interactions and how much longer it takes to load a simple Lively Kernel world.
 
 \subsubsection{Typical Lively Kernel Interactions}
 
-As our goal is to provide recovery support for development in Lively Kernel, the impact on typical interactions is especially interesting as it directly experienced by developers.
+As our goal is to provide recovery support for development in Lively Kernel, the overhead imposed on user interactions is especially interesting as directly affects developers.
 
 \paragraph{Method}
 % what?
@@ -278,7 +281,7 @@ Each of these interactions takes on average 43 times the time when triggered aft
 
 \subsubsection{Loading a World in the Lively Kernel}
 
-Another performance-related question specific to the Lively Kernel is how long it takes to load a world.
+Another performance-related question specific to the Lively Kernel is how long it takes to load a world with enabled object versioning.
 
 \paragraph{Method}
 We measured how long it takes to load a specific Lively Kernel world both with and without source transformations and, thus, proxies.
@@ -317,13 +320,3 @@ it only takes twice the time to read a property from a specific target with a \l
 
 All this---the experimental status of the proxy implementation, the high cost of proxies even when used with the default handler behavior, and the significantly lower overhead of a custom indirection based on ordinary JavaScript functions---suggest that the performance of the ECMAScript 6 Direct Proxies in Chrome might improve in the future.
 At the same time, we might also decide to base our version-aware references on source transformations and custom indirections instead of proxies in the future.
-
-
-% TODO: Summary? should we? then we'll also need summaries for chapter 3-5.. :-/
-
-% \section{Summary}
-% 
-% \todosec{add a summary of this longlong chapter, which may read similar to what introduced this Chapter in the version I gave to Bastian}
-
-% The experienced slow down does not depend as much on the number of preserved versions, but instead depends on how many version-aware references have to be resolved during the execution of particular code.
-
