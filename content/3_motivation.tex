@@ -6,7 +6,7 @@ This chapter demonstrates the development of such parts and related recovery nee
 
 \section{Part Development By Example}
 
-To exemplify how developers work directly on objects in the Lively Kernel, we will outline how a Lively Kernel user adds a new feature to the Lively Kernel's Object Editor.
+To exemplify how developers work directly on objects in the Lively Kernel, we will outline how a Lively Kernel user adds a new feature to the Object Editor.
 
 \begin{figure}[h]
     \centering
@@ -44,7 +44,7 @@ A basic button, as visible in \circnum{1}, can be found in the Parts Bin reposit
 In \circnum{2}, the user resizes the button and gives it a square extent using the \emph{Resize} halo button.
 Next, the user loads an image showing a magnifier icon.
 Using drag and drop the image is added to the button in \circnum{3}.
-Dropping a morph onto another creates a parent-child relationship which connects the two morphs.
+Dropping a morph onto another connects the two morphs.
 Moving the button around will then also move the image accordingly.
 Finally, the users adds the result of these manipulations, visible in \circnum{4}, to the Object Editor.
 
@@ -58,19 +58,20 @@ Finally, the users adds the result of these manipulations, visible in \circnum{4
 All these changes are made directly to the state of objects: the button morph, the magnifier image morph, and the editor morph.\\
 When programmers edit parts in this way, they often see the effects of their actions immediately.
 For example, when adding the new button to the Object Editor, the button is visible at all times.
-Programmers do not need to run any code to see and test the result.
+Programmers do not need to run any code to see and test the button.
 
 \paragraph{Scripting the Button Morph}
 Next, the magnifier button needs its behavior.
 The user adds scripts to the button that lay a translucent rectangle over the current target.
-The implementation of this includes the following: 
+The button gets an \lstinline{onMouseMove} script and an \lstinline{onMouseOut} script.
+The implementation of the behavior includes the following: 
 \begin{itemize}
     \item The button holds a semitransparent rectangle morph.
-    \item When the mouse enters the button (\lstinline{onMouseMove}), the button resizes and adds the rectangle to the world at the position of the target.
+    \item When the mouse enters the button (\lstinline{onMouseMove}), the button resizes and adds the rectangle to the Lively Kernel world at the position of the target.
     \item When the mouse leaves the button (\lstinline{onMouseOut}), the button removes the rectangle from the world again.
 \end{itemize}
  
-When developing scripts with the Object Editor, the editor allows to evaluate code in the context of its target.
+The Lively Kernel's scripting tools allow to evaluate code in the context of their target objects.
 So, when programmers want to test a script or even just specific lines of code, they can often try the behavior directly for the actual target.
 
 
@@ -78,18 +79,18 @@ So, when programmers want to test a script or even just specific lines of code, 
 
 While manipulating objects directly, developers might make changes that they later want to undo.
 
-In the previous example the user could, for example, make \emph{accidental changes}:
+In the previous example the user could make \emph{accidental changes}:
 
 \begin{itemize}
-    \item \textbf{Accidental changes to state}: The user could accidentally grap and move a morph such as the new button and, thereby, change a carefully arranged layout. Similarly, meaningful state could also be lost when a morph as, for example, the editor with its new button is accidentally removed from the world.
-    \item \textbf{Accidental changes to scripts}: The user could introduce a typographical error or accidentally remove a script. Moreover, editing a script could introduce an error or a decrease in performance.
+    \item \textbf{Accidental changes to state}: The user could accidentally grap and move a morph such as the new button and, thereby, change a carefully arranged layout. Similarly, meaningful state could also be lost when a morph as, for example, the new button is accidentally removed from the world.
+    \item \textbf{Accidental changes to scripts}: The user could introduce a typographical error to or accidentally remove a script. Moreover, editing a script could introduce a defect or a decrease in performance.
 \end{itemize}
 
-Besides these accidental changes, also well-intentioned changes can turn out to be \emph{inappropriate changes}:
+Besides these accidental changes, well-intentioned changes can also turn out to be \emph{inappropriate changes}:
 
 \begin{itemize}
     \item \textbf{Inappropriate changes through direct manipulation}: The user could make changes to the size, position, and colors of morphs to fine-tune the visual appearance of the editor's interface, only to decide later that a particular intermediate version was most appealing.
-    \item \textbf{Inappropriate changes through scripts}: The user could make a mistake in a workspace snippet that is intended to manipulate morph properties programmatically. Such a snippet can change numerous properties of many objects, so re-establishing a previous state would be a laborious task.
+    \item \textbf{Inappropriate changes through scripts}: The user could make a mistake in a workspace snippet that is intended to manipulate morph properties programmatically. Such a snippet can change many properties of many objects.
 \end{itemize}
 
 \begin{figure}[h]
@@ -101,17 +102,17 @@ Besides these accidental changes, also well-intentioned changes can turn out to 
 
 \paragraph{Explorative Script Evaluation}
 Undesirable changes can also be introduced when a programmer explores the behavior of objects by evaluating scripts.
-The Object Editor manipulates the scripts of a specific object and enables evaluating code directly for that target object.
+The Object Editor allows evaluating code directly for its target object.
 While such evaluation might help to understand the effects of particular code, it might also change the state of objects.
 For example, the user could be working on the button's \lstinline{onMouseMove} script and could evaluate a few lines of code to quickly test them.
 These lines, as shown in Figure~\ref{fig:onMouseOverScript}, would add the rectangle to the editor's current target.
-Evaluating just the selecting line would, however, not check the conditions usually above or set the state below these lines.
-Thus, evaluating this selection allows to test the highlighting behavior but leaves the system in a state that it would not normally be in.
+Evaluating just the selecting line would, however, not check the conditions usually checked above or set the state usually set below the selected lines.
+Therefore, evaluating this selection allows to test the highlighting behavior but leaves the system in a state that it would not normally be in.
 
-The examples show that there are many situations in which the user would want to undo actions.
-In programming systems like the Lively Kernel, where programmers work on objects, the development state consists of the state of objects.
-Changes are always made to the state of objects.
-Functions are properties of objects and even classes and modules are objects.
+The examples show that there are many situations in which the user might want to undo actions.
+In programming systems like the Lively Kernel, where programmers work on objects, changes are always made to the state of objects.
+Functions are properties of objects.
+Even classes and modules are objects.
 
 \begin{figure}[h]
     \centering
@@ -120,10 +121,10 @@ Functions are properties of objects and even classes and modules are objects.
     \label{fig:changedCharacter}
 \end{figure}
 
-For example, evaluating the text selection in Figure~\ref{fig:onMouseOverScript} changes the \lstinline{world} morph's state.
-In particular, the \lstinline{world}'s collection of submorphs would be altered.
-The world object has now one more submorph, as shown in Figure~\ref{fig:changedCharacter}.
+For example, evaluating the text selection in Figure~\ref{fig:onMouseOverScript} changes the \lstinline{world} object's state.
+The \lstinline{world} object has now one more submorph, as shown in Figure~\ref{fig:changedCharacter}.
+Thus, the \lstinline{world}'s collection of submorphs is changed.
 
-To undo the side-effect of the script and re-establish the previous situation, the change to the world object needs to be undone.
-The worlds \lstinline{submorphs} property needs to be as it previously was.\\
-When the state of all objects is preserved and can be re-established, previous system states can be recovered whenever recovery is necessary.
+To undo the side-effect of the script and re-establish the previous situation, the change to the \lstinline{world} object needs to be undone.
+The \lstinline{world}'s \lstinline{submorphs} property needs to be as it previously was.\\
+When the state of all objects is preserved and can be re-established, previous system states can be recovered when necessary.
