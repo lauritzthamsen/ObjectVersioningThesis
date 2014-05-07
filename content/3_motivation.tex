@@ -113,16 +113,16 @@ In programming systems like the Lively Kernel, where programmers work on objects
 Changes are always made to the state of objects.
 Functions are properties of objects and even classes and modules are objects.
 
-For example, evaluating the text selection in Figure~\ref{fig:onMouseOverScript} changes the \lstinline{world} morph's state.
-In particular, the \lstinline{world}'s collection of submorphs would be altered.
-The world object has now one more submorph, as shown in Figure~\ref{fig:changedCharacter}.
-
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.6\textwidth]{figures/3_motivation/5_stateChanges.pdf}
     \caption{Adding a submorph changes the state of a morph.}
     \label{fig:changedCharacter}
 \end{figure}
+
+For example, evaluating the text selection in Figure~\ref{fig:onMouseOverScript} changes the \lstinline{world} morph's state.
+In particular, the \lstinline{world}'s collection of submorphs would be altered.
+The world object has now one more submorph, as shown in Figure~\ref{fig:changedCharacter}.
 
 To undo the side-effect of the script and re-establish the previous situation, the change to the world object needs to be undone.
 The worlds \lstinline{submorphs} property needs to be as it previously was.\\
