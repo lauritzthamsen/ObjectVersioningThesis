@@ -3,60 +3,113 @@
 In the future, we would like our solution to become more practically useful for developers.
 As described in this chapter, this could be achieved by improving the performance of our implementation and providing tool support.
 
+
 \section{Improving the Performance} \label{sec:FUTURE_WORK:1}
 
-Our current implementation introduces a significant overhead to JavaScript execution as presented in Section~\ref{sec:EVALUATION:4}.
-This also reduces the responsiveness of many Lively Kernel tools considerably.
+Our current implementation introduces a significant execution overhead as presented in Section~\ref{sec:EVALUATION:4}.
+This also reduces the responsiveness of the Lively Kernel's tools considerably.
 
-Our proxy-based version-aware references trap read and write access and forward to the correct versions.
-The correct versions are selected dynamically on access.
-Thus, even for a single version of the system and only one version for each object, there is a constant overhead for resolving the version-aware references.
-When we want to speed-up the execution of JavaScript code, we need to reduce the time it takes to resolve version-aware references.
+The version-aware references resolve to versions of objects dynamically: the right version is selected the moment the version-aware references need to be resolved.
+Even though optimizations such as caching the current version are possible, a certain execution overhead is to be expected with this approach.\\
+However, our evaluation showed that most of the current overhead is introduced by the proxies we used for implementing version-aware references.
+Even when these proxies are configured to forward all interactions to a fixed target, it takes 200 times more time to have one of these proxies forward a property read than to read the property directly from the target.
+
+There are three different approaches to this performance problem:
+
+\begin{itemize}
+    \item \textbf{Waiting for faster proxies}: The proxies we used are not yet fully supported by browsers and it seems reasonable to expect better performance in the future.
+    \item \textbf{Using fewer proxies}: Proxies could be used only for the system parts for which state should be versioned.
+    \item \textbf{Implementing an alternative to proxies}: Instead of using proxies, version-aware references could be implemented differently. For example, a similar indirection could be provided by source transformations and ordinary JavaScript functions.
+\end{itemize}
+
+
+\subsubsection{Waiting for Faster Proxies}
 
 Our implementation uses the Direct Proxies that the ECMAScript 6 standard will add to the JavaScript language.
-As discussed in Section~\ref{sec:EVALUATION:4}, our specific proxy behavior---delegate to a changing version of an essentially unrelated object---is currently only an order of magnitude slower than the default behavior---delegate the access unchanged to the proxy's constant target.
-A slowdown of two orders of magnitude is introduced just by using proxies, independent of any version-aware behavior.
+The ECMAScript 6 specification has not yet been finalized.
+The current draft can be used in Chrome and Firefox, but is not fully implemented by their respective JavaScript engines.
+Instead, the proxies are currently implemented partly by a JavaScript library and partly by the JavaScript engines.
+In the future, the proxies will be implemented completely by the JavaScript engines.
+This will likely reduce their execution overhead.\\
+Moreover, it seems reasonable to assume that the performance of the current implementation of proxies has not yet been optimized.
+It is, after all, an experimental feature that has not yet been officially added to JavaScript.
 
-There are three different approaches to improving the performance of our implementation of version-aware references:
+\subsubsection{Using Fewer Proxies}
 
-\begin{description}
-    \item[Faster proxies] The proxies are not yet fully supported by browsers and we expect better performance in the future.
-    \item[Fewer proxies] Proxies could be used only for system parts for which state should be versioned.
-    \item[An alternative to proxies] Instead of using the JavaScript proxies, similar custom indirections could be provided using JavaScript functions and source transformations.
-\end{description}
-
-\paragraph{Faster Proxies}
-At the time of writing, the ECMAScript 6 specification that includes the Direct Proxies is only a draft.
-We are able to use these proxies already because Chrome and Firefox implement earlier proposals of the proxies and a library provides the Direct Proxies on top of these, as discussed in Section~\ref{sec:IMPLEMENTATION:4}.
-However, given that the Direct Proxies are marked as experimental feature in Chrome and currently partly implemented by JavaScript library instead by the JavaScript engines, it seems reasonable to expect performance improvements once ECMAScript 6 is finalized and implemented completely by the JavaScript engines.
-
-\paragraph{Fewer Proxies}
 We could use proxies less deliberately.
-Objects for which always only a single version exist are not required to be proxied.
-One example for a group of objects that do not need to be versioned are the intermediate results of the Lively Kernel's OMeta~\cite{Warth2007OOL} parser.
-The parser creates many objects while parsing code.
-These objects are only necessary during parsing, which in the end often only needs to return a success or failure.
-In fact, given JavaScript's single-threaded and cooperative execution it would not even be possible to switch the system version during parsing.
-So, there will be no previous versions for any of the objects only created as intermediate results of the parser.
-The version-aware references to such temporary objects, however, still impede performance significantly.
+The state of some parts of the system could be excluded from versioning if access to previous states of such parts is not required.
+Moreover, there are even objects for which predictably only one version will exist.
 
-\paragraph{An Alternative to Proxies}
-Equivalent indirections as provided by the proxies can be faster when provided manually through custom JavaScript functions and source transformations, as discussed in Section~\ref{sec:EVALUATION:4}.
-This suggests an alternative to using proxies.
-We could still use objects as stand-ins for the versions of an object, but implement the delegation behavior with ordinary JavaScript functions.
-These functions could be inserted automatically by source transformations.
-The source transformations could look similar to the following transformation:
+For example, one system part that could be excluded from versioning is the Lively Kernel's \emph{OMeta}~\cite{Warth2007OOL} parser.
+The parser is, for example, used by to check for syntax errors before changes to code can be saved.
+It creates many objects while parsing code.
+Therefore, parsing takes much more time when all object interactions go through proxies.
+These objects capture intermediate states of the parser, while in the end often only a success or failure is returned.
+In fact, given JavaScript's single-threaded, cooperatively scheduled execution it would not even be possible to switch versions during parsing.
+So, there would not be multiple versions of the objects available only while the parser runs.\\
+The parser could, however, return objects as results or otherwise make objects available to other system parts.
+When the objects are provided to versioned system parts, the objects could become part of the state of the versioned system parts.
+They would then have to wrapped into proxies to be able the preserve the complete state of the versioned system parts.
+
+
+\subsubsection{Implementing An Alternative to Proxies}
+
+Version-aware references could be implemented without using proxies.
+
+Ordinary JavaScript functions could be used to carry out object interactions on the right versions of objects.
+These functions would be similar to the traps of our proxy handler \todo{ref to our proxy traps}.
+For example, a \lstinline{get} function could allow reading a property from the current version of an object.
+Its code could look similar to the following:
+
+\iffalse
+\begin{verbatim}\fi
+\begin{code}[lst:getFunction]{}{float}
+function get(standIn, propertyName) {
+    var version = lively.getCurrentVersionOf(standIn);
+    return version[propertyName];
+}
+\end{code}
+\iffalse
+\end{verbatim}\fi
+
+The first parameter to this function would be an ordinary object that stands-in for the versions of an object.
+The \lstinline{getCurrentVersionOf} function uses the \lstinline{standIn} parameter to retrieve the current version of an object.
+For this, the \lstinline{standIn} object could hold the versions of an object or be a key to a dictionary.
+
+Functions like the \lstinline{get} function could be inserted automatically by source transformations.
+The source transformations to read a property \lstinline{age} from an object \lstinline{person} could look as follows:
 
 \begin{center}
     \begin{tabular}{ lll }
-    \lstinline|obj.func()| & --> & \lstinline|apply(obj, get(obj, func))| \\
+    \lstinline|person.age| & --> & \lstinline|get(person, 'age')| \\
     \end{tabular}
 \end{center}
 
-From these three approaches, using an alternative to proxies seems most promising.
-Using proxies only for parts of the system that should be versioned would only be sufficient if these parts would not require performance improvements, which they, however, currently do.
-Waiting for faster proxy implementations in the JavaScript engine might work, but is no short-term solution as an release date for the ECMAScript 6 specification has not yet been announced.
+Other object interactions could be handled in similar functions.
+For example, an \lstinline{apply} function could apply a version of a function.
 
+To call a function \lstinline{dance} of an object \lstinline{person} in a version of the system, two steps are necessary.
+First, the \lstinline{dance} property has to be read from the right version of the \lstinline{person}.
+Second, the right version of the \lstinline{dance} property, which is expected to be a function, needs to be applied.
+Therefore, calling a function of an object would require to insert the \lstinline{get} function and the \lstinline{apply} function:
+
+\begin{center}
+    \begin{tabular}{ lll }
+    \lstinline|person.dance()| & --> & \lstinline|apply(person, get(person, 'dance'))| \\
+    \end{tabular}
+\end{center}
+
+When the \lstinline{dance} function is applied, the \lstinline{this} keyword needs to refer to the right version of the \lstinline{person} object, because the \lstinline{dance} function is a method of the \lstinline{person} object.
+Therefore, the \lstinline{apply} function is called with the \lstinline{person} stand-in.
+
+\subsubsection{Discussion of the Approaches}
+
+Of the three approaches, using an alternative to proxies seems most promising.
+
+Using proxies only for parts of the system that should be versioned would only be sufficient if these parts would not require performance improvements, which they, however, currently do.\\
+Waiting for faster proxy implementations in the JavaScript engine is an option, but there is no official release date for the ECMAScript 6 specification yet.\\
+Furthermore, early performance tests indicated that the suggested alternative implementation of version-aware references would actually be faster.
+In particular, a microbenchmark showed that going through a function to read a property of an object is only twice as expensive as reading the property directly.
 
 
 \section{Providing Recovery Tools}
@@ -89,11 +142,12 @@ The Lively Kernel could automatically preserve versions whenever a developer doe
 
 This way, whenever programmers realize changes were inappropriate, they can undo their actions.
 
+
 \subsection{Tools For Finding and Managing Versions}
 
 The system should support developers in finding and re-establishing relevant states.
 
-\subsubsection{Finding Relevant Versions}
+\subsubsection{Finding Versions}
 
 Besides preserving versions continuously on a granularity helpful to developers, we want the system to present helpful information to each version.
 The system could present three categories of information:
@@ -108,13 +162,13 @@ Changes can often be associated with static information as, for example, a class
 Some objects as, for example, morphs could be related to the scenegraph of visible morphs.
 Furthermore, morphs can have individual names in the Lively Kernel.
 
-\subsubsection{Version Management}
+\subsubsection{Managing Versions}
 
 When developers find a relevant previous state, they might want to use it for different purposes:
 
 \begin{description}
     \item[Revisiting previous states] Programmers might want to re-establish a particular state of the system without making changes. For example, they might want to see how an application behaved at a particular moment to compare that to the current state.
-    \item[Recovering previous states] Programmers might want to recover state from one version in another version. For example, they could want to recover a particular version of an application or the state of a tool such as a browser. 
+    \item[Recovering previous states] Programmers might want to recover state from one version in another version. For example, they could want to recover a particular version of an application or the state of a tool such as a browser.
     \item[Trying alternatives] Programmers might want to try a new idea in an earlier version without loosing neither that version nor any following versions. Therefore, they might want to create a branch as an alternative to the main line of version history.
 \end{description}
 
