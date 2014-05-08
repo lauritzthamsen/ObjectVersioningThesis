@@ -53,41 +53,45 @@ The source transformations could look similar to the following transformation:
     \end{tabular}
 \end{center}
 
-From these three approaches, using an alternative to proxies promises the fastest results.
+From these three approaches, using an alternative to proxies seems most promising.
 Using proxies only for parts of the system that should be versioned would only be sufficient if these parts would not require performance improvements, which they, however, currently do.
 Waiting for faster proxy implementations in the JavaScript engine might work, but is no short-term solution as an release date for the ECMAScript 6 specification has not yet been announced.
 
 
+
 \section{Providing Recovery Tools}
 
-Our implementation allows to preserve and re-establish versions of the Lively Kernel system.
-These versions currently still need to be created explicitly and there is a need for tool support to find and manage versions.
+Our implementation allows to preserve and re-establish versions of the Lively Kernel's state.
+These versions currently still need to be created explicitly and there are no tools yet to find and manage versions.
 
 
 \subsection{Preserving Versions Automatically}
 
-With our implementation, programmers need to preserve particular versions explicitly.
-Preserving versions explicitly is a significant effort.
-It is time consuming to assess the risk of upcoming changes, run appropriate tests to check the current state, and commit a version.
-Moreover, programmers might forget to preserve versions or even deliberately decide against it after underestimating the risk of changes.
+With our implementation, programmers need to preserve versions to be able to re-establish them later.
+Preserving versions is an effort.
+It is difficult to assess the risk of upcoming changes when deciding whether a state needs to be preserved.
+Programmers could deliberately decide against preserving a version after underestimating the risk of changes.
+They might forget to preserve versions.
+Moreover, it is time consuming to run appropriate tests to ensure that the current state is a good state to preserve.\\
 For these reasons, we want the system to preserve a fine-grained history automatically.
 
 The system could create versions of the runtime for any change to an object.
 However, even if that were technically feasible, programmers need to be able to find and recognize relevant versions efficiently.
-Therefore, we propose that the system creates versions continuously as proposed by CoExist.
-This allows developers to undo their actions whenever they recognize that the actions did not improve the state of their applications or the programming environment.
+Therefore, we propose that the system records versions automatically as proposed by CoExist: preserve a version for each action of a programmer.
 
-The Lively Kernel could automatically preserve versions of the system whenever a developer does any of the following:
+The Lively Kernel could automatically preserve versions whenever a developer does any of the following:
 \begin{itemize}
     \item manipulate properties of a morph directly with a halo tool or through drag and drop
     \item add, remove, or edit a script of a morph or a method of a class
     \item evaluate a code snippet (``Do-It'')
-    \item trigger code execution by with a mouse or keyboard interaction
+    \item trigger code execution through a mouse or keyboard interaction
 \end{itemize}
+
+This way, whenever programmers realize changes were inappropriate, they can undo their actions.
 
 \subsection{Tools For Finding and Managing Versions}
 
-The system should support developers in finding and re-establishing relevant states with dedicated tools.
+The system should support developers in finding and re-establishing relevant states.
 
 \subsubsection{Finding Relevant Versions}
 
@@ -100,18 +104,18 @@ The system could present three categories of information:
     \item[what] Versions could store information on what was changed between two version: which objects did change, how these objects changed, and how this affected tests and benchmarks.
 \end{description}
 
-The change can often be associated with static information as, for example, a class, a module, and a containing file.
-For some objects as, for example, morphs the Lively Kernel could show these static information, but in addition also relate the object to the scenegraph of visible morphs.
-Furthermore, some morphs have individual names.
+Changes can often be associated with static information as, for example, a class, a module, and a containing file.
+Some objects as, for example, morphs could be related to the scenegraph of visible morphs.
+Furthermore, morphs can have individual names in the Lively Kernel.
 
 \subsubsection{Version Management}
 
-When developers have recovery needs and also find the particular previous state they are looking for, they might want to revisit it for different purposes:
+When developers find a relevant previous state, they might want to use it for different purposes:
 
 \begin{description}
-    \item[Revisiting previous states] Programmers might want to re-establish a particular state of the system without making changes. For example, they might want to see how an application behaved or appeared at a particular moment without changing neither that state nor the most recent version.
-    \item[Trying alternatives] Programmers might want to try an alternative without loosing all versions following the one they are currently revisiting. Therefore, they might want to create a branch as an alternative to the main line of version history.
-    \item[Recovering previous states] Programmers might want to recover state from one version for another version. For example, they could want to recover a particular version of an application or the state of a tool such as a browser. 
+    \item[Revisiting previous states] Programmers might want to re-establish a particular state of the system without making changes. For example, they might want to see how an application behaved at a particular moment to compare that to the current state.
+    \item[Recovering previous states] Programmers might want to recover state from one version in another version. For example, they could want to recover a particular version of an application or the state of a tool such as a browser. 
+    \item[Trying alternatives] Programmers might want to try a new idea in an earlier version without loosing neither that version nor any following versions. Therefore, they might want to create a branch as an alternative to the main line of version history.
 \end{description}
 
 We want programmers to be able to re-visit versions of the system and to be able to create, merge, and delete lines of history.
