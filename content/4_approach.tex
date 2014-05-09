@@ -222,7 +222,8 @@ This way, proxies provide object identity.
 Checks that would usually compare an object to another objects now compare a proxy to another proxy.
 
 As only the proxies hold references to the versions of objects, the versions get garbage collected with the proxies when the proxies are no longer reachable.
-For example, in the code of Listing~\ref{lst:deletedAddress}, there would temporarily exist a version-aware reference---a proxy---connecting the \lstinline{person} object to an \lstinline{address} object:
+For example, in the code of Listing~\ref{lst:deletedAddress}, there would temporarily exist a version-aware reference---a proxy---connecting the \lstinline{person} object to an \lstinline{address} object, but the reference gets deleted before a version of the system is preserved.
+The \lstinline{address} object is not required to re-establish either version \emph{1} or version \emph{2} of the system and nothing does prevent the garbage collector from reclaiming the proxy for the \lstinline{address} object with the \lstinline{address} object.
 
 \iffalse
 \begin{verbatim}\fi
@@ -241,10 +242,6 @@ For example, in the code of Listing~\ref{lst:deletedAddress}, there would tempor
 \end{code}
 \iffalse
 \end{verbatim}\fi
-
-The reference to the \lstinline{address} object gets deleted before a version of the system is preserved.
-It is not required to re-establish either version \emph{1} or version \emph{2} of the system.
-Nothing does prevent the garbage collector from reclaiming the proxy for the \lstinline{address} object with the \lstinline{address} object.
 
 
 \subsubsection{Versions of the System}
