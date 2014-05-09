@@ -1,3 +1,6 @@
+% Proxies stand-in for multiple versions, intercept all access, and forward to the correct version.
+
+
 \chapter{Implementation} \label{chapter:IMPLEMENTATION}
 
 This chapter describes how we used the ECMAScript 6 proxies to implement version-aware references for the Lively Kernel.
@@ -109,7 +112,7 @@ The traps fire either when the proxy is accessed with specific JavaScript operat
 For example, the \lstinline{preventExtensions}-trap fires when a proxy is passed to the built-in \lstinline{Object.preventExtensions()} function, which prevents subsequentely adding new properties to an object.
 
 
-\subsubsection{Versions of Objects and the System}
+\subsubsection{Versions of Objects and the System} \label{subsubsec:DocumentModelProblem}
 
 Besides implementing the traps, our proxy handlers also hold the versions of the represented object.
 For this, the proxy handler uses a JavaScript object to map version itentifiers to the actual versions of the object.
@@ -143,6 +146,14 @@ Using the proxies and system versions, the state of all mutable JavaScript objec
 Certain host objects in JavaScript engines, however, cannot be versioned.
 For example, the objects that only represent the elements of the browser's document model cannot be copied.
 To still have changes to graphical objects be visible immediately, we update the HTML document from the current set of visible morphs manually when the system version changes.
+
+
+
+% TODO: add this, as we refer to it from the evaluation:
+These objects consume space, but cannot be versioned with our approach.
+They are referred to from the browser's document model which is external to the JavaScript runtime and which, thus, does not use version-aware references.
+Moreover, some of these objects cannot be copied to create new versions.
+
 
 
 \section{Proxies For All Mutable JavaScript Objects}
@@ -207,7 +218,7 @@ The transformations of literal objects, arrays, and functions are shown by examp
 
 \begin{table}[h]
 \begin{center}
-\begin{tabular}{| l | l | l | l |}
+\begin{tabular}{| l | l | l |}
 \hline
 Type & Original code & Transformed code \\ \hline
 \emph{Objects} & \lstinline|{name: 'James', age: 24}| & \lstinline|proxyFor(name: 'James', age: 24)| \\ \hline
@@ -388,7 +399,7 @@ anObject instanceof Type -> Object.instanceof(anObject, Type)
 While there is no trap for the \lstinline{instanceof} operator in the current specification, trapping the operator is under discussion\footnote{\url{http://wiki.ecmascript.org/doku.php?id=harmony:direct_proxies\#discussed_during_tc39_july_2012_meeting_microsoft_redmond}, accessed May 1, 2014}.
 
 
-\subsection{Unwrapping Versions for Native Code}
+\subsection{Unwrapping Versions for Native Code} \label{subsec:IMPLEMENTATION:4.3}
 
 Some built-in JavaScript functions react to proxies with actual errors, return wrong results, or otherwise do not provide the usual functionality.
 Therefore, these functions need to be provided with actual objects instead of the proxy.
