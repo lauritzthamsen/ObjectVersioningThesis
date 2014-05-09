@@ -1,25 +1,24 @@
 \chapter{Future Work} \label{chapter:FUTURE_WORK}
 
-In the future, we would like our solution to become more practically useful for developers.
+In the future, we would like our solution to become more practically useful.
 As described in this chapter, this could be achieved by improving the performance of our implementation and providing tool support.
 
 
 \section{Improving the Performance} \label{sec:FUTURE_WORK:1}
 
 Our current implementation introduces a significant execution overhead as presented in Section~\ref{sec:EVALUATION:4}.
-This also reduces the responsiveness of the Lively Kernel's tools considerably.
 
-The version-aware references resolve to versions of objects dynamically: the right version is selected the moment the version-aware references need to be resolved.
-Even though optimizations such as caching the current version are possible, a certain execution overhead is to be expected with this approach.\\
+The version-aware references resolve to versions of objects dynamically: the correct version is selected the moment the version-aware references are resolved.
+Even though optimizations such as caching the current versions are possible, a certain execution overhead is to be expected with this approach.\\
 However, our evaluation showed that most of the current overhead is introduced by the proxies we used for implementing version-aware references.
-Even when these proxies are configured to forward all interactions to a fixed target, it takes 200 times more time to have one of these proxies forward a property read than to read the property directly from the target.
+Even when these proxies are configured to forward all interactions to a fixed target, it takes 200 times more time to have a proxy forward a property read than to read the property directly from the target.
 
 There are three different approaches to this performance problem:
 
 \begin{itemize}
-    \item \textbf{Waiting for faster proxies}: The proxies we used are not yet fully supported by browsers and it seems reasonable to expect better performance in the future.
+    \item \textbf{Waiting for faster proxies}: The proxies we used are not yet fully supported by the JavaScript engines and it seems reasonable to expect better performance in the future.
     \item \textbf{Using fewer proxies}: Proxies could be used only for the system parts for which state should be versioned.
-    \item \textbf{Implementing an alternative to proxies}: Instead of using proxies, version-aware references could be implemented differently. For example, a similar indirection could be provided by source transformations and ordinary JavaScript functions.
+    \item \textbf{Implementing an alternative to proxies}: Instead of using proxies, version-aware references could be implemented differently. A similar indirection could be provided using source transformations and ordinary JavaScript functions.
 \end{itemize}
 
 
@@ -28,10 +27,10 @@ There are three different approaches to this performance problem:
 Our implementation uses the Direct Proxies that the ECMAScript 6 standard will add to the JavaScript language.
 The ECMAScript 6 specification has not yet been finalized.
 The current draft can be used in Chrome and Firefox, but is not fully implemented by their respective JavaScript engines.
-Instead, the proxies are currently implemented partly by a JavaScript library and partly by the JavaScript engines.
-In the future, the proxies will be implemented completely by the JavaScript engines.
-This will likely reduce their execution overhead.\\
-Moreover, it seems reasonable to assume that the performance of the current implementation of proxies has not yet been optimized.
+Instead, the proxies are currently provided partly by a JavaScript library and partly by the JavaScript engines.
+In the future, the proxies will be implemented fully by the JavaScript engines.
+This will likely reduce the execution overhead.\\
+Moreover, it seems reasonable to assume that the parts already implemented by the engines have not yet been optimized. 
 It is, after all, an experimental feature that has not yet been officially added to JavaScript.
 
 \subsubsection{Using Fewer Proxies}
@@ -44,12 +43,18 @@ For example, one system part that could be excluded from versioning is the Livel
 The parser is, for example, used by to check for syntax errors before changes to code can be saved.
 It creates many objects while parsing code.
 Therefore, parsing takes much more time when all object interactions go through proxies.
-These objects capture intermediate states of the parser, while in the end often only a success or failure is returned.
-In fact, given JavaScript's single-threaded, cooperatively scheduled execution it would not even be possible to switch versions during parsing.
-So, there would not be multiple versions of the objects available only while the parser runs.\\
+Many objects capture intermediate states of the parser, while in the end often only a success or failure needs to be returned.
+Given JavaScript's single-threaded, cooperatively scheduled execution it is not possible to switch versions during parsing.
+So, there would not be multiple versions of the objects that are only available while the parser runs.\\
 The parser could, however, return objects as results or otherwise make objects available to other system parts.
-When the objects are provided to versioned system parts, the objects could become part of the state of the versioned system parts.
-They would then have to wrapped into proxies to be able the preserve the complete state of the versioned system parts.
+At that moment, these objects would have to be wrapped into proxies before becoming part of the versioned system state.
+
+Another option would be to use object versioning only during development.
+This way, applications could run without the overhead of the proxies when versioning is not required.\\
+Our implementation introduces the proxies using source transformations on load-time.
+A Lively Kernel world can be loaded with source transformations to be able to preserve versions.
+The world can be saved and reloaded without source transformation to have it run at full speed.
+Appropriate tool support could allow users to switch whether versioning should be active for specific worlds.
 
 
 \subsubsection{Implementing An Alternative to Proxies}
@@ -57,9 +62,9 @@ They would then have to wrapped into proxies to be able the preserve the complet
 Version-aware references could be implemented without using proxies.
 
 Ordinary JavaScript functions could be used to carry out object interactions on the right versions of objects.
-These functions would be similar to the traps of our proxy handler \todo{ref to our proxy traps}.
+These functions could be similar to the traps of our proxy handlers \todo{ref to our proxy traps}.
 For example, a \lstinline{get} function could allow reading a property from the current version of an object.
-Its code could look similar to the following:
+It could look similar to the following function:
 
 \iffalse
 \begin{verbatim}\fi
@@ -72,12 +77,12 @@ function get(standIn, propertyName) {
 \iffalse
 \end{verbatim}\fi
 
-The first parameter to this function would be an ordinary object that stands-in for the versions of an object.
-The \lstinline{getCurrentVersionOf} function uses the \lstinline{standIn} parameter to retrieve the current version of an object.
+The first parameter to this \lstinline{get} function would be an ordinary object that stands-in for the versions of an object.
+The \lstinline{getCurrentVersionOf} function uses this \lstinline{standIn} parameter to retrieve the current version of an object.
 For this, the \lstinline{standIn} object could hold the versions of an object or be a key to a dictionary.
 
 Functions like the \lstinline{get} function could be inserted automatically by source transformations.
-The source transformations to read a property \lstinline{age} from an object \lstinline{person} could look as follows:
+The source transformation necessary to read an \lstinline{age} property from a version of a \lstinline{person} object could look as follows:
 
 \begin{center}
     \begin{tabular}{ lll }
@@ -85,10 +90,10 @@ The source transformations to read a property \lstinline{age} from an object \ls
     \end{tabular}
 \end{center}
 
-Other object interactions could be handled in similar functions.
+Other kinds of object interactions could be handled in similar functions.
 For example, an \lstinline{apply} function could apply a version of a function.
 
-To call a function \lstinline{dance} of an object \lstinline{person} in a version of the system, two steps are necessary.
+To call a \lstinline{dance} function of a \lstinline{person} object in a version of the system, two steps are necessary.
 First, the \lstinline{dance} property has to be read from the right version of the \lstinline{person}.
 Second, the right version of the \lstinline{dance} property, which is expected to be a function, needs to be applied.
 Therefore, calling a function of an object would require to insert the \lstinline{get} function and the \lstinline{apply} function:
@@ -99,17 +104,16 @@ Therefore, calling a function of an object would require to insert the \lstinlin
     \end{tabular}
 \end{center}
 
-When the \lstinline{dance} function is applied, the \lstinline{this} keyword needs to refer to the right version of the \lstinline{person} object, because the \lstinline{dance} function is a method of the \lstinline{person} object.
-Therefore, the \lstinline{apply} function is called with the \lstinline{person} stand-in.
+When the \lstinline{dance} function is applied as method of the \lstinline{person} object, the \lstinline{this} keyword needs to refer to the right version of the \lstinline{person} object.
+For this reason, the \lstinline{apply} function is called with the \lstinline{person} stand-in in this example.
 
 \subsubsection{Discussion of the Approaches}
 
-Of the three approaches, using an alternative to proxies seems most promising.
-
-Using proxies only for parts of the system that should be versioned would only be sufficient if these parts would not require performance improvements, which they, however, currently do.\\
-Waiting for faster proxy implementations in the JavaScript engine is an option, but there is no official release date for the ECMAScript 6 specification yet.\\
-Furthermore, early performance tests indicated that the suggested alternative implementation of version-aware references would actually be faster.
-In particular, a microbenchmark showed that going through a function to read a property of an object is only twice as expensive as reading the property directly.
+Of the three approaches, using an alternative to proxies seems most promising.\\
+Using proxies selectively for specific system parts or worlds would only be sufficient if these would not require performance improvements.\\
+Waiting for a faster proxy implementations is an option, but there is not even an official release date for the ECMAScript 6 specification yet.\\
+At the same time, early performance tests indicate that the alternative implementation of version-aware references could be faster.
+In particular, microbenchmarks show that going through a function to read a property of an object is only twice as expensive as reading the property directly.
 
 
 \section{Providing Recovery Tools}
