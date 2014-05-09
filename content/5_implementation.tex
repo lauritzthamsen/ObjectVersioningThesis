@@ -45,9 +45,11 @@ The \emph{receiver} parameter is the receiving proxy and is only necessary for h
 Our proxy handler uses the traps to delegate all access to the current version of an object.
 Its \emph{get}-trap is implemented as indicated by the following code snippet, which leaves out much of the special cases to highlight the general behavior:
 
+Listing~\ref{lst:test}..
+
 \iffalse
 \begin{verbatim}\fi
-\begin{code}{}{}
+\begin{code}{CAPTION??}{float,numbers=left}
 get: function(dummyTarget, name, receiver) {
 
     var version = this.currentVersion();
@@ -63,6 +65,7 @@ get: function(dummyTarget, name, receiver) {
     return this.ensureProxied(result);
 }
 \end{code}
+\label{lst:test}
 \iffalse
 \end{verbatim}\fi
 
@@ -144,14 +147,14 @@ That is, while a JavaScript script runs, the global version cannot be changed by
 \paragraph{Scope of the Versions}
 Using the proxies and system versions, the state of all mutable JavaScript objects can be preserved and re-established.
 Certain host objects in JavaScript engines, however, cannot be versioned.
-For example, the objects that only represent the elements of the browser's document model cannot be copied.
+For example, the objects that represent the elements of the browser's \ac{dom} cannot be copied.
 To still have changes to graphical objects be visible immediately, we update the HTML document from the current set of visible morphs manually when the system version changes.
 
 
 
 % TODO: add this, as we refer to it from the evaluation:
 These objects consume space, but cannot be versioned with our approach.
-They are referred to from the browser's document model which is external to the JavaScript runtime and which, thus, does not use version-aware references.
+They are referred to from the browser's \ac{dom} which is external to the JavaScript runtime and which, thus, does not use version-aware references.
 Moreover, some of these objects cannot be copied to create new versions.
 
 
@@ -407,7 +410,7 @@ Therefore, these functions need to be provided with actual objects instead of th
 Our implementation provides the current version of an object to these built-in functions through proxy handler traps and patched built-in functions.
 
 The \emph{apply}-trap, called when proxied functions get applied, unwraps all arguments and the \emph{thisContext} object, when the applied function is a built-in functions that does not handle proxies correctly.
-This is for example the case for the functions that provide access to the browser's document model.
+This is for example the case for the functions that provide access to the browser's \ac{dom}.
 
 The \emph{set}-trap sometimes needs to unwrap the assigned value when that value is proxied and gets assigned to slots that cannot handle proxies.
 This is for example the case with the \lstinline{onreadystatechange} slot of \emph{XMLHttpRequest} objects.

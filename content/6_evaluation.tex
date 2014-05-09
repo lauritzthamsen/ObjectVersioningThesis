@@ -261,11 +261,11 @@ In particular, the microbenchmark shows how much time the proxies require to int
 % We resolved a reference that connects a \lstinline{client} object to a \lstinline{server} object a million times to read and call a function property.
 We measured how long it takes to resolve a reference as well as read and call a function property a million times.
 The reference connects a \lstinline{client} object to a \lstinline{server} object.
-The code of which we measured the execution time is the following:
+The code of which we measured the execution time is shown in Listing~\ref{lst:microbenchmark}.
 
 \iffalse
 \begin{verbatim}\fi
-\begin{code}[lst:microbenchmark]{}{float}
+\begin{code}[lst:microbenchmark]{Code we measured for the microbenchmark.}{float}
 for (var i=0; i < 1000000; i++) {
     client.server.foo();
 } 
