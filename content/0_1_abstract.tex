@@ -36,22 +36,22 @@ With performance improvements, however, the solution could be used to provide pr
 \begin{zusammenfassung}
 
 In Programmiersystemen wie dem Lively Kernel können Entwickler Anwendungen aus Objekten erstellen.
-Dabei erlauben es dedizierte Werkzeuge den Zustand und das Verhalten von Objekten zur Laufzeit zu verändern.
+Dabei erlauben dedizierte Werkzeuge den Zustand und das Verhalten von Objekten zur Laufzeit zu verändern.
 Programmierer werden ermutigt direkt Änderungen zu machen und erhalten umgehend Feedback auf ihr Handeln.
 
-Wenn Programmierer aber Fehler in solchen Programmiersystemen machen, müssen sie die Auswirkungen ihrer Handlungen rückgängig machen.
+Wenn Programmierer in solchen Programmiersystemen allerdings Fehler machen, müssen sie die Folgen ihres Handelns rückgängig machen.
 Dazu müssen Programmierer Objekte manuell bearbeiten oder Teile ihrer Anwendungen neu laden.
 Dabei können die gemachten Änderungen über viele Objekte verteilt sein.
 Vorherige Zustände wiederherzustellen ist deshalb häufig schwierig und zeitaufwendig.
 
 Diese Arbeit stellt einen Ansatz für die Versionierung von Objekten in Systemen wie dem Lively Kernel vor.
-Zugang zu vorherigen Zuständen von Objekten wird durch \emph{Versionsbewusste Referenzen} bewahrt.
+Zugang zu vorherigen Objektzuständen wird durch \emph{Versions-bewusste-Referenzen} erhalten.
 Diese Referenzen können zu mehreren Versionen von Objekten aufgelöst werden und erlauben so vorherige Systemzustände wiederherzustellen.
 
 Diese Arbeit präsentiert einen auf Proxys basierenden Entwurf und eine Implementierung für den Lively Kernel.
 Eine Evaluierung zeigt, dass der Lively Kernel mit der Implementierung ausgeführt werden kann und dass diese es erlaubt vorherige Zustände des Systems wiederherzustellen.
-Der zusätzlich nötige Arbeitsspeicher ist dabei vertretbar, die Programmausführung wird jedoch momentan noch erheblich verlangsamt.
-Mit Verbesserungen könnte die Lösung allerdings benutzt werden um Entwickler mit praktikablen Wiederherstellungs-Werkzeugen zu unterstützen.
+Der zusätzlich nötige Arbeitsspeicher ist dabei vertretbar, die Programmausführung wird jedoch momentan erheblich verlangsamt.
+Mit Verbesserungen könnte die Lösung allerdings wirklich benutzt werden, um Entwickler mit Wiederherstellungs-Werkzeugen zu unterstützen.
 
 \end{zusammenfassung}
 
