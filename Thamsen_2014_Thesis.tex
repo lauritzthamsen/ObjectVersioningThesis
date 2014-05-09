@@ -5,12 +5,14 @@
 % Other
 %  print - do not color links
 %
-
 \PassOptionsToPackage{final}{graphics}
+
 
 \documentclass[draft,master]{swathesis}
 
-% my additions --- begin
+
+
+\def\fromname{by}
 
 \KOMAoptions{parskip=true}
 
@@ -24,10 +26,10 @@
   \ding{\value{dingdistance}}%
   \setcounter{dingdistance}{191}}
 
+
+
+
 \addbibresource{thesis.bib}
-
-% my additions --- end
-
 
 \usepackage{titlepage}
 \TitlePageStyle[
@@ -46,8 +48,11 @@ Bastian Steinert
 \author{Lauritz Thamsen}
 \location{Potsdam}
 \extratitle{\raggedleft Thamsen, \\ Object Versioning for the Lively Kernel\par}
-\title{Object Versioning for the Lively Kernel}
+\title{Object Versioning for the Lively Kernel\\}
 \subtitle{Preserving Access to Previous System States\\ in an Object-oriented Programming System}
+
+% TODO:
+% Deutscher Titel: Objekt Versionierung für den Lively Kernel: Wiederherstellung von vorherigen Systemzuständen in einem objekt-orientieren Programmiersystem
 
 \begin{document}
 \frontmatter
