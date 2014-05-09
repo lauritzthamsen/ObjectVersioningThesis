@@ -13,16 +13,16 @@ Programmers are encouraged to make changes directly and receive immediate feedba
 When programmers, however, make mistakes in such programming systems, they need to undo the effects of their actions.
 For this, programmers either have to edit objects manually or re-load parts of their applications.
 Moreover, changes can spread across many objects.
-Recovering previous states is, therefore, often error-prone and time consuming.
+Recovering previous states is, therefore, often error-prone and time-consuming.
 
 % Approach
-This thesis presents an approach to object versioning for systems like the Lively Kernel.
-Access to previous versions of objects is preserved using alternative, version-aware references.
-These references resolve to particular versions of objects and, thereby, dynamically re-establish preserved states of the system.
+This thesis introduces an approach to object versioning for systems like the Lively Kernel.
+Access to previous versions of objects is preserved using \emph{version-aware references}.
+These references can be resolved to multiple versions of objects and, thereby, allow re-establishing preserved states of the system.
 
 % Results
 This thesis presents a design based on proxies and an implementation for the Lively Kernel.
-Our evaluation shows that the Lively Kernel can run with our proxy-based version-aware references and that preserved system states can be re-established.
+An evaluation shows that the Lively Kernel can run with our proxy-based version-aware references and that preserved system states can be re-established.
 The memory overhead of the version-aware references is reasonable.
 The execution overhead is not yet practical.
 % Conclusion
@@ -30,11 +30,29 @@ With performance improvements, however, the solution could be used to provide pr
 
 \end{abstract}
 
+
+
+
 \begin{zusammenfassung}
-  Die Zusammenfassung auf deutsch.
-  
-  \todosec{Missing Section: Abstract (deutsch)}
-  
+
+In Programmiersystemen wie dem Lively Kernel können Entwickler Anwendungen aus Objekten erstellen.
+Dabei erlauben es dedizierte Werkzeuge den Zustand und das Verhalten von Objekten zur Laufzeit zu verändern.
+Programmierer werden ermutigt direkt Änderungen zu machen und erhalten umgehend Feedback auf ihr Handeln.
+
+Wenn Programmierer aber Fehler in solchen Programmiersystemen machen, müssen sie die Auswirkungen ihrer Handlungen rückgängig machen.
+Dazu müssen Programmierer Objekte manuell bearbeiten oder Teile ihrer Anwendungen neu laden.
+Dabei können die gemachten Änderungen über viele Objekte verteilt sein.
+Vorherige Zustände wiederherzustellen ist deshalb häufig schwierig und zeitaufwendig.
+
+Diese Arbeit stellt einen Ansatz für die Versionierung von Objekten in Systemen wie dem Lively Kernel vor.
+Zugang zu vorherigen Zuständen von Objekten wird durch \emph{Versionsbewusste Referenzen} bewahrt.
+Diese Referenzen können zu mehreren Versionen von Objekten aufgelöst werden und erlauben so vorherige Systemzustände wiederherzustellen.
+
+Diese Arbeit präsentiert einen auf Proxys basierenden Entwurf und eine Implementierung für den Lively Kernel.
+Eine Evaluierung zeigt, dass der Lively Kernel mit der Implementierung ausgeführt werden kann und dass diese es erlaubt vorherige Zustände des Systems wiederherzustellen.
+Der zusätzlich nötige Arbeitsspeicher ist dabei vertretbar, die Programmausführung wird jedoch momentan noch erheblich verlangsamt.
+Mit Verbesserungen könnte die Lösung allerdings benutzt werden um Entwickler mit praktikablen Wiederherstellungs-Werkzeugen zu unterstützen.
+
 \end{zusammenfassung}
 
 %%% Local Variables:
