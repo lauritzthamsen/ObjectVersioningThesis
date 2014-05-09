@@ -64,11 +64,11 @@ Version-aware references could be implemented without using proxies.
 Ordinary JavaScript functions could be used to carry out object interactions on the right versions of objects.
 These functions could be similar to the traps of our proxy handlers \todo{ref to our proxy traps}.
 For example, a \lstinline{get} function could allow reading a property from the current version of an object.
-It could look similar to the following function:
+The \lstinline{get} function could be implemented similarly to the function shown in Listing~\ref{lst:getFunction}.
 
 \iffalse
 \begin{verbatim}\fi
-\begin{code}[lst:getFunction]{}{float}
+\begin{code}[lst:getFunction]{A function for reading a property from the correct version of an object.}{float,numbers=left}
 function get(standIn, propertyName) {
     var version = lively.getCurrentVersionOf(standIn);
     return version[propertyName];
@@ -78,17 +78,24 @@ function get(standIn, propertyName) {
 \end{verbatim}\fi
 
 The first parameter to this \lstinline{get} function would be an ordinary object that stands-in for the versions of an object.
-The \lstinline{getCurrentVersionOf} function uses this \lstinline{standIn} parameter to retrieve the current version of an object.
+The \lstinline{getCurrentVersionOf} function in line 2 of the listing uses this \lstinline{standIn} parameter to retrieve the current version of an object.
 For this, the \lstinline{standIn} object could hold the versions of an object or be a key to a dictionary.
 
 Functions like the \lstinline{get} function could be inserted automatically by source transformations.
-The source transformation necessary to read an \lstinline{age} property from a version of a \lstinline{person} object could look as follows:
+The source transformation necessary to read an \lstinline{age} property from a version of a \lstinline{person} object could be as exemplified by Table~\ref{table:transformingReads}.
 
+\begin{table}[h]
 \begin{center}
-    \begin{tabular}{ lll }
-    \lstinline|person.age| & --> & \lstinline|get(person, 'age')| \\
-    \end{tabular}
+\begin{tabular}{| l | l |}
+    \hline
+    Input & Output \\ \hline
+    \lstinline|person.age| & \lstinline|get(person, 'age')| \\ \hline
+\end{tabular}
 \end{center}
+\caption[Table caption text]{Transforming a property read.}
+\label{table:transformingReads}
+\end{table}
+
 
 Other kinds of object interactions could be handled in similar functions.
 For example, an \lstinline{apply} function could apply a version of a function.
@@ -96,13 +103,19 @@ For example, an \lstinline{apply} function could apply a version of a function.
 To call a \lstinline{dance} function of a \lstinline{person} object in a version of the system, two steps are necessary.
 First, the \lstinline{dance} property has to be read from the right version of the \lstinline{person}.
 Second, the right version of the \lstinline{dance} property, which is expected to be a function, needs to be applied.
-Therefore, calling a function of an object would require to insert the \lstinline{get} function and the \lstinline{apply} function:
+Therefore, calling a function of an object would require to insert the \lstinline{get} function and the \lstinline{apply} function, as exemplified by Table~\ref{table:transformingMethodCall}.
 
+\begin{table}[h]
 \begin{center}
-    \begin{tabular}{ lll }
-    \lstinline|person.dance()| & --> & \lstinline|apply(person, get(person, 'dance'))| \\
-    \end{tabular}
+\begin{tabular}{| l | l |}
+    \hline
+    Input & Output \\ \hline
+    \lstinline|person.dance()| & \lstinline|apply(person, get(person, 'dance'))| \\ \hline
+\end{tabular}
 \end{center}
+\caption[Table caption text]{Transforming a method call.}
+\label{table:transformingMethodCall}
+\end{table}
 
 When the \lstinline{dance} function is applied as method of the \lstinline{person} object, the \lstinline{this} keyword needs to refer to the right version of the \lstinline{person} object.
 For this reason, the \lstinline{apply} function is called with the \lstinline{person} stand-in in this example.

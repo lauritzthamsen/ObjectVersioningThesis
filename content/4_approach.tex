@@ -59,11 +59,11 @@ This reference would still be referring to the original \lstinline{address} obje
     \label{fig:ReferenceFixedToPreviousVersion}
 \end{figure}
 
-That is, even after adding values to the fields of the \lstinline{address} object, the following statement would still return \lstinline{true} when \lstinline{aPerson} refers to the \lstinline{person} object:
+Even after adding values to the fields of the \lstinline{address} object, the following statement would still return \lstinline{true} when \lstinline{aPerson} refers to the \lstinline{person} object:
 
 \iffalse
-\begin{verbatim}\fi
-\begin{code}[lst:example]{}{float}
+\begin{verbatim}\fi    
+\begin{code}[lst:wrongState]{}{}
 aPerson.address.city === null
 \end{code}
 \iffalse
@@ -120,7 +120,7 @@ Given the example situation from Figure~\ref{fig:ObjectGraphWithReferencesResolv
 
 \iffalse
 \begin{verbatim}\fi
-\begin{code}[lst:example]{}{float}
+\begin{code}[lst:example]{}{}
 aCompany.CEO.address.number
 \end{code}
 \iffalse
@@ -178,11 +178,11 @@ The proxy in turn knows which versions are available for the \lstinline{address}
 
 When the \lstinline{address} property of the \lstinline{person} object is accessed, the proxy forwards the access transparently to a version.
 For example, in version \emph{v2} of the system as indicated by Figure~\ref{fig:ProxyBasedVersionAwareReference}, even if the \lstinline{address} property is a proxy, reading the proxy's \lstinline{city} property returns the string \lstinline{'Berlin'} .
-Given \lstinline{aPerson} refers to the \lstinline{person} object, evaluating the following code snippet returns \lstinline{true} in version \emph{v2}:
+Given \lstinline{aPerson} refers to the \lstinline{person} object, evaluating the following statement returns \lstinline{true} in version \emph{v2}:
 
 \iffalse
 \begin{verbatim}\fi
-\begin{code}[lst:example]{}{float}
+\begin{code}[lst:example]{}{}
 aPerson.address.city === 'Berlin'
 \end{code}
 \iffalse
@@ -222,11 +222,11 @@ This way, proxies provide object identity.
 Checks that would usually compare an object to another objects now compare a proxy to another proxy.
 
 As only the proxies hold references to the versions of objects, the versions get garbage collected with the proxies when the proxies are no longer reachable.
-For example, in the following code snippet, there would temporarily exist a version-aware reference---a proxy---connecting the \lstinline{person} object to an \lstinline{address} object:
+For example, in the code of Listing~\ref{lst:deletedAddress}, there would temporarily exist a version-aware reference---a proxy---connecting the \lstinline{person} object to an \lstinline{address} object:
 
 \iffalse
 \begin{verbatim}\fi
-\begin{code}[lst:example]{}{float}
+\begin{code}[lst:deletedAddress]{A newly created object is not preserved with any version.}{float,numbers=left}
     var person = {name: "Joe"};
     
     \\ [preserve first version]
