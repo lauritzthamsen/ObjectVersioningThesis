@@ -34,7 +34,7 @@ We decided to use Octane for our evaluation for three reasons:
 During the implementation of our approach, we tested our prototype continuously with the Lively Kernel.
 
 We developed our system in the Lively Kernel repository.
-The commit we used for the evaluation is \emph{fc6f3b7e7}\footnote{\url{http://github.com/LivelyKernel/LivelyKernel/commits/fc6f3b7e7}, accessed February 17, 2014}. In this version, most of the Lively Kernel's code is passed through our transformations.
+The commit we used for the evaluation is \emph{ed0586d80}\footnote{\url{http://github.com/LivelyKernel/LivelyKernel/commits/ed0586d80}, accessed May 9, 2014}. In this version, most of the Lively Kernel's code is passed through our transformations.
 Only the Lively Kernel's bootstrap code, its module system, extensions to built-in types, and our implementation are excluded from the source transformations.
 All modules loaded after these parts are transformed at load-time to enable versioning for them.
 This includes, for example, all classes of the Lively Kernel.
@@ -51,7 +51,7 @@ We tested our implementation with the Lively Kernel for two reasons:
 \subsection{The Test Machine}
 
 % what?
-All tests and measurements were done on a Macbook Air with a 2 GHz Intel Core i7 and 8 GB main memory, Mac OS X 10.9.1, and the most recent stable release of Chrome on February 18, 2014, which was version \emph{32.0.1700.107}.
+All tests and measurements were done on May 9, 2014 using a Macbook Air with a 2 GHz Intel Core i7 and 8 GB main memory, Mac OS X 10.9.2, and version 34.0.1847.131 of Chrome.
 
 The presented measurement results were averaged over five runs.
 
