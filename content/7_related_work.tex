@@ -23,9 +23,9 @@ Developers can recover previous development states, even without taking precauti
 This way, developers can concentrate on implementing their ideas and let CoExist record the required versions to be able to recover when necessary.
 
 Both CoExist and our approach to object versioning allow multiple versions of the development state to coexist.
-With both approaches, preserved versions are also part of the program runtime and can be re-established easily.
+With both approaches, preserved versions are part of the program runtime and can be re-established easily.
 Currently only CoExist records versions continuously on the granularity of changes made by developers.
-CoExist also provides much more tool support to find and recover changes from previous versions.
+CoExist provides much more tool support to find and recover changes from previous versions.
 However, CoExist recognizes only changes to the source code of classes, while our system preserves the state and behavior of objects.
 
 
@@ -116,21 +116,21 @@ In contrast, our approach to object versioning aims to support recovery of previ
 
 \subsection{Context-oriented Programming}
 
-Context-oriented Programming~\cite{Hirschfeld2008COP} adds dedicated language constructs for dynamic behavior variations.
-Depending on context information, COP allows to enable and disable layers, which contain methods to be executed instead or around methods of the base programs.
+\ac{cop}~\cite{Hirschfeld2008COP} adds dedicated language constructs for dynamic behavior variations.
+Depending on context information, \ac{cop} allows to enable and disable layers, which contain methods to be executed instead or around methods of the base programs.
 Context information can be any information which is computationally accessible.
 Layers can be enabled and disabled at runtime.
-Different implementations of COP provide different mechanisms to scope the activation of layers: for example, layers can be activated explicitly for a particular scope or globally for the entire runtime.
-In ContextJS~\cite{Lincke2011OIC} it is even possible to activate layers for specific objects.
+Different implementations of \ac{cop} provide different mechanisms to scope the activation of layers: for example, layers can be activated explicitly for a particular scope or globally for the entire runtime.
+ContextJS~\cite{Lincke2011OIC} it is possible to activate layers for specific objects.
 
-In comparison to our approach, COP allows to activate combinations of layers, while our system executes code using a single active version.
-In COP layers are indepedent, while our versions are predecessors and successors of each other.
+In comparison to our approach, \ac{cop} allows to activate combinations of layers, while our system executes code using a single active version.
+In \ac{cop} layers are indepedent, while our versions are predecessors and successors of each other.
 
-COP aims at supporting the separation of heterogeneous cross-cutting concerns, while object versioning aims at supporting developers with the recovery of previous states.
-\cite{Lincke2012SCS}, however, showed that COP can also be used to experiment with changes to a system: developers can implement experimental changes to behavior in layers, not to modularize context-dependent adaptions, but to be able to scope changes dynamically and recover the original system behavior easily.
+\ac{cop} aims at supporting the separation of heterogeneous cross-cutting concerns, while object versioning aims at supporting developers with the recovery of previous states.
+\cite{Lincke2012SCS}, however, showed that \ac{cop} can also be used to experiment with changes to a system: developers can implement experimental changes to behavior in layers, not to modularize context-dependent adaptions, but to be able to scope changes dynamically and recover the original system behavior easily.
 However, this requires programmers to make experiments explicitly.
 They need to use layers for their adaptions, enable the layers for test runs, and move code from layers back to the base system when experiments are successes and they want to maintain the original modularization of the system.
-COP also allows only behavior variations, while our approach recognizes changes to both state and behavior.
+\ac{cop} also allows only behavior variations, while our approach recognizes changes to both state and behavior.
 
 
 \subsection{ChangeBoxes}

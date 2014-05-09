@@ -43,7 +43,7 @@ This includes, for example, all classes of the Lively Kernel.
 We tested our implementation with the Lively Kernel for two reasons:
 
 \begin{itemize}
-    \item The Lively Kernel is a large JavaScript application that makes use of many features of the JavaScript language and the browser environment. The browser environment provides many built-in objects and functions. These are not part of the ECMAScript standard, but are nevertheless used by many applications. For example, the browser offers functions to manipulate its document model, which the Lively Kernel uses for rendering. These built-ins are not covered by Octane or other popular JavaScript benchmark suites. 
+    \item The Lively Kernel is a large JavaScript application that makes use of many features of the JavaScript language and the browser environment. The browser environment provides many built-in objects and functions. These are not part of the ECMAScript standard, but are nevertheless used by many applications. For example, the browser offers functions to manipulate its \ac{dom}, which the Lively Kernel uses for rendering. These built-ins are not covered by Octane or other popular JavaScript benchmark suites. 
     \item The goal of this work is to provide object versioning for the Lively Kernel. Thus, we are particularly interested in evaluating our implementation for the Lively Kernel.
 \end{itemize}
 
@@ -217,7 +217,7 @@ In the presented scenario, the space required for preserving the three states is
 
 The results also show that the memory consumption does not always increase even when previous states are preserved: State \circnum{3} requires less memory than State \circnum{2}.
 One explanation for this is that not all objects are preserved with the versions.
-One category of such objects are the objects that only provide access to the elements of the browser's document model, as described in \ref{subsubsec:DocumentModelProblem}.
+One category of such objects are the objects that only provide access to the elements of the browser's \ac{dom}, as described in \ref{subsubsec:DocumentModelProblem}.
 
 
 \section{Practicability: Impact on Execution Speed} \label{sec:EVALUATION:4}
