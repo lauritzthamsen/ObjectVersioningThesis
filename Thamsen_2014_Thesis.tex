@@ -1,16 +1,11 @@
 % Modes
 %  draft - drafting mode, esp for todos
 %  final - final mode
-%
-% Other
 %  print - do not color links
 %
 \PassOptionsToPackage{final}{graphics}
 
-
 \documentclass[draft,master]{swathesis}
-
-
 
 \def\fromname{by}
 
@@ -25,9 +20,6 @@
   \addtocounter{dingdistance}{#1}%
   \ding{\value{dingdistance}}%
   \setcounter{dingdistance}{191}}
-
-
-
 
 \addbibresource{thesis.bib}
 
@@ -47,7 +39,6 @@ Bastian Steinert
 
 \author{Lauritz Thamsen}
 \location{Potsdam}
-% \extratitle{\raggedleft Thamsen, \\ Object Versioning for the Lively Kernel\par}
 \title{Object Versioning for the Lively Kernel\\}
 \subtitle{Preserving Access to Previous System States\\ in an Object-oriented Programming System}
 
@@ -80,7 +71,3 @@ Bastian Steinert
 \markboth{}\relax
 \defaultstatement
 \end{document}
-%%% Local Variables:
-%%% mode: latex
-%%% TeX-master: t
-%%% End:
