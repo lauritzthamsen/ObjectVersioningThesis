@@ -11,9 +11,7 @@ It concludes with current limitations.
 
 \section{ECMAScript 6 Proxies as Version-aware References} \label{sec:IMPLEMENTATION:1}
 
-% We implemented the version-aware references for our approach to object versioning in JavaScript using proxies.
-% This way, our prototype does not require changes to existing JavaScript engines, but only a certain JavaScript language feature.
-We used the Proxies proposed with Version 6 of ECMAScript\footnote{\url{http://wiki.ecmascript.org/doku.php?id=harmony:direct_proxies}, accessed February 3rd, 2014}, the next standard of JavaScript.
+We implemented version-aware references in JavaScript with the proxies proposed with ECMAScript 6\footnote{\url{http://wiki.ecmascript.org/doku.php?id=harmony:direct_proxies}, accessed February 3rd, 2014}, the next version of JavaScript's standard.
 
 \subsection{ECMAScript 6 Proxies}
 
@@ -27,22 +25,52 @@ We used the Proxies proposed with Version 6 of ECMAScript\footnote{\url{http://w
     % subsubsection: as virtual objects
 
 
+\iffalse
+\begin{verbatim}\fi
+\begin{code}{}{}
+var proxy = new Proxy(target, proxyHandler);
+\end{code}
+\label{lst:example}
+\iffalse
+\end{verbatim}\fi
+
+The behavior of the proxies is specified by a \emph{Handler}, a JavaScript object that is supplied when the proxy is created.
+The handler can implement specific methods called \emph{Traps}.
+
+
+\iffalse
+\begin{verbatim}\fi
+\begin{code}{}{float,numbers=left}
+var client = {},
+    server = {openSecret: "I don't like Mondays"},
+    proxyHandler = {
+        get: function(target, name) {
+            console.log(name + ' was read at ' + Date());
+            
+            return target[name];
+        }
+    }
+
+client.server = new Proxy(server, proxyHandler);
+\end{code}
+\label{lst:loggingProxy}
+\iffalse
+\end{verbatim}\fi
+
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{figures/5_implementation/1_loggingProxy.pdf}
+    \caption{TODO}
+    \label{fig:LoggingProxy}
+\end{figure}
+
+
+\lstinline{client.server.openSecret}: ``openSecret was read at Sat May 10 2014 23:00:54 GMT+0200 (CEST)''
 
 
 
 
-
-% The behavior of the proxies is specified by a \emph{Handler}, a JavaScript object that is supplied when the proxy is created.
-% The handler can implement specific methods called \emph{Traps}.
-% The proxy calls these traps on access.
-% For example, when \lstinline{person} is a proxy and \lstinline{person.age} is called, the \emph{get}-trap of its handler is called.
-% The implementation of the \lstinline{get} method then defines how the proxy reacts on property reads.
-
-
-
-
-
-% all the other traps a Direct Proxy can have.
 % Table~\ref{table:traps} lists all implemented proxy traps.
 % 
 % \begin{table}[h]
@@ -73,9 +101,9 @@ We used the Proxies proposed with Version 6 of ECMAScript\footnote{\url{http://w
 % \label{table:traps}
 % \end{center}
 % \end{table}
-% 
-% The traps fire either when the proxy is accessed with specific JavaScript operators or when it is passed to meta-programming facilities provided by built-in globals\footnote{\url{http://wiki.ecmascript.org/doku.php?id=harmony:direct_proxies\#api}, accessed March 5, 2014}.
-% For example, the \lstinline{preventExtensions}-trap fires when a proxy is passed to the built-in \lstinline{Object.preventExtensions()} function, which prevents subsequentely adding new properties to an object.
+
+The traps fire either when the proxy is accessed with specific JavaScript operators or when it is passed to meta-programming facilities provided by built-in globals\footnote{\url{http://wiki.ecmascript.org/doku.php?id=harmony:direct_proxies\#api}, accessed March 5, 2014}.
+For example, the \lstinline{preventExtensions}-trap fires when a proxy is passed to the built-in \lstinline{Object.preventExtensions()} function, which prevents subsequentely adding new properties to an object.
 
 
 
@@ -86,6 +114,15 @@ We used the Proxies proposed with Version 6 of ECMAScript\footnote{\url{http://w
 
 \subsection{Versioning Proxies}
 
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{figures/5_implementation/2_versioningProxy.pdf}
+    \caption{TODO}
+    \label{fig:LoggingProxy}
+\end{figure}
+
+
 % TODO:
     % we call our usage/configuration of proxies \emph{versioning proxies}
 
@@ -95,6 +132,7 @@ We used the Proxies proposed with Version 6 of ECMAScript\footnote{\url{http://w
     % versioning proxy handler: traps forward to the current version, conceptual code of the get trap as example
     
     % selecting the right version: currentVersion(), version of the system (objects with id, predecessor, successor), current system version globally accessible via lively.CurrentVersion, used to retrieve the correct version from the version dictionary
+    % global version identifier is okay: single-threaded execution + cooperative scheduling
     
     % new versions of the system: object versions of previous system versions are not allowed to change. write access / manipulating object interactions is forwarded to object versions of the current system version. when no such object versions exist, new version are created in the traps that intercept the manipulations (copy-on-write in set+seal...-traps). full copy of objects and inserted as new version into the version dictionary
 
@@ -104,64 +142,49 @@ We used the Proxies proposed with Version 6 of ECMAScript\footnote{\url{http://w
 
 
 
-% 
+no fixed target
 
-% Our proxy handlers have a reference to the versions of the object the proxy represents.
-% Figure~\ref{fig:VersioningProxies} shows the relationship between a proxy, the proxy handler, the traps, and the versions of an object.
-% In the example, the proxy is a property of an object.
-% 
-% \begin{figure}[h]
-%     \centering
-%     \includegraphics[width=\textwidth]{figures/5_implementation/1_versioningProxies.pdf}
-%     \caption{A proxy with its proxy handler, which contains traps and a reference to all versions of an object.}
-%     \label{fig:VersioningProxies}
-% \end{figure}
-% 
+Our proxy handlers have a reference to the versions of the object the proxy represents.
+ a JavaScript object to map version identifiers to the actual versions of the object.
 
-% 
-% Our proxy handler uses the traps to delegate all access to the current version of an object.
-% Its \emph{get}-trap is implemented as indicated by the following code snippet, which leaves out much of the special cases to highlight the general behavior:
-% 
-% Listing~\ref{lst:test}..
-% 
-% \iffalse
-% \begin{verbatim}\fi
-% \begin{code}{CAPTION??}{float,numbers=left}
-% get: function(name) {
-%     var version = this.currentVersion();
-%     
-%     return version[name];
-% }
-% \end{code}
-% \label{lst:test}
-% \iffalse
-% \end{verbatim}\fi
+Figure~\ref{fig:VersioningProxy} shows the relationship between a proxy, the proxy handler, and the versions of an object.
+
+Having the handler object hold all the versions of conceptionally one object takes care of garbage collection.
+When a proxy gets garbage collected, the garbage collector also reclaims all versions.
+
+
+Our proxy handler uses the traps to forward all interactions to the current version of an object.
+Its \emph{get}-trap is implemented similarly to the \lstinline{get} function shown in Listing~\ref{lst:getTrap}.
+
+\iffalse
+\begin{verbatim}\fi
+\begin{code}{TODO}{float,numbers=left}
+get: function(name) {
+    var version = this.currentVersion();
+    
+    return version[name];
+}
+\end{code}
+\label{lst:getTrap}
+\iffalse
+\end{verbatim}\fi
 % 
 % First, the current version gets determined using the \lstinline{currentVersion()} helper function.
 
 % In the case that we are reading a property named \lstinline{age} from an object \lstinline{person}, all these conditions fall through.
 % The trap reads the property from the current version and returns the result.
-% 
 
 
-
-
-
-
-% % \subsubsection{Versions of Objects and the System} \label{subsubsec:DocumentModelProblem}
-% 
-% Besides implementing the traps, our proxy handlers also hold the versions of the represented object.
-% For this, the proxy handler uses a JavaScript object to map version identifiers to the actual versions of the object.
-% 
-% Having the handler object hold all the versions of conceptionally one object takes care of garbage collection.
-% When a proxy gets garbage collected, the garbage collector also reclaims all versions.
-% 
 % The proxy handler chooses a \emph{version of an object} according to a global \emph{version of the system}.
 % The version of the system is an ordinary JavaScript object with three properties: an \lstinline{ID}, a \lstinline{previousVersion}, and a \lstinline{nextVersion}.
 % The current version is always referred to by \lstinline{lively.CurrentVersion}.
 % It is, therefore, globally accessible.
 % The proxy handler uses system version's \lstinline{ID} to look up the version of the object in its version dictionary.
-% 
+
+
+
+
+
 % When a version of an object is not changed in versions of the system, it's latest version continues to reflect the current state.
 % Therefore, when a proxy traps read access, it looks up the latest version object from its version dictionary.
 % When a proxy, however, traps write access and no version is available for the current system version, a new version of the object is created before forwarding the write access.
@@ -176,13 +199,17 @@ We used the Proxies proposed with Version 6 of ECMAScript\footnote{\url{http://w
 % 
 % Using a global version of the system is reasonable for now as JavaScript is executed single-threaded and scheduled cooperatively by the JavaScript engines.
 % That is, while a JavaScript script runs, the global version cannot be changed by another script.
-% 
-% \paragraph{Scope of the Versions}
-% Using the proxies and system versions, the state of all mutable JavaScript objects can be preserved and re-established.
-% Certain host objects in JavaScript engines, however, cannot be versioned.
-% For example, the objects that represent the elements of the browser's \ac{dom} cannot be copied.
-% To still have changes to graphical objects be visible immediately, we update the HTML document from the current set of visible morphs manually when the system version changes.
-% 
+
+
+
+
+ 
+\paragraph{Scope of the Versions}
+Using the proxies and system versions, the state of all mutable JavaScript objects can be preserved and re-established.
+Certain host objects in JavaScript engines, however, cannot be versioned.
+For example, the objects that represent the elements of the browser's \ac{dom} cannot be copied.
+To still have changes to graphical objects be visible immediately, we update the HTML document from the current set of visible morphs manually when the system version changes.
+
 % 
 % % TODO: add this, as we refer to it from the evaluation:
 % These objects consume space, but cannot be versioned with our approach.
@@ -195,11 +222,17 @@ We used the Proxies proposed with Version 6 of ECMAScript\footnote{\url{http://w
 
 
 
+
+
+
+
+
+
 \section{Proxies For All Mutable JavaScript Objects}
 
-To have the proxies intercept access to all mutable objects, objects need to be accessed only via proxies.
+To have the proxies intercept access to all mutable state, objects need to be accessed only via proxies.
 
-Besides objects, arrays and functions are mutable in JavaScript.
+Objects, arrays, and functions are mutable in JavaScript.
 In fact, functions and arrays are also objects.
 They can have arbitrary properties.
 
@@ -433,7 +466,7 @@ These workarounds might no longer be necessary once the ECMAScript 6 standard ge
 
 % While these are supposed to stand-in for particular objects, their \emph{targets}, they can also be used as fully virtual objects.
 
-\todo{add somehting on \url{http://wiki.ecmascript.org/doku.php?id=harmony:direct\_proxies\#virtual_objects}}
+\todo{add something on \url{http://wiki.ecmascript.org/doku.php?id=harmony:direct\_proxies\#virtual_objects}}
 % when using the objects as virtual objects as described in in the ECMAScript wiki's documentation... still the invariants..
 
 Using the \emph{harmony-reflect} shim in a recent Chrome, proxies require an actual \emph{target} object even though the current ECMAScript 6 draft says otherwise\footnote{\url{http://people.mozilla.org/~jorendorff/es6-draft.html\#sec-proxy-object-internal-methods-and-internal-slots}, accessed April 15, 2014}.
