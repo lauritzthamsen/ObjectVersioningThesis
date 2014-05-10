@@ -10,12 +10,12 @@
 Programming systems such as Squeak/Smalltalk~\cite{Ingalls1997Squeak,GoldbergRobson83} and REPLs for LISP or Python allow adapting programs at runtime.
 Changes to programs in such environments are effective immediately and programmers can see or test right away what differences their actions make.
 Thus, these systems provide immediate feedback to programmers.\\
-A subset of such systems, which includes, for example, Self~\cite{Ungar1987SPS,Ungar2007SEL} and the Lively Kernel~\cite{Ingalls2008LKS,Krahn2009LWD}, are those built around prototype-based object-oriented languages.
+A subset of such systems, which includes, for example, Self~\cite{Ungar1987SPS,Ungar2007SEL} and the Lively Kernel~\cite{Ingalls2008LKS,Krahn2009LWD}, are those built around prototype-based object-oriented languages~\cite{Lieberman1986UPO}.
 In prototype-based systems programmers create applications using objects and without having to define classes first.
 In Self and the Lively Kernel, programmers can inspect and change the state and behavior of objects at runtime.
 Programmers create actual objects, not source code that only abstractly describes potential objects.
 
-The Lively Kernel was designed to support this kind of development.
+The Lively Kernel was designed to support this kind of development~\cite{Lincke2013UTW}.
 It provides tools to directly manipulate the style, composition, and scripts of graphical objects.
 For example, programmers can change the positions and composition of objects directly using the mouse.
 They can use temporary workspaces to manipulate objects programmatically.
@@ -56,7 +56,7 @@ Therefore, an implementation of the command pattern---even for just the existing
 Using the Command pattern would also require developers to follow the pattern when implementing new tools.
 Furthermore, the Command pattern is entirely unpractical for undoing the effects of evaluating arbitrary code from the Lively Kernel's workspaces and editors.
 
-Worlds~\cite{Warth2011Wor}, in contrast, is a more generic approach for controlling the scope of side effects.
+Worlds~\cite{Warth2011Wor,Warth2009PhD}, in contrast, is a more generic approach for controlling the scope of side effects.
 It allows to capture the side effects of statements into different \emph{worlds}.
 These worlds can be used to run code with particular sets of changes.
 Developers could create new worlds for all their actions and discard worlds to return to previous states when necessary.
