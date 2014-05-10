@@ -11,14 +11,43 @@ It concludes with current limitations.
 
 \section{ECMAScript 6 Proxies as Version-aware References} \label{sec:IMPLEMENTATION:1}
 
-We implemented the version-aware references for our approach to object versioning in JavaScript using proxies.
-This way, our prototype does not require changes to existing JavaScript engines, but only a certain JavaScript language feature.
-In particular, it requires the \emph{Direct Proxies}\footnote{\url{http://wiki.ecmascript.org/doku.php?id=harmony:direct_proxies}, accessed February 3rd, 2014} as proposed with Version 6 of ECMAScript, the next standard of JavaScript.
+% We implemented the version-aware references for our approach to object versioning in JavaScript using proxies.
+% This way, our prototype does not require changes to existing JavaScript engines, but only a certain JavaScript language feature.
+We used the Proxies proposed with Version 6 of ECMAScript\footnote{\url{http://wiki.ecmascript.org/doku.php?id=harmony:direct_proxies}, accessed February 3rd, 2014}, the next standard of JavaScript.
+
+\subsection{The ECMAScript 6 Proxies}
+
+% TODO:    
+    % intro: stand-in for objects and intercept all kinds of object interactions, e.g. a proxy could be used to log all access to the properties of an object: a client object has access to a server object only via the proxy, the proxy intercepts the reads and writes and forwards them only after logging
+    % setup: new Proxy (code snippet) -> diagram (client, proxy, proxy handler, target), traps (logging: get + set traps)
+    
+    % list of all traps a proxy can have
+    
+    % subsubsection: as virtual objects
+        
+
+\subsection{Versioning Proxies}
+
+% TODO:
+    % we call our usage/configuration of proxies \emph{versioning proxies}
+
+    % proxies as stand-ins for multiple versions of objects: no fixed target but versions dictionary (diagram)
+    % only the proxy handler has access to the versions. therefore, the garbage collector reclaims proxies and versions together
+    
+    % versioning proxy handler: traps forward to the current version, conceptual code of the get trap as example
+    
+    % selecting the right version: currentVersion(), version of the system (objects with id, predecessor, successor), current system version globally accessible via lively.CurrentVersion, used to retrieve the correct version from the version dictionary
+    
+    % new versions of the system: object versions of previous system versions are not allowed to change. write access / manipulating object interactions is forwarded to object versions of the current system version. when no such object versions exist, new version are created in the traps that intercept the manipulations (copy-on-write in set+seal...-traps). full copy of objects and inserted as new version into the version dictionary
+
+    % subsection: scope of the versioning, idea: all mutable objects to be able to undo the changes to all objects. however, some objects cannot be versioned (DOM objects).
+    % obviously also excludes all state external to the JavaScript runtime.
+
 
 \subsubsection{Proxies Handler and Traps}
 
 The behavior of the proxies is specified by a \emph{Handler}, a JavaScript object that is supplied when the proxy is created.
-The handler can implement specific methods, called \emph{Traps}.
+The handler can implement specific methods called \emph{Traps}.
 The proxy calls these traps on access.
 For example, when \lstinline{person} is a proxy and \lstinline{person.age} is called, the \emph{get}-trap of its handler is called.
 The implementation of the \lstinline{get} method then defines how the proxy reacts on property reads.
@@ -71,13 +100,8 @@ get: function(dummyTarget, name, receiver) {
 
 First, the current version gets determined using the \lstinline{currentVersion()} helper function.
 Then, multiple special cases are checked for that allow to determine whether a proxy, which otherwise behaves transparently, actually is a proxy or to unwrap the current version from the proxy.
-In the case that we are only reading a property named \lstinline{age} from an object \lstinline{person} all these conditions fall through.
+In the case that we are reading a property named \lstinline{age} from an object \lstinline{person}, all these conditions fall through.
 Instead, the trap just reads the property from the current version and returns the result.
-
-The result is passed to the \lstinline{ensureProxied()} function to make sure that mutable objects are proxied.
-When a mutable object is passed to this function, the function returns a proxy instead.
-This is necessary as, while all application-specific objects properties are expected to be proxied, some built-in objects in JavaScript refer to their properties directly and not through proxies.
-These properties are required to be proxied as well to handle proxies correctly.
 
 Besides the \emph{get}-trap, our proxy handler similarly provides behavior for all the other traps a Direct Proxy can have.
 Table~\ref{table:traps} lists all implemented proxy traps.
@@ -115,13 +139,13 @@ The traps fire either when the proxy is accessed with specific JavaScript operat
 For example, the \lstinline{preventExtensions}-trap fires when a proxy is passed to the built-in \lstinline{Object.preventExtensions()} function, which prevents subsequentely adding new properties to an object.
 
 
-\subsubsection{Versions of Objects and the System} \label{subsubsec:DocumentModelProblem}
+% \subsubsection{Versions of Objects and the System} \label{subsubsec:DocumentModelProblem}
 
 Besides implementing the traps, our proxy handlers also hold the versions of the represented object.
-For this, the proxy handler uses a JavaScript object to map version itentifiers to the actual versions of the object.
+For this, the proxy handler uses a JavaScript object to map version identifiers to the actual versions of the object.
 
 Having the handler object hold all the versions of conceptionally one object takes care of garbage collection.
-When a proxy gets garbage collected, JavaScript garbage collector also reclaims all versions.
+When a proxy gets garbage collected, the garbage collector also reclaims all versions.
 
 The proxy handler chooses a \emph{version of an object} according to a global \emph{version of the system}.
 The version of the system is an ordinary JavaScript object with three properties: an \lstinline{ID}, a \lstinline{previousVersion}, and a \lstinline{nextVersion}.
@@ -149,7 +173,6 @@ Using the proxies and system versions, the state of all mutable JavaScript objec
 Certain host objects in JavaScript engines, however, cannot be versioned.
 For example, the objects that represent the elements of the browser's \ac{dom} cannot be copied.
 To still have changes to graphical objects be visible immediately, we update the HTML document from the current set of visible morphs manually when the system version changes.
-
 
 
 % TODO: add this, as we refer to it from the evaluation:
@@ -199,6 +222,11 @@ For exampe, \lstinline{[aPerson, aCompany]} becomes \lstinline{proxyFor([aPerson
 In JavaScript, all functions can be used as constructors and create new objects when called with the \emph{new} operator.
 Functions expressed as function literals get proxied with the previous source transformations.
 Proxies for functions then return proxies for the newly created objects from their \emph{construct}-traps.
+
+% The result is passed to a \lstinline{ensureProxied()} function.
+% When a mutable object is passed to this function, the function returns a proxy instead.
+% This is necessary as, while all application-specific objects properties are expected to be proxied, some built-in objects in JavaScript refer to their properties directly and not through proxies.
+% These properties are required to be proxied as well to handle proxies correctly.
 
 \paragraph{Built-in Functions}
 Some functions are not created from literals, but built into the JavaScript engines.
