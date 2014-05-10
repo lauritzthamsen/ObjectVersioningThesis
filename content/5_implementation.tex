@@ -13,7 +13,7 @@ It concludes with current limitations.
 
 We implemented version-aware references in JavaScript with the proxies proposed with ECMAScript 6\footnote{\url{http://wiki.ecmascript.org/doku.php?id=harmony:direct_proxies}, accessed February 3rd, 2014}, the next version of JavaScript's standard.
 
-\subsection{ECMAScript 6 Proxies}
+\subsection{ECMAScript 6 Proxies by Example}
 
 % TODO:    
     % intro: stand-in for objects and intercept all kinds of object interactions, e.g. a proxy could be used to log all access to the properties of an object: a client object has access to a server object only via the proxy, the proxy intercepts the reads and writes and forwards them only after logging
@@ -112,7 +112,7 @@ For example, the \lstinline{preventExtensions}-trap fires when a proxy is passed
 
 
 
-\subsection{Versioning Proxies}
+\subsection{Proxy Handlers for Object Versioning}
 
 
 \begin{figure}[h]
