@@ -15,7 +15,7 @@ Each part of a prototype-based program has particular state.
 
 There are different advantages associated with this kind of programming:
 \begin{itemize}
-    \item \cite{Taivalsaari1996CVP} and \cite{Ungar1987SPS} suggest that it might be easier for programmers to understand concrete examples than to grasp abstract classes. A concrete example provides particular values for its state and, in case of objects with a visual appearance, can be actually looked at.
+    \item \cite{Taivalsaari1996CVP} and \cite{Lieberman1986UPO} suggest that it might be easier for programmers to understand concrete examples than to grasp abstract classes. A concrete example provides particular values for its state and, in case of objects with a visual appearance, can be actually looked at.
     \item \cite{Ungar1987SPS} and \cite{Borning1986CVP} describe how prototype-based programming makes it easier to introduce one-of-a-kind objects with their own structure or behavior.
     \item \cite{Borning1986CVP} and \cite{Maloney1995Mor} argue that especially editing visual objects can be more concrete with prototypes. Instead of writing code that describes the appearance of objects, programmers can manipulate visual objects directly. Programmers could, for example, use the mouse to manipulate properties like the size, position, or to combine multiple elements. This way, programmers always see intermediate states instead of only receiving feedback on explicit test runs in-between edit-compile-load cycles. 
 \end{itemize}
@@ -27,17 +27,19 @@ Such graphical objects range from basic objects like primitive shapes to complet
 Prototype-based programming, programming at runtime, and direct manipulation of graphical objects seem to be properties that suit each other.
 
 \paragraph{Similar Objects Without Classes}
-Different prototype-based programming systems implement different approaches for managing objects with similar behavior.
-Self and JavaScript incorporate prototypical inheritance.
-Objects to inherit state and behavior directly from other objects: each object has a \emph{prototype} to which it delegates whenever looking up a property in the object itself yields no results.
-In Self, the prototype of an object is set when objects are cloned: The clone's prototype is the original object.
-In JavaScript, objects are created from constructor functions and the functions's prototypes become the prototypes of objects.\\
-Kevo, in constrast, does not incorporate prototypical inheritance.
-Instead, programmers can only make full copies of objects.
-That is, programmers can create new objects with initially the same state and behavior as existing objects, but all objects remain self-contained.
+Different prototype-based programming systems provide different approaches for creating similar objects.
+Self and JavaScript incorporate \emph{delegation} to allow for prototypical inheritance.
+Objects can inherit state and behavior directly from other objects: each object has a \emph{prototype} to which it delegates whenever looking up a property in the object itself yields no results.
+In Self, the prototype of an object is set when objects are cloned: The clone's prototype is the object it was cloned from.\\
+In JavaScript, objects are created from constructor functions.
+The constructor function's prototype becomes the prototype of created objects.\\
+Kevo, in constrast, does not incorporate this notion of prototypical inheritance.
+It provides \emph{concatenation} for incremental modification of objects~\cite{Taivalsaari1995DVC}.
+Objects are copied to create objects with the same state and behavior as existing objects.
+These objects are self-contained.
 Changing an object only changes that particular object and a particular object can only be changed by directly changing it, not by changing any other object.
 To adapt many objects at once, programmers can use so-called \emph{module operations} in Kevo.
-Such module operations are evaluated for groups of objects.
+Module operations are evaluated for groups of objects.
 
 
 \section{The Lively Kernel}

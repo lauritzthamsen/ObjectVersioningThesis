@@ -8,7 +8,7 @@ This chapter presents two categories of related work:
 \end{enumerate}
 
 
-\section{Recovery of Previous System States}
+\section{Recovering Previous System States}
 
 The approaches presented in this section support programmers in recovering previous states without requiring programmers to create snapshots in advance.
 
@@ -116,7 +116,7 @@ In contrast, our approach to object versioning aims to support recovery of previ
 
 \subsection{Context-oriented Programming}
 
-\ac{cop}~\cite{Hirschfeld2008COP} adds dedicated language constructs for dynamic behavior variations.
+\ac{cop}~\cite{Hirschfeld2008COP,Appeltauer2009CCP} adds dedicated language constructs for dynamic behavior variations.
 Depending on context information, \ac{cop} allows to enable and disable layers, which contain methods to be executed instead or around methods of the base programs.
 Context information can be any information which is computationally accessible.
 Layers can be enabled and disabled at runtime.
@@ -153,7 +153,7 @@ Object versioning, in contrast, preserves the state and behavior of objects.
 
 \subsection{Practical Object-oriented Back-in-Time Debugging}
 
-Practical Object-oriented Back-in-Time Debugging~\cite{Lienhard2008POB} is a logging-based approach to back-in-time debugging that uses alternative references to preserve the history of objects.
+Practical Object-oriented Back-in-Time Debugging~\cite{Lienhard2008POB,Lienhard2008PhD} is a logging-based approach to back-in-time debugging that uses alternative references to preserve the history of objects.
 These alternative references, called \emph{Aliases}, are actually objects and part of the application memory.
 These objects contain information about the history and origin of the values stored in fields.
 Aliases are not passed around, but instead are created for each read or write of a field and for each value passed as parameter.
