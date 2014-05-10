@@ -165,10 +165,3 @@ Each alias also records a timestamp on its creation and with this information th
 In comparison, with aliases it is possible to recreate all states the system was in and also retrace the flow of all values, while our system stores only particular versions.
 Such versions could, for example, correspond to programmer interactions, so that programmers can undo the effects of particular actions easily.
 Another difference between object versioning with version-aware references and reverse engineering with aliases is the existence of modes.The alias references are intended to be used in explicit debugging sessions, while our version-aware reference are intended to be used at all times.
-
-% there is not just one alias object for every mutable object, but as many as there are references to that object, whereas there is always only one version-aware reference for every mutable object with our approach.
-% Further, an alias object has time-stamped predecessors for the values stored in a field, while our version-aware references hold versions of an object that correspond to particular discrete versions of the runtime.
-
-
-
-
