@@ -156,7 +156,7 @@ Instead of saving the state of all objects the moment a version is preserved, ne
 Before such writes, previous object versions continue to reflect the current state and can be read until written to.
 
 
-\section{Using Proxies for Version-aware References} \label{sec:APPROACH:2}
+\section{Using Proxies as Version-aware References} \label{sec:APPROACH:2}
 
 We used proxies to implement version-aware references in JavaScript.
 Instead of actually requiring \emph{alternative references}, proxies are referred to by \emph{ordinary references} and transparently delegate to versions. 
@@ -196,14 +196,14 @@ The proxies fulfill three responsibilities:
 \begin{enumerate}
     \item They know which versions are available for a particular object.
     \item They choose a particular version among all available dynamically using context information.
-    \item They forward all access transparently to a chosen version.
+    \item They forward all interactions transparently to a chosen version.
 \end{enumerate}
 
 We proxies of this design are \emph{virtual objects}~\cite{VanCutsem2010PDP}.
-They do not stand-in for specific objects, but can forward intercepted access to any object.
+They do not stand-in for specific objects, but can forward intercepted interactions to any object.
 
 
-\subsubsection{Accessing Objects Consistently Through Proxies}
+\subsubsection{Using Proxies Consistently}
 
 The proxies need to be used consistently for all mutable state.
 Ordinary references that usually refer to an object need to refer to the proxy that stands-in for the object.
@@ -276,10 +276,10 @@ As long as the system version stays the same, the proxies forward to the same ve
 Therefore, an object version is changed only as long it the current system versions matches.
 
 \emph{To re-establish the previous version}, the current system version has to be set to its predecessor.
-In that case, proxies forward access to previous versions of the objects.
+In that case, proxies forward interactions to previous versions of the objects.
 
 \emph{To preserve the current version}, the current system version has to be set to another version.
-The proxies forward access to objects of the other version or, when no such version of the object exist, create new versions.
+The proxies forward interactions to objects of the other version or, when no such version of the object exist, create new versions.
 
 \begin{figure}[h]
     \centering
@@ -289,11 +289,11 @@ The proxies forward access to objects of the other version or, when no such vers
 \end{figure}
 
 A situation in which a new version of an object is created is shown in Figure~\ref{fig:NewVersion}.
-In a new version \emph{v3} of the system, the proxy intercepts a write access but has no object version for \emph{v3} it could delegate the write to.
-It, therefore, copies the most recent version of the object and forwards the write access to copy.
+In a new version \emph{v3} of the system, the proxy intercepts a manipulation but has no object version it can forward to.
+It, therefore, copies the most recent version of the object and forwards to the copy.
 
-New versions are only necessary when a proxy is about to delegate write access.
-As long as an object is only read, the proxy can report values from a previous version as the old version of the object still reflects the current state.
+New versions are only necessary when a proxy is about to delegate manipulations.
+As long as the state of an object is only read, the proxy reports values from a previous version as the old version of the object still reflects the current state.
 To create a new version, a proxy copies the most recent previous version of the object.
 
 

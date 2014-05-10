@@ -8,7 +8,7 @@ They resolve to one of multiple versions of objects and to which ones can easily
 Thereby, different preserved states can be re-established.
 
 We presented a design for our approach that uses proxies for version-aware references.
-Instead of actually using alternative references, ordinary references refer to proxies and proxies forward access transparently to the right versions.
+Instead of actually using alternative references, ordinary references refer to proxies and proxies forward all interactions transparently to the right versions.
 The design allows implementing version-aware references without any adaptions to existing execution engines---neither for alternative references nor for garbage collection of versions.\\
 For each new object that is created, a proxy is created and returned instead of the new object.
 Thus, references to proxies are passed around and all access goes through the proxies.
