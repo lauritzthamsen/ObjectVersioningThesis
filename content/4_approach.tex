@@ -200,13 +200,13 @@ The proxies fulfill three responsibilities:
 \end{enumerate}
 
 The proxies required by this design are \emph{virtual objects}~\cite{VanCutsem2010PDP}.
-They do not stand-in for specific objects, but can forward intercepted interactions to any object.
+They do not stand in for specific objects, but can forward intercepted interactions to any object.
 
 
 \subsubsection{Using Proxies Consistently}
 
 The proxies need to be used consistently for all mutable state.
-Ordinary references that usually refer to an object need to refer to the proxy that stands-in for the object.
+Ordinary references that usually refer to an object need to refer to the proxy that stands in for the object.
 
 To use proxies consistently, we create and return proxies for all new objects.
 All expressions that create new objects return proxies for those objects instead.

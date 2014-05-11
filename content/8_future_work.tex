@@ -62,7 +62,7 @@ Appropriate tool support could allow users to switch whether versioning should b
 Version-aware references could be implemented without using proxies.
 
 Ordinary JavaScript functions could be used to carry out object interactions on the right versions of objects.
-These functions could be similar to the traps of our proxy handlers \todo{ref to our proxy traps}.
+These functions could be similar to the traps of our proxy handlers, presented in Section~\ref{subsec:IMPLEMENTATION:1.2}.
 For example, a \lstinline{get} function could allow reading a property from the current version of an object.
 The \lstinline{get} function could be implemented similarly to the function shown in Listing~\ref{lst:getFunction}.
 
@@ -77,7 +77,7 @@ function get(standIn, propertyName) {
 \iffalse
 \end{verbatim}\fi
 
-The first parameter to this \lstinline{get} function would be an ordinary object that stands-in for the versions of an object.
+The first parameter to this \lstinline{get} function would be an ordinary object that stands in for the versions of an object.
 The \lstinline{getCurrentVersionOf} function in Line 2 of Listing~\ref{lst:getFunction} uses this \lstinline{standIn} parameter to retrieve the current version of an object.
 For this, the \lstinline{standIn} object could hold the versions of an object or be a key to a dictionary.
 
@@ -118,7 +118,7 @@ Therefore, calling a function of an object would require to insert the \lstinlin
 \end{table}
 
 When the \lstinline{dance} function is applied as method of the \lstinline{person} object, the \lstinline{this} keyword needs to refer to the right version of the \lstinline{person} object.
-For this reason, the \lstinline{apply} function is called with the \lstinline{person} stand-in in this example.
+For this reason, the \lstinline{apply} function is called with the \lstinline{person} stand in in this example.
 
 \subsubsection{Discussion of the Approaches}
 
