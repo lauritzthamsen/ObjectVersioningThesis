@@ -11,19 +11,10 @@ It concludes with current limitations.
 
 \section{ECMAScript 6 Proxies as Version-aware References} \label{sec:IMPLEMENTATION:1}
 
-We implemented version-aware references using the proxies proposed with ECMAScript 6, the next version of JavaScript's standard~\cite{Ecma2014ES6}.
+This section describes the proxies proposed with the next version of JavaScript's standard~\cite{Ecma2014ES6}.
+It also explains how the proxies are used in our implementation.
 
 \subsection{ECMAScript 6 Proxies by Example}
-
-% TODO:    
-    % intro: stand-in for objects and intercept all kinds of object interactions, e.g. a proxy could be used to log all access to the properties of an object: a client object has access to a server object only via the proxy, the proxy intercepts the reads and writes and forwards them only after logging
-    % setup: new Proxy (code snippet) -> diagram (client, proxy, proxy handler, target), traps (logging: get + set traps)
-    
-    % examples of other interactions that can be trapped (functions -> apply + construct, enumeration, built-in functions of \lstinline{Object}..), list of possible traps a proxy
-    % default behavior: forward interactions unchanged to the target, when trap not implemented
-    
-    % subsubsection: as virtual objects
-
 
 The ECMAScript 6 proxies stand-in for objects and intercept all kinds of object interactions.
 
@@ -51,8 +42,8 @@ With these traps, the handler specifies how the proxy reacts on object interacti
     \label{fig:LoggingProxy}
 \end{figure}
 
-Listing~\ref{lst:loggingProxy} shows an example, in which a proxy is used to log property reads to a \lstinline{server} object.
-A \lstinline{client} object is connected to the \lstinline{server} object via a proxy, as shown in Figure~\ref{fig:LoggingProxy}:
+Listing~\ref{lst:loggingProxy} shows an example, in which a proxy is used to log property reads.
+A \lstinline{client} object is connected to a \lstinline{server} object via a proxy, as shown in Figure~\ref{fig:LoggingProxy}:
 The \lstinline{client}'s \lstinline{server} property is a reference to a proxy and that proxy's target is the \lstinline{server}.
 
 \iffalse
@@ -76,64 +67,84 @@ client.server = new Proxy(server, handler);
 
 The proxy's \lstinline{handler} object implements a \lstinline{get} trap.
 The \lstinline{get} trap receives two arguments when called: \lstinline{target} and \lstinline{name}.
-The \lstinline{target} parameter refers to the proxy's target.
+The \lstinline{target} parameter refers to the proxy's \lstinline{target} object.
 The \lstinline{name} parameter refers to the name of the property that was read.
 In our example, the \lstinline{get} trap logs the property read (Line 5), then forwards the read to the \lstinline{target} object and returns the result (Line 7).
-Therefore, evaluating \lstinline{client.server.openSecret} would print a log statement similar to the following: ``openSecret was read at Sat May 10 2014 23:00:54 GMT+0200 (CEST)''.
+Therefore, reading a property of the server object via the proxy as shown in Listing~\ref{lst:propertyRead} would print a log statement similar to the following: ``openSecret was read at Sat May 10 2014 23:00:54 GMT+0200 (CEST)''.
 
-% reading other properties would also print statements, 
+\iffalse
+\begin{verbatim}\fi
+\begin{code}{Reading the \lstinline{openSecret} property of a \lstinline{client} object's \lstinline{server} property.}{float}
+client.server.openSecret;
+\end{code}
+\label{lst:propertyRead}
+\iffalse
+\end{verbatim}\fi
 
+A handler object can implement traps for many different kinds of object interactions.
+Table~\ref{table:traps} lists all possible traps with their parameters.
 
+\begin{table}[h]
+\begin{center}
+\begin{tabular}{|l|l|r|}
+\hline
+get: function(target, name, receiver) \\ \hline
+set: function(target, name, value, receiver) \\ \hline
+apply: function(target, suppliedThisArg, suppliedArgs) \\ \hline
+construct: function(target, args) \\ \hline
+has: function(target, name) \\ \hline
+hasOwn: function(target, name) \\ \hline
+defineProperty: function(target, name, desc) \\ \hline
+deleteProperty: function(target, name) \\ \hline
+getOwnPropertyDescriptor: function(target,name) \\ \hline
+getOwnPropertyNames: function(target) \\ \hline
+getPrototypeOf: function(target) \\ \hline
+freeze: function(target) \\ \hline
+seal: function(target) \\ \hline
+preventExtensions: function(target) \\ \hline
+isFrozen: function(target) \\ \hline
+isSealed: function(target) \\ \hline
+isExtensible: function(target) \\ \hline
+enumerate: function(target) \\ \hline
+keys: function(target) \\ \hline
+\end{tabular}
+\caption[Table caption text]{Traps implemented by our proxy handlers.}
+\label{table:traps}
+\end{center}
+\end{table}
 
+The traps fire either when a proxy is accessed with JavaScript operators or when it is passed to meta-programming facilities.
+For example, the \lstinline{apply} trap fires when a proxied function is applied as shown in the following example:
+\iffalse
+\begin{verbatim}\fi
+\begin{code}{}{}
+proxy();
+\end{code}
+\label{lst:example}
+\iffalse
+\end{verbatim}\fi
+The \lstinline{preventExtensions} trap fires when a proxy is passed to the \lstinline{preventExtensions()} function of the global \lstinline{Object}, which prevents subsequentely adding new properties to an object.
+The trap would be triggered by statements such as the following:
+\iffalse
+\begin{verbatim}\fi
+\begin{code}{}{}
+Object.preventExtension(proxy);
+\end{code}
+\label{lst:example}
+\iffalse
+\end{verbatim}\fi
 
+When no trap is provided for a kind of object interactions, the proxy forwards the interaction transparently to the target.
 
+The \lstinline{apply} trap and the \lstinline{construct} traps are only called, when a proxy's target is a function.
 
-    % examples of other interactions that can be trapped (functions -> apply + construct, enumeration, built-in functions of \lstinline{Object}..), list of possible traps a proxy
-    % default behavior: forward interactions unchanged to the target, when trap not implemented
-    
-    % subsubsection: as virtual objects
-
-
-
-% Table~\ref{table:traps} lists all implemented proxy traps.
-% 
-% \begin{table}[h]
-% \begin{center}
-% \begin{tabular}{|l|l|r|}
-% \hline
-% get: function(target, name, receiver) \\ \hline
-% set: function(target, name, value, receiver) \\ \hline
-% apply: function(target, suppliedThisArg, suppliedArgs) \\ \hline
-% construct: function(target, args) \\ \hline
-% has: function(target, name) \\ \hline
-% hasOwn: function(target, name) \\ \hline
-% defineProperty: function(target, name, desc) \\ \hline
-% deleteProperty: function(target, name) \\ \hline
-% getOwnPropertyDescriptor: function(target,name) \\ \hline
-% getOwnPropertyNames: function(target) \\ \hline
-% getPrototypeOf: function(target) \\ \hline
-% freeze: function(target) \\ \hline
-% seal: function(target) \\ \hline
-% preventExtensions: function(target) \\ \hline
-% isFrozen: function(target) \\ \hline
-% isSealed: function(target) \\ \hline
-% isExtensible: function(target) \\ \hline
-% enumerate: function(target) \\ \hline
-% keys: function(target) \\ \hline
-% \end{tabular}
-% \caption[Table caption text]{Traps implemented by our proxy handlers.}
-% \label{table:traps}
-% \end{center}
-% \end{table}
-
-% The traps fire either when the proxy is accessed with specific JavaScript operators or when it is passed to meta-programming facilities provided by built-in globals\footnote{\url{http://wiki.ecmascript.org/doku.php?id=harmony:direct_proxies\#api}, accessed March 5, 2014}.
-% For example, the \lstinline{preventExtensions}-trap fires when a proxy is passed to the built-in \lstinline{Object.preventExtensions()} function, which prevents subsequentely adding new properties to an object.
-
-
-
-
-
-
+\paragraph{Using the Proxies as Virtual Objects}
+The proxies require target objects to which they forward by default.
+However, when a proxy's handler implements all traps, all intercepted interactions can be handled by the traps without forwarding to the target object.
+Therefore, even though proxies have target objects, the target objects do not have to be accessed with any object interactions.
+\\
+This is also the solution for using the proxies as virtual objects proposed by the official documentation\footnote{\url{http://wiki.ecmascript.org/doku.php?id=harmony:direct\_proxies\#virtual_objects}, accessed May 11, 2014}.
+The documentation suggests to use empty objects (\lstinline|{}|) as targets for such virtual object proxies.
 
 
 \subsection{Proxy Handlers for Object Versioning}
