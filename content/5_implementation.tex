@@ -8,7 +8,6 @@ It presents the proxy's behavior and shows how proxies are inserted for ordinary
 The chapter also presents implemented workarounds for the current state of ECMAScript 6 proxies.
 It concludes with current limitations.
 
-
 \section{ECMAScript 6 Proxies as Version-aware References} \label{sec:IMPLEMENTATION:1}
 
 This section first describes the proxies proposed with the next version of JavaScript's standard~\cite{Ecma2014ES6}.
@@ -26,7 +25,6 @@ Target and handler are required when a proxy is created as shown in the followin
 \begin{code}{}{}
 var proxy = new Proxy(target, handler);
 \end{code}
-\label{lst:example}
 \iffalse
 \end{verbatim}\fi
 
@@ -48,7 +46,7 @@ The \lstinline{client}'s \lstinline{server} property is a reference to a proxy a
 
 \iffalse
 \begin{verbatim}\fi
-\begin{code}{Using a proxy to log property reads to an object.}{float,numbers=left}
+\begin{code}[lst:loggingProxy]{Using a proxy to log property reads to an object.}{float,numbers=left}
 var client = {},
     server = {openSecret: "I don't like Mondays"},
     handler = {
@@ -61,7 +59,6 @@ var client = {},
 
 client.server = new Proxy(server, handler);
 \end{code}
-\label{lst:loggingProxy}
 \iffalse
 \end{verbatim}\fi
 
@@ -74,10 +71,9 @@ Therefore, reading a property of the server object via the proxy as shown in Lis
 
 \iffalse
 \begin{verbatim}\fi
-\begin{code}{Reading the \lstinline{openSecret} property of a \lstinline{client} object's \lstinline{server} property.}{float}
+\begin{code}[lst:propertyRead]{Reading the \lstinline{openSecret} property of a \lstinline{client} object's \lstinline{server} property.}{float}
 client.server.openSecret;
 \end{code}
-\label{lst:propertyRead}
 \iffalse
 \end{verbatim}\fi
 
@@ -120,7 +116,6 @@ For example, the \lstinline{apply} trap fires when a proxied function is applied
 \begin{code}{}{}
 proxy();
 \end{code}
-\label{lst:example}
 \iffalse
 \end{verbatim}\fi
 The \lstinline{preventExtensions} trap fires when a proxy is passed to the \lstinline{preventExtensions} function of the global \lstinline{Object}, which prevents subsequentely adding new properties to an object.
@@ -130,7 +125,6 @@ The trap would be triggered by statements such as the following:
 \begin{code}{}{}
 Object.preventExtension(proxy);
 \end{code}
-\label{lst:example}
 \iffalse
 \end{verbatim}\fi
 
@@ -148,21 +142,6 @@ This solution for using the proxies as virtual objects is also proposed by the o
 
 
 \subsection{Using the Proxies for Object Versioning} \label{subsec:IMPLEMENTATION:1.2}
-
-% TODO:    
-    % proxies as stand ins for multiple versions of objects: no fixed target but versions dictionary (diagram)
-    % dummytarget: functions / objects (apply + contruct, typeof)
-        
-    % versioning proxy handler: traps forward to the current version, conceptual code of the get trap as example
-    
-    % selecting the right version: currentVersion(), version of the system (objects with id, predecessor, successor), current system version globally accessible via lively.CurrentVersion, used to retrieve the correct version from the version dictionary
-    % global version identifier is okay: single-threaded execution + cooperative scheduling
-    
-    % new versions of the system: object versions of previous system versions are not allowed to change. write access / manipulating object interactions is forwarded to object versions of the current system version. when no such object versions exist, new version are created in the traps that intercept the manipulations (copy-on-write in set+seal...-traps). full copy of objects and inserted as new version into the version dictionary
-
-    % subsection: scope of the versioning, idea: all mutable objects to be able to undo the changes to all objects. however, some objects cannot be versioned (DOM objects).
-    % obviously also excludes all state external to the JavaScript runtime.
-
 
 The proxies stand in for multiple versions of an object in our implementation.
 They forward all object interactions to a dynamically chosen version.
@@ -184,14 +163,13 @@ For example, its \lstinline{get} trap works as shown in Listing~\ref{lst:getTrap
 
 \iffalse
 \begin{verbatim}\fi
-\begin{code}{TODO}{float,numbers=left}
+\begin{code}[lst:getTrap]{TODO}{float,numbers=left}
 get: function(dummyTarget, name) {
     var version = this.currentVersion();
     
     return version[name];
 }
 \end{code}
-\label{lst:getTrap}
 \iffalse
 \end{verbatim}\fi
 
@@ -211,7 +189,7 @@ Instead, the \lstinline{currentVersion} function retrieves the latest available 
 
 \iffalse
 \begin{verbatim}\fi
-\begin{code}{TODO}{float,numbers=left}
+\begin{code}[lst:currentVersion]{TODO}{float,numbers=left}
 currentVersion: function() {
     var objectVersion,
         systemVersion = lively.CurrentVersion;
@@ -225,7 +203,6 @@ currentVersion: function() {
     return objectVersion;
 }
 \end{code}
-\label{lst:currentVersion}
 \iffalse
 \end{verbatim}\fi
 
@@ -250,6 +227,8 @@ apply: function(target, thisArg, args) \\ \hline
 \end{center}
 \end{table}
 
+% TODO: mutating interactions, mutating array functions
+
 Listing~\ref{lst:versionForWriteAccess} shows the \lstinline{versionForWriteAccess} function that always returns an object version for the current system version.
 The function is used by all traps that intercept changes, which are listed in Table~\ref{table:writeTraps}.
 The \lstinline{apply} trap is included in this list, because built-in functions such as \lstinline{push} and \lstinline{pop} manipulate arrays.
@@ -257,7 +236,7 @@ The remaining traps select the version to forward using the \lstinline{currentVe
 
 \iffalse
 \begin{verbatim}\fi
-\begin{code}{TODO}{float,numbers=left}
+\begin{code}[lst:versionForWriteAccess]{TODO}{float,numbers=left}
 versionForWriteAccess: function() {
     var newVersion;
     
@@ -270,7 +249,6 @@ versionForWriteAccess: function() {
     return this.currentVersion();
 },
 \end{code}
-\label{lst:versionForWriteAccess}
 \iffalse
 \end{verbatim}\fi
 
@@ -281,7 +259,7 @@ For this, the system provides the functions \lstinline{lively.undo} (Listing~\re
 
 \iffalse
 \begin{verbatim}\fi
-\begin{code}{TODO}{float,numbers=left}
+\begin{code}[lst:undo]{TODO}{float,numbers=left}
 undo: function() {
     var predecessor = lively.CurrentVersion.predecessor;
     
@@ -292,13 +270,12 @@ undo: function() {
     lively.CurrentVersion = predecessor;
 }
 \end{code}
-\label{lst:undo}
 \iffalse
 \end{verbatim}\fi
 
 \iffalse
 \begin{verbatim}\fi
-\begin{code}{TODO}{float,numbers=left}
+\begin{code}[lst:redo]{TODO}{float,numbers=left}
 redo: function() {
     var successor = Lively.CurrentVersion.successor;
     
@@ -309,13 +286,12 @@ redo: function() {
     lively.CurrentVersion = successor;
 }
 \end{code}
-\label{lst:redo}
 \iffalse
 \end{verbatim}\fi
 
 \iffalse
 \begin{verbatim}\fi
-\begin{code}{TODO}{float,numbers=left}
+\begin{code}[lst:commit]{TODO}{float,numbers=left}
 commit: function() {
     var predecessor = lively.CurrentVersion,
         newVersion;
@@ -330,7 +306,6 @@ commit: function() {
     lively.CurrentVersion = newVersion;
 }
 \end{code}
-\label{lst:commit}
 \iffalse
 \end{verbatim}\fi
 
@@ -340,7 +315,7 @@ That is, while a script runs, the global version cannot be changed by another sc
  
 \subsubsection{Scope of the Versioning} \label{subsubsec:IMPLEMENTATION:5.2.1}
 
-Using the proxies allows for multiple versions of JavaScript objects.
+Using the proxies allows for versioning JavaScript objects.
 However, certain host objects cannot be versioned with our implementation.
 These include the objects that represent the elements of the browser's \ac{dom}.
 Some of \ac{dom} objects cannot be copied.
@@ -351,38 +326,33 @@ Therefore, we update the \ac{dom} from the current set of visible morphs when th
 Besides these host objects, all objects that are accessed through our proxies are versioned with the system versions.
 
 
+
 \section{Proxies For All Mutable JavaScript Objects}
 
-To be able to re-establish the entire state with our versioning, all objects need to be accessed via our proxies.
-This includes objects, arrays, and functions as these are mutable in JavaScript.
-In fact, functions and arrays are also objects.
+To be able to re-establish the entire state with our versioning, our proxies need to be used to access all objects, arrays, and functions.
+This is necessary because objects, arrays, and functions are mutable in JavaScript.
+In fact, functions and arrays are objects.
 They can have arbitrary properties.
 
-Accessing all objects only via proxies is achieved by creating proxies right when objects are created and then returning references to the proxies instead of to the objects.
-% To achieve this, we create proxies immediately for new objects and return the proxies instead of the objects, so a reference to the proxy gets passed around instead of the reference to the actual object, which instead is captured as a version in the versions dictionary of the proxy.
+Our implementation changes the return values of all expressions that create new objects.
+Instead of letting these expressions return references to the new objects, the expressions return references to proxies for the objects.
+As a result, references to proxies are passed around instead of references to objects so that all access goes through the proxies.
 
-
-In JavaScript, there are three different ways to create an object: 
+In JavaScript, there are three categories of expressions that create new objects: 
 \begin{itemize}
-    \item evaluating literal expressions: e.g. \lstinline|{age: 12}|
-    \item calling specific built-in functions: e.g. \lstinline|Object.create(prototype, {age: 12})|
-    \item using functions as constructors: e.g. \lstinline|new Person(12)|
+    \item literal expressions: e.g. \lstinline|{age: 12}|
+    \item specific built-in functions: e.g. \lstinline|Object.create(prototype, {age: 12})|
+    \item constructor functions: e.g. \lstinline|new Person(12)|
 \end{itemize}
 
-
-
-% TODO: summary sentence for the upcoming subsections...
-Our implementation uses a combination of source transformations and behavior of proxy traps to return proxies from the expressions that otherwise would return new objects.
-
-
+Our implementation uses source transformations and proxy traps to have these expression return proxies.
 
 
 \subsection{Transforming Literal Expressions}
 
-We use source transformations to wrap literal expressions consistently into a \emph{proxyFor} function, which takes an object as parameter and returns a proxy for it.
-Therefore, we wrap the literal forms of objects, arrays, and functions.
-
-The transformations of literal objects, arrays, and functions are shown by example in Table~\ref{table:literalTransforms}.
+We use source transformations to wrap literal expressions into a \lstinline{proxyFor} function
+The \lstinline{proxyFor} function takes an object as its argument and returns a proxy for it.
+The transformations for literal objects, arrays, and functions are shown in Table~\ref{table:literalTransforms}.
 
 \begin{table}[h]
 \begin{center}
@@ -394,71 +364,84 @@ Type & Input & Output \\ \hline
 \emph{Functions} & \lstinline|function (a, b) {..}| & \lstinline|proxyFor(function (a, b) {..})| \\ \hline
 \end{tabular}
 \end{center}
-\caption[Table caption text]{Transformations of literal objects, arrays, and functions.}
+\caption[Table caption text]{Transforming literal objects, arrays, and functions.}
 \label{table:literalTransforms}
 \end{table}
 
-The source transformations also need to handle JavaScript syntax where literals cannot simply be wrapped into a function call.
-Special handling is necessary for function declarations and accessor functions.
+However, some literal forms cannot be wrapped into function calls without introducing problems.
+In particular, function declarations and accessor functions need to be handled differently.
 
 
 \subsubsection{Function Declarations}
 
+% TODO: continue here !!!
+
 Function declarations are named functions, where the name is available in the function itself and also in the surrounding scope.
+% TODO: explain the difference (decl: function definition that is also a variable decl, function definition were func is only returned from expression)
 % TODO: code listings that show the differences..
 
+% function expression that creates an anonymous function: var add = function(a, b) {return a + b};
+% function declaration function add(a,b) {return a + b};
+
 % TODO: show with why declarations cannot be just wrapped.. functions passed as arguments are always expressions..
+% proxyFor(function add(a,b) {return a + b}) .. function declaration becomes an expression.. it is not available as \lstinline{add} in the surrounding scope
 
 The function declaration are transformed to function expressions that are assigned to matching variable names.
-% TODO: show transformation with a table 
-This way, \lstinline|function funcName(..) {..}| becomes \lstinline|var funcName = function funcName(..) {..}|.
+Table~\ref{table:funcTransform} shows an example for this transformation.
+
+\begin{table}[h]
+\begin{center}
+\begin{tabular}{| l | l | l |}
+\hline
+Input & Output \\ \hline
+\lstinline|function func() {}| & \lstinline|var func = function func() {}| \\ \hline
+\end{tabular}
+\end{center}
+\caption[Table caption text]{Transforming literal objects, arrays, and functions.}
+\label{table:funcTransform}
+\end{table}
 
 In addition, because function declarations get hoisted in JavaScript, the source transformation moves the transformed function declarations to the beginning of the defining scope while preserving the original order among the transformed function declarations.
 
 
 \subsubsection{Accessor Functions}
 
-Accessor functions are functions that are executed transparently instead of ordinary reading or writing a property of an object.
-The following example snippet shows the definition of a \lstinline{person} object, where two accessor functions allow to just read and write \lstinline{person.age} while the value actually is stored under a slightly different name:
-
-% TODO: captions, \refs..
+Accessor functions are functions that are executed transparently instead of property reads or writes.
+Listing~\ref{lst:accessorOriginal} shows an example in which an accessor function is used to allow reading a \lstinline{person}'s \lstinline{age} even though the \lstinline{person} object only has a \lstinline{birthdate} property.
 
 \iffalse
 \begin{verbatim}\fi
-\begin{code}[lst:example]{}{float,numbers=left}
+\begin{code}[lst:accessorOriginal]{TODO}{float,numbers=left}
 var person = {
-    __age: 0,
+    birthdate: new Date(1984,27,5),
     get age() {
-        return this.__age;
-    },
-    set age(val) {
-        this.__age = val;
+        return ageToday(this.birthdate);
     }
 }
 \end{code}
 \iffalse
 \end{verbatim}\fi
 
-Wrapping the two accessor functions in-place into \lstinline{proxyFor} functions would not yield valid JavaScript code.
-Therefore, the source transformations create the objects first without accessor functions and explicitly define the accessor functions using \lstinline{Object.defineProperty} afterwards.
-These two steps are done in an anonymous functions that is applied directly.
-This allows to have the newly created object available in a temporary variable for the \lstinline{Object.defineProperty}-function call without having this temporary variable pollute the originally surrounding scope's variable bindings.
-That is, the presented example with accessor functions would be transformed to the following code: \\
+Wrapping the accessor function into the \lstinline{proxyFor} function would not yield valid JavaScript syntax.
+However, accessor functions can also be defined with the \lstinline{Object.defineProperty} function.
+Therefore, the object is created without accessor functions and the accessor function defined separately using \lstinline{Object.defineProperty}.
+Both the object and the accessor functions can be wrapped into calls to the \lstinline{proxyFor} function when expressed in this way.
+Listing~\ref{lst:accessorTransformed} shows the result of transforming the example in Listing~\ref{lst:accessorOriginal}.
+The new object is created in an anonymous functions that is applied directly.
+In this anonymous function, the new object is assigned to a variable called \lstinline{newObject}.
+This allows to have the object be available in a variable for the subsequent \lstinline{Object.defineProperty}-function call without polluting the variable bindings of the originally surrounding scope.
 
 \iffalse
 \begin{verbatim}\fi
-\begin{code}[lst:example]{}{float,numbers=left}
+\begin{code}[lst:accessorTransformed]{TODO}{float,numbers=left}
 var person = function() {
     var newObject = lively.proxyFor({
-        __age: 0;
+        birthdate: new Date(1984,27,5);
     });
     Object.defineProperty(newObject, "age", {
         get: lively.proxyFor(function age() {
-            return this.__age;
-        }),
-        set: lively.proxyFor(function age(val) {
-            this.__age = val;
-        }),
+            return ageToday(this.birthdate);
+        })
         enumerable: true,
         configurable: true
     });
@@ -470,12 +453,10 @@ var person = function() {
 
 
 
-
-
 \subsection{Wrapping Built-in Functions}
 
-Some functions are not created from literals, but are built into the JavaScript engines.
-These built-in functions are, therefore, not proxied by transforming literals.
+Some functions are built into the JavaScript engines.
+These are not created from function literals and, therefore, not proxied by transforming literals.
 For example, the built-in data types like objects and arrays can be created by evaluating \lstinline{new Object()} and \lstinline{new Array()} as well as \lstinline{Object()} and \lstinline{Array()}.
 We transform these built-in constructor functions explicity, wrapping each into the proxying function.
 Further, the proxy's \emph{construct}- and \emph{apply}-traps then also return proxies.
@@ -553,6 +534,11 @@ This way, the browser's developer tools, including the debugger, present the ori
 
 % rough sketch of how transformations are done???
     % code of modules passed to source transformation. parsing, AST transformations, printing. 
+
+
+
+
+
 
 
 
@@ -657,6 +643,8 @@ As the arguments to these methods is not handled in traps, because strings are n
 
 
 
+
+
 \section{Limitations of the Implementation}
 
 The current implementation has three limitations.
@@ -685,7 +673,3 @@ We did, however, not succeed in finding a way to restart the scripts again when 
 Thus, subsequentely undoing and redoing changes can stop concurrently running scripts.
 
 % single-threaded and cooperative scheduling, but setTimeout / setInterval... stop asynchronous actions from following versions when undoing... source transformations, which scripts belongs to which version
-
-
-% Even with these limitations our implementation is functional and integrated with the Lively Kernel.
-% It allows programmers to undo and redo changes and is publicly available\footnote{\url{https://github.com/LivelyKernel/LivelyKernel/tree/object-versioning}}.
