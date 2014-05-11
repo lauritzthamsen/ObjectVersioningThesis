@@ -1,4 +1,4 @@
-% Proxies stand-in for multiple versions, intercept all access, and forward to the correct version.
+% Proxies stand in for multiple versions, intercept all access, and forward to the correct version.
 
 
 \chapter{Implementation} \label{chapter:IMPLEMENTATION}
@@ -11,14 +11,14 @@ It concludes with current limitations.
 
 \section{ECMAScript 6 Proxies as Version-aware References} \label{sec:IMPLEMENTATION:1}
 
-This section describes the proxies proposed with the next version of JavaScript's standard~\cite{Ecma2014ES6}.
-It also explains how the proxies are used in our implementation.
+This section first describes the proxies proposed with the next version of JavaScript's standard~\cite{Ecma2014ES6}.
+It then explains how the proxies are used in our implementation.
 
 \subsection{ECMAScript 6 Proxies by Example}
 
-The ECMAScript 6 proxies stand-in for objects and intercept all kinds of object interactions.
+The ECMAScript 6 proxies stand in for objects and intercept all kinds of object interactions.
 
-The object a proxy stands-in for is its \emph{target}.
+The object a proxy stands in for is its \emph{target}.
 The behavior of a proxy is controlled by a separate \emph{handler} object.
 Target and handler are required when a proxy is created as shown in the following example:
 \iffalse
@@ -90,7 +90,7 @@ Table~\ref{table:traps} lists all possible traps with their parameters.
 \hline
 get: function(target, name, receiver) \\ \hline
 set: function(target, name, value, receiver) \\ \hline
-apply: function(target, suppliedThisArg, suppliedArgs) \\ \hline
+apply: function(target, thisArg, args) \\ \hline
 construct: function(target, args) \\ \hline
 has: function(target, name) \\ \hline
 hasOwn: function(target, name) \\ \hline
@@ -108,7 +108,7 @@ isExtensible: function(target) \\ \hline
 enumerate: function(target) \\ \hline
 keys: function(target) \\ \hline
 \end{tabular}
-\caption[Table caption text]{Traps implemented by our proxy handlers.}
+\caption[Table caption text]{Traps that proxy handlers can implement.}
 \label{table:traps}
 \end{center}
 \end{table}
@@ -123,7 +123,7 @@ proxy();
 \label{lst:example}
 \iffalse
 \end{verbatim}\fi
-The \lstinline{preventExtensions} trap fires when a proxy is passed to the \lstinline{preventExtensions()} function of the global \lstinline{Object}, which prevents subsequentely adding new properties to an object.
+The \lstinline{preventExtensions} trap fires when a proxy is passed to the \lstinline{preventExtensions} function of the global \lstinline{Object}, which prevents subsequentely adding new properties to an object.
 The trap would be triggered by statements such as the following:
 \iffalse
 \begin{verbatim}\fi
@@ -143,27 +143,16 @@ The proxies require target objects to which they forward by default.
 However, when a proxy's handler implements all traps, all intercepted interactions can be handled by the traps without forwarding to the target object.
 Therefore, even though proxies have target objects, the target objects do not have to be accessed with any object interactions.
 \\
-This is also the solution for using the proxies as virtual objects proposed by the official documentation\footnote{\url{http://wiki.ecmascript.org/doku.php?id=harmony:direct\_proxies\#virtual_objects}, accessed May 11, 2014}.
-The documentation suggests to use empty objects (\lstinline|{}|) as targets for such virtual object proxies.
+This solution for using the proxies as virtual objects is also proposed by the official documentation\footnote{\url{http://wiki.ecmascript.org/doku.php?id=harmony:direct\_proxies\#virtual_objects}, accessed May 11, 2014}.
 
 
-\subsection{Proxy Handlers for Object Versioning}
 
+\subsection{Using the Proxies for Object Versioning} \label{subsec:IMPLEMENTATION:1.2}
 
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=\textwidth]{figures/5_implementation/2_versioningProxy.pdf}
-    \caption{TODO}
-    \label{fig:VersioningProxy}
-\end{figure}
-
-
-% TODO:
-    % we call our usage/configuration of proxies \emph{versioning proxies}
-
-    % proxies as stand-ins for multiple versions of objects: no fixed target but versions dictionary (diagram)
-    % only the proxy handler has access to the versions. therefore, the garbage collector reclaims proxies and versions together
-    
+% TODO:    
+    % proxies as stand ins for multiple versions of objects: no fixed target but versions dictionary (diagram)
+    % dummytarget: functions / objects (apply + contruct, typeof)
+        
     % versioning proxy handler: traps forward to the current version, conceptual code of the get trap as example
     
     % selecting the right version: currentVersion(), version of the system (objects with id, predecessor, successor), current system version globally accessible via lively.CurrentVersion, used to retrieve the correct version from the version dictionary
@@ -175,26 +164,28 @@ The documentation suggests to use empty objects (\lstinline|{}|) as targets for 
     % obviously also excludes all state external to the JavaScript runtime.
 
 
+The proxies stand in for multiple versions of an object in our implementation.
+They forward all object interactions to a dynamically chosen version.
 
+Figure~\ref{fig:VersioningProxy} exemplifies our usage of the proxies.
+In the example, a proxy stands in for two versions of an \lstinline{address} object: The proxy's handler holds a reference to a \lstinline{versions} object, which in turn refers to the versions of the \lstinline{address} object.
+The proxy's target is ommited from Figure~\ref{fig:VersioningProxy} as we used the proxies as virtual objects.
+Therefore, they do not forward to their targets.
 
-no fixed target
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{figures/5_implementation/2_versioningProxy.pdf}
+    \caption{TODO}
+    \label{fig:VersioningProxy}
+\end{figure}
 
-Our proxy handlers have a reference to the versions of the object the proxy represents.
- a JavaScript object to map version identifiers to the actual versions of the object.
-
-Figure~\ref{fig:VersioningProxy} shows the relationship between a proxy, the proxy handler, and the versions of an object.
-
-Having the handler object hold all the versions of conceptionally one object takes care of garbage collection.
-When a proxy gets garbage collected, the garbage collector also reclaims all versions.
-
-
-Our proxy handler uses the traps to forward all interactions to the current version of an object.
-Its \emph{get}-trap is implemented similarly to the \lstinline{get} function shown in Listing~\ref{lst:getTrap}.
+Our handler uses all traps to forward to the current version of an object.
+For example, its \lstinline{get} trap works as shown in Listing~\ref{lst:getTrap}.
 
 \iffalse
 \begin{verbatim}\fi
 \begin{code}{TODO}{float,numbers=left}
-get: function(name) {
+get: function(dummyTarget, name) {
     var version = this.currentVersion();
     
     return version[name];
@@ -203,80 +194,157 @@ get: function(name) {
 \label{lst:getTrap}
 \iffalse
 \end{verbatim}\fi
-% 
-% First, the current version gets determined using the \lstinline{currentVersion()} helper function.
 
-% In the case that we are reading a property named \lstinline{age} from an object \lstinline{person}, all these conditions fall through.
-% The trap reads the property from the current version and returns the result.
+First, the trap retrieves the current version of the object using a helper function, which is named \lstinline{currentVersion} (Line 2).
+Subsequentely, the trap reads the property from the current version and returns the result (Line 4).
 
+The \lstinline{currentVersion} function chooses one of the versions of the object the proxy stands in for.
+It does so according to the version of the system.
+The version of the system is available globally as \lstinline{lively.CurrentVersion}.
+It is an ordinary JavaScript object with three properties: an \lstinline{ID}, a \lstinline{predecessor}, and a \lstinline{successor}.
+The \lstinline{currentVersion} function uses the \lstinline{ID} property to look up the correct version in its \lstinline{versions} object.
 
-% The proxy handler chooses a \emph{version of an object} according to a global \emph{version of the system}.
-% The version of the system is an ordinary JavaScript object with three properties: an \lstinline{ID}, a \lstinline{previousVersion}, and a \lstinline{nextVersion}.
-% The current version is always referred to by \lstinline{lively.CurrentVersion}.
-% It is, therefore, globally accessible.
-% The proxy handler uses system version's \lstinline{ID} to look up the version of the object in its version dictionary.
+Object versions of previous system versions are not allowed to change.
+However, when a version of an object is not changed in versions of the system, an object version of a previous system version reflects the current state.
+Therefore, objects are not copied when they are not changed.
+Instead, the \lstinline{currentVersion} function retrieves the latest available version as shown in Listing~\ref{lst:currentVersion}.
 
+\iffalse
+\begin{verbatim}\fi
+\begin{code}{TODO}{float,numbers=left}
+currentVersion: function() {
+    var objectVersion,
+        systemVersion = lively.CurrentVersion;
+    
+    while(!objectVersion && systemVersion) {
+        objectVersion = this.versions[systemVersion.ID];
 
+        systemVersion = systemVersion.previousVersion;
+    }
+    
+    return objectVersion;
+}
+\end{code}
+\label{lst:currentVersion}
+\iffalse
+\end{verbatim}\fi
 
+Traps that intercept changes are not allowed to forward to object versions of previous system versions.
+Instead, they need to make sure that a version of the object exists for the current system version.
+If such a version does not exist, the latest available version is copied and stored in the \lstinline{versions} object.
 
+\begin{table}[h]
+\begin{center}
+\begin{tabular}{|l|l|r|}
+\hline
+set: function(target, name, value, receiver) \\ \hline
+defineProperty: function(target, name, desc) \\ \hline
+deleteProperty: function(target, name) \\ \hline
+freeze: function(target) \\ \hline
+seal: function(target) \\ \hline
+preventExtensions: function(target) \\ \hline
+apply: function(target, thisArg, args) \\ \hline
+\end{tabular}
+\caption[Table caption text]{Traps that intercept changes.}
+\label{table:writeTraps}
+\end{center}
+\end{table}
 
-% When a version of an object is not changed in versions of the system, it's latest version continues to reflect the current state.
-% Therefore, when a proxy traps read access, it looks up the latest version object from its version dictionary.
-% When a proxy, however, traps write access and no version is available for the current system version, a new version of the object is created before forwarding the write access.
-% For this, the latest available version shallowly copied and inserted into the version dictionary.
-% 
-% For most objects, write access is only trapped in the following traps: \emph{set}, \emph{defineProperty}, \emph{deleteProperty}, \emph{preventExtension}, \emph{seal}, and \emph{freeze}.\\
-% Arrays, however, have built-in functions such as \lstinline{push} and \lstinline{pop} that also manipulate an array's state.
-% Therefore, the \emph{apply}-trap also checks for write access and creates new versions when necessary.
-% 
-% To change the system state, only the global version identifier needs to be changed.
-% Depending on whether the version is set to a previous version, a following version, or a new version, changing the identifier is an undo, a redo, or a commit of the current state.
-% 
-% Using a global version of the system is reasonable for now as JavaScript is executed single-threaded and scheduled cooperatively by the JavaScript engines.
-% That is, while a JavaScript script runs, the global version cannot be changed by another script.
+Listing~\ref{lst:versionForWriteAccess} shows the \lstinline{versionForWriteAccess} function that always returns an object version for the current system version.
+The function is used by all traps that intercept changes, which are listed in Table~\ref{table:writeTraps}.
+The \lstinline{apply} trap is included in this list, because built-in functions such as \lstinline{push} and \lstinline{pop} manipulate arrays.
+The remaining traps select the version to forward using the \lstinline{currentVersion} function.
 
+\iffalse
+\begin{verbatim}\fi
+\begin{code}{TODO}{float,numbers=left}
+versionForWriteAccess: function() {
+    var newVersion;
+    
+    if (!this.versions[lively.CurrentVersion.ID]) {
+        newVersion = this.copyObject(this.currentVersion());
+        
+        this.versions[lively.CurrentVersion.ID] = newVersion;
+    }
+    
+    return this.currentVersion();
+},
+\end{code}
+\label{lst:versionForWriteAccess}
+\iffalse
+\end{verbatim}\fi
 
+Given the \lstinline{currentVersion} and the \lstinline{versionForWriteAccess} functions, the current version of the system is written as long as it is referred to by \lstinline{lively.CurrentVersion}.
+To re-establish a different version, only this reference has to be changed.
+Changing the global version is an undo, redo, or commit depending on whether the version is set to a previous, following, or new version.
+Listing~\ref{lst:undoRedoCommit} shows the functions that are available for this as \lstinline{lively.undo}, \lstinline{lively.redo}, and \lstinline{lively.commit}.
 
+\iffalse
+\begin{verbatim}\fi
+\begin{code}{TODO}{float,numbers=left}
+undo: function() {
+    var predecessor = lively.CurrentVersion.predecessor;
+    
+    if (!predecessor) {
+        throw new Error('Can\'t undo: No previous version.');
+    }
+    
+    lively.CurrentVersion = predecessor;
+}
+
+redo: function() {
+    var successor = Lively.CurrentVersion.successor;
+    
+    if (!successor) {
+        throw new Error('Can\'t redo: No next version.');
+    }
+    
+    lively.CurrentVersion = successor;
+}
+
+commit: function() {
+    var predecessor = lively.CurrentVersion,
+        newVersion;
+    
+    newVersion = {
+        ID: predecessor.ID + 1,
+        predecessor: predecessor,
+        successor: null
+    };
+    predecessor.successor = newVersion;
+    
+    lively.CurrentVersion = newVersion;
+}
+\end{code}
+\label{lst:undoRedoCommit}
+\iffalse
+\end{verbatim}\fi
+
+Using a global version of the system is reasonable as JavaScript is executed single-threaded and scheduled cooperatively by the JavaScript engines.
+That is, while a script runs, the global version cannot be changed by another script.
 
  
-\paragraph{Scope of the Versions}
-Using the proxies and system versions, the state of all mutable JavaScript objects can be preserved and re-established.
-Certain host objects in JavaScript engines, however, cannot be versioned.
-For example, the objects that represent the elements of the browser's \ac{dom} cannot be copied.
-To still have changes to graphical objects be visible immediately, we update the HTML document from the current set of visible morphs manually when the system version changes.
+\subsubsection{Scope of the Versioning} \label{subsubsec:IMPLEMENTATION:5.2.1}
 
-% 
-% % TODO: add this, as we refer to it from the evaluation:
-% These objects consume space, but cannot be versioned with our approach.
-% They are referred to from the browser's \ac{dom} which is external to the JavaScript runtime and which, thus, does not use version-aware references.
-% Moreover, some of these objects cannot be copied to create new versions.
-
-
-
-
-
-
-
-
-
-
-
+Using the proxies allows for multiple versions of JavaScript objects.
+However, certain host objects cannot be versioned with our implementation.
+These include the objects that represent the elements of the browser's \ac{dom}.
+Some of \ac{dom} objects cannot be copied.
+For this reason, it is not possible to create multiple versions of them.
+Moreover, the \ac{dom} objects are referred to from the browser's \ac{dom}, which is external to the JavaScript runtime and which, thus, does not use version-aware references.
+However, this is not a problem, because the state of the \ac{dom} can be derived from the Lively Kernel's morph objects.
+Therefore, we update the \ac{dom} from the current set of visible morphs when the system version changes.
+Besides these host objects, all objects that are accessed through our proxies are versioned with the system versions.
 
 
 \section{Proxies For All Mutable JavaScript Objects}
 
-To have the proxies intercept access to all mutable state, objects need to be accessed only via proxies.
-
-Objects, arrays, and functions are mutable in JavaScript.
+To be able to re-establish the entire state with our versioning, all objects need to be accessed via our proxies.
+This includes objects, arrays, and functions as these are mutable in JavaScript.
 In fact, functions and arrays are also objects.
 They can have arbitrary properties.
 
-% TODO: code snippet as example: line 2 of the following returns true:
-    % var array = []; array.func = function() {};
-    % array.func.prop = 3; array.func.prop === 3 
-
-
-Accessing all objects only via proxies is achieved by creating proxies right when objects get created and then returning references to the proxies instead of to the objects.
+Accessing all objects only via proxies is achieved by creating proxies right when objects are created and then returning references to the proxies instead of to the objects.
 % To achieve this, we create proxies immediately for new objects and return the proxies instead of the objects, so a reference to the proxy gets passed around instead of the reference to the actual object, which instead is captured as a version in the versions dictionary of the proxy.
 
 
@@ -297,7 +365,7 @@ Our implementation uses a combination of source transformations and behavior of 
 
 \subsection{Transforming Literal Expressions}
 
-We use source transformations to wrap literal expressions consistently into a \emph{proxyFor()} function, which takes an object as parameter and returns a proxy for it.
+We use source transformations to wrap literal expressions consistently into a \emph{proxyFor} function, which takes an object as parameter and returns a proxy for it.
 Therefore, we wrap the literal forms of objects, arrays, and functions.
 
 The transformations of literal objects, arrays, and functions are shown by example in Table~\ref{table:literalTransforms}.
@@ -399,11 +467,11 @@ We transform these built-in constructor functions explicity, wrapping each into 
 Further, the proxy's \emph{construct}- and \emph{apply}-traps then also return proxies.
 
 Besides built-in constructors, there are also very specific built-in functions, that we transform separately to specific alternatives.
-One example for such functions is the global \lstinline{eval()} function.
+One example for such functions is the global \lstinline{eval} function.
 \lstinline{eval} takes arbitrary code which might express an arbitrary object structure and which, therefore, might require proxies for multiple objects.
 In the specific case of eval, we proxy \lstinline{eval}'s result but additionally also pass its string argument through the source transformations.
 
-Similar to the wrapping of object literals without accessor functions, of arrays, and of function expressions, the source transformation also wraps specific built-in functions into calls to the \lstinline{proxyFor()} function.
+Similar to the wrapping of object literals without accessor functions, of arrays, and of function expressions, the source transformation also wraps specific built-in functions into calls to the \lstinline{proxyFor} function.
 For example, \lstinline{Array(100)} becomes \lstinline{proxyFor(Array(100))}.
 As every call to such built-in objects is transformed in this way, the same Object---in this case the \lstinline{Array} function---gets passed to the \lstinline{proxyFor} function multiple times.
 To nevertheless return the same proxy, we use a map that associates objects with their proxies.
@@ -448,7 +516,7 @@ In JavaScript, all functions can be used as constructors and create new objects 
 
 % % The last line of code of the \lstinline{construct} function of our proxy handler is therefore: \lstinline{return this.ensureProxied(newInstance)}.\\
 
-% The result is passed to a \lstinline{ensureProxied()} function.
+% The result is passed to a \lstinline{ensureProxied} function.
 
 
 
@@ -499,15 +567,12 @@ These workarounds might no longer be necessary once the ECMAScript 6 standard ge
 
 \subsection{Disabling Target Object Invariants}
 
-% While these are supposed to stand-in for particular objects, their \emph{targets}, they can also be used as fully virtual objects.
-
-\todo{add something on \url{http://wiki.ecmascript.org/doku.php?id=harmony:direct\_proxies\#virtual_objects}}
-% when using the objects as virtual objects as described in in the ECMAScript wiki's documentation... still the invariants..
+% While these are supposed to stand in for particular objects, their \emph{targets}, they can also be used as fully virtual objects.
 
 Using the \emph{harmony-reflect} shim in a recent Chrome, proxies require an actual \emph{target} object even though the current ECMAScript 6 draft says otherwise\footnote{\url{http://people.mozilla.org/~jorendorff/es6-draft.html\#sec-proxy-object-internal-methods-and-internal-slots}, accessed April 15, 2014}.
 
 When an actual target object is provided on creation of a proxy, the internal link between proxy and target object is fixed and cannot be changed at runtime.
-Therefore, in our use case of the proxies, in which proxies stand-in for a group of objects from which one is chosen dynamically, the proxy is still linked to a particular object by default.
+Therefore, in our use case of the proxies, in which proxies stand in for a group of objects from which one is chosen dynamically, the proxy is still linked to a particular object by default.
 Additionally, the Direct Proxies are designed to ensure invariants between the trap behavior and the target's properties~\cite{Cutsem2013TRP}.
 
 For example, when an object's properties are made immutable using \lstinline{Object.freeze}, the invariants ensure that the target object has in-fact been frozen, even if the trap delegates the operation to another object such as one of our versions of an object.
@@ -534,9 +599,9 @@ The \lstinline{instanceof} operator returns the of an object, which is defined b
 The prototype of an object is a property and can be changed at runtime.
 It gets versioned as any other property.
 The \lstinline{instanceof} operator, thus, also needs to be delegated to the current version of an object.
-% When creating a proxy a \emph{target} object can be provided to be linked from the proxy and the \lstinline{instanceof} operator would follow this link to report the target's type, but as the target link cannot be changed later on, while proxies stand-in for multiple versions with potentially different types, this is not an option.
+% When creating a proxy a \emph{target} object can be provided to be linked from the proxy and the \lstinline{instanceof} operator would follow this link to report the target's type, but as the target link cannot be changed later on, while proxies stand in for multiple versions with potentially different types, this is not an option.
 
-For this, we implemented a custom \lstinline{Object.instanceof()} function, which implements the semantics of the \lstinline{instanceof} operator but does delegate to the correct version of an object.
+For this, we implemented a custom \lstinline{Object.instanceof} function, which implements the semantics of the \lstinline{instanceof} operator but does delegate to the correct version of an object.
 All usage of the \lstinline{instanceof} operator is then transformed to usage of the custom function.
 These transformations change code as shown by the following example: 
 
@@ -597,9 +662,9 @@ In particular, hovering variable names that are currently bound to proxies yield
 
 \paragraph{Concurrent JavaScript}
 Even though JavaScript is executed with a single thread, scripts can be executed concurrently.
-In general, scripts can be started from events and explicitly from other scripts using the \lstinline{setTimeout()} or the \lstinline{setInterval()} function.
+In general, scripts can be started from events and explicitly from other scripts using the \lstinline{setTimeout} or the \lstinline{setInterval} function.
 Switching the system version can be problematic for such concurrently running scripts.
-For example, the Lively Kernel makes use of the \lstinline{setInterval()} function to repeatedly execute a method of an object.
+For example, the Lively Kernel makes use of the \lstinline{setInterval} function to repeatedly execute a method of an object.
 Re-establishing a previous version can interfere with such ticking behavior as the object or its method can be unavailable in previous versions.
 For this reason, we stop scripts from future versions, when the system version changes.
 We did, however, not succeed in finding a way to restart the scripts again when the future versions are re-established.
