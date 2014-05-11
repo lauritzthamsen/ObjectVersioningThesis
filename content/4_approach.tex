@@ -117,10 +117,9 @@ Only this version identifier has to be changed to have version-aware references 
 For example, to undo the changes made with version \emph{v2} of the system, the version identifier would need to be set to \emph{v1} again.
 
 Given the example situation from Figure~\ref{fig:ObjectGraphWithReferencesResolvedAlongVersion2} and given \lstinline{aCompany} refers to the \lstinline{company} object, the following statement would refer to three different values depending on the version identifier:
-
 \iffalse
 \begin{verbatim}\fi
-\begin{code}[lst:example]{}{}
+\begin{code}{}{}
 aCompany.CEO.address.number
 \end{code}
 \iffalse
@@ -179,10 +178,9 @@ The proxy in turn knows which versions are available for the \lstinline{address}
 When the \lstinline{address} property of the \lstinline{person} object is accessed, the proxy forwards the access transparently to a version.
 For example, in version \emph{v2} of the system as indicated by Figure~\ref{fig:ProxyBasedVersionAwareReference}, even if the \lstinline{address} property is a proxy, reading the proxy's \lstinline{city} property returns the string \lstinline{'Berlin'} .
 Given \lstinline{aPerson} refers to the \lstinline{person} object, evaluating the following statement returns \lstinline{true} in version \emph{v2}:
-
 \iffalse
 \begin{verbatim}\fi
-\begin{code}[lst:example]{}{}
+\begin{code}{}{}
 aPerson.address.city === 'Berlin'
 \end{code}
 \iffalse
