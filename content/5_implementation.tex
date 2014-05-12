@@ -19,7 +19,7 @@ The ECMAScript 6 proxies stand in for objects and intercept all kinds of object 
 
 The object a proxy stands in for is its \emph{target}.
 The behavior of a proxy is controlled by a separate \emph{handler} object.
-Target and handler are required when a proxy is created as shown in the following example:
+Target and handler are required when a proxy is created as in the following example:
 \iffalse
 \begin{verbatim}\fi
 \begin{code}{}{}
@@ -104,13 +104,13 @@ isExtensible: function(target) \\ \hline
 enumerate: function(target) \\ \hline
 keys: function(target) \\ \hline
 \end{tabular}
-\caption[Table caption text]{Traps that proxy handlers can implement.}
+\caption[Table caption text]{Traps that proxy handlers can provide.}
 \label{table:traps}
 \end{center}
 \end{table}
 
 The traps fire either when a proxy is accessed with JavaScript operators or when it is passed to meta-programming facilities.
-For example, the \lstinline{apply} trap fires when a proxied function is applied as shown in the following example:
+For example, the \lstinline{apply} trap fires when a proxied function is applied as in the following example:
 \iffalse
 \begin{verbatim}\fi
 \begin{code}{}{}
@@ -227,11 +227,9 @@ apply: function(target, thisArg, args) \\ \hline
 \end{center}
 \end{table}
 
-% TODO: mutating interactions, mutating array functions
-
 Listing~\ref{lst:versionForWriteAccess} shows the \lstinline{versionForWriteAccess} function that always returns an object version for the current system version.
 The function is used by all traps that intercept changes, which are listed in Table~\ref{table:writeTraps}.
-The \lstinline{apply} trap is included in this list, because built-in functions such as \lstinline{push} and \lstinline{pop} manipulate arrays.
+The \lstinline{apply} trap is included in this list, because built-in array functions such as \lstinline{push} and \lstinline{pop} are mutating.
 The remaining traps select the version to forward using the \lstinline{currentVersion} function.
 
 \iffalse
@@ -668,8 +666,6 @@ This allows the browser's developer tools to present the original sources, even 
 
 \section{Workarounds for the Current State of the ECMAScript 6 Proxies} \label{sec:IMPLEMENTATION:4}
 
-% TODO: each subsection should be divided into a problem and a solution/approach/workaround part/subsubsection
-
 Certain workarounds are required due to the preliminary implementation of ECMAScript 6 proxies in the JavaScript engines.
 
 \paragraph{ECMAScript 6 Specification}
@@ -697,8 +693,6 @@ These workarounds might no longer be necessary once the ECMAScript 6 standard ge
 
 
 \subsection{Disabling Target Object Invariants}
-
-% While these are supposed to stand in for particular objects, their \emph{targets}, they can also be used as fully virtual objects.
 
 \subsubsection{Problem}
 As explained in Section~\label{subsec:IMPLEMENTATION:1.1}, the proxies as available in Chrome require a fixed target object, even though the current ECMAScript 6 draft says otherwise\footnote{\url{http://people.mozilla.org/~jorendorff/es6-draft.html\#sec-proxy-object-internal-methods-and-internal-slots}, accessed April 15, 2014}.
@@ -728,7 +722,7 @@ The \lstinline{typeof} operator returns a distinction between a certain set of t
 Proxies stand in for objects, arrays, and functions.
 The \lstinline{typeof} operator returns \lstinline{"object"} for arrays and objects and \lstinline{"function"} for functions.
 Therefore, the target object of our proxies is an object when the proxy stands in for the versions of an array or an object, while it is a function when the proxy stands for the versions of functions.
-This is also necessary anyway as the \emph{apply} and \emph{construct} traps are only called for proxies with function targets.
+This is also necessary as the \emph{apply} and \emph{construct} traps are only called for proxies with function targets.
 
 The \lstinline{instanceof} operator needs to be handled differently as it does not necessarily return the same value for all versions of an object.
 
@@ -779,60 +773,87 @@ Input & Output \\ \hline
 
 \subsection{Unwrapping Versions for Native Code} \label{subsec:IMPLEMENTATION:4.3}
 
-Some built-in JavaScript functions react to proxies with actual errors, return wrong results, or otherwise do not provide the usual functionality.
-Therefore, these functions need to be provided with actual objects instead of the proxy.
-% This is unproblematic for most cases as, given JavaScript's single-threaded and cooperative execution in browser engines, which version of an object is to be used is not expected to change during the execution of a built-in function.
-Our implementation provides the current version of an object to these built-in functions through proxy handler traps and patched built-in functions.
 
-The \emph{apply}-trap, called when proxied functions get applied, unwraps all arguments and the \emph{thisContext} object, when the applied function is a built-in functions that does not handle proxies correctly.
-This is for example the case for the functions that provide access to the browser's \ac{dom}.
+\subsubsection{Problem}
 
-The \emph{set}-trap sometimes needs to unwrap the assigned value when that value is proxied and gets assigned to slots that cannot handle proxies.
-This is for example the case with the \lstinline{onreadystatechange} slot of \emph{XMLHttpRequest} objects.
-This particular slot holds functions as callbacks of asynchronous HTTP requests, which, however, do not get called when these functions are proxies.
+Some built-in JavaScript functions do not work correctly with proxies.
+The functions react with errors, return wrong results, or silently ignore calls when applied with proxies as arguments or as their \lstinline{this}-context.
+These built-in functions include, for example, the \lstinline{concat} function of array instances and all functions that manipulate the browser's \ac{dom}.
+Moreover, all string instance methods return wrong results when provided with proxies for their \lstinline{RegExp} arguments.
 
-Unwrapping a particular version from a proxy for an asynchronous callback is potentially problematic.
-Though JavaScript does get executed with a single thread using cooperative scheduling by all popular browsers, other concurrent scripts might get executed and switch the global version before the callback can be called.
-It is, however, unlikely that a callback function's \emph{properties} are changed while waiting for the response and even bad programming style as it introduces dependencies on network timing even without proxies.
-Therefore, our implementation currently does not provide a workaround for this specific case, even though we are aware of this potential problem. 
-
-In addition to unwrapping in traps, there are also certain immutable types that do not get proxied at all in our implemention such as strings.
-Strings, however, do have methods and these also do not handle proxies correctly.
-As the arguments to these methods is not handled in traps, because strings are not proxied, our implementation patches such functions with functions that unwrap proxies before executing the original functions.
+Furthermore, the \lstinline{onreadystatechanged} property of \lstinline{XMLHttpRequest} objects is not allowed to be proxy.
+The \lstinline{onreadystatechanged} property is expected to be a function, which is called when the server responds to asynchronous \ac{http} requests. 
+However, when a proxy for a function is used as the property, the callback is not called with the response.
 
 
-% TODO: get-trap.. proxy X to proxy X.method()..
+\subsubsection{Solution}
 
-% TODO: code?
+The problematic functions need to be provided with actual objects instead of proxies.
+Therefore, our implementation unwraps the current versions from the proxies and provides these to the function.
+The \emph{apply}-trap unwraps all arguments and the \emph{thisContext} object when the applied function is a built-in functions that does not handle proxies correctly.
+
+The \lstinline{apply} trap detects built-in functions through their print strings.
+Built-in functions print to \emph{``[native code]''}, while functions created from literals print to their function body.\\
+However, the \lstinline{apply} trap does not unwrap the arguments to specific built-in functions.
+For example, the argument to an array's \lstinline{indexOf} function is not unwrapped as the function compares the argument's identity to the identity of its content.
+Additionally, the iterator functions of arrays handle proxies correctly.
+
+Instances of strings are immutable and are not accessed through proxies in our implemention.
+Therefore, unwrapping arguments in the \lstinline{apply} trap is not a solution for the string methods that do not handle proxies correctly.
+For this reason, our implementation patches these string functions.
+The functions are patched with functions that unwrap proxies before executing the original functions, as shown in Listing~\ref{lst:stringPatch}.
+
+\iffalse
+\begin{verbatim}\fi
+\begin{code}[lst:stringPatch]{TODO}{float,numbers=left}
+var originalStringMatch = String.prototype.match;
+String.prototype.match = function match(regexp) {
+    var exp = Object.isProxy(regexp) ?
+        regexp.proxyTarget() : regexp;
+    return originalStringMatch.call(this, exp);
+};
+\end{code}
+\iffalse
+\end{verbatim}\fi
+
+The four string methods that are patched in this way are: \lstinline{match}, \lstinline{search}, \lstinline{replace}, \lstinline{split}.
+
+For the \lstinline{onreadystatechanged} property of \lstinline{XMLHttpRequest} objects, we have the \lstinline{set} trap unwrap the assigned proxy.
+Unwrapping a particular version of the callback function is potentially problematic.
+Even though JavaScript does get executed with a single thread using cooperative scheduling, other concurrent scripts might get executed and switch the global version before the callback can be called.
+However, it is unlikely that a callback function's \emph{properties} are changed while waiting for the response and even bad programming style as it introduces dependencies on network timing regardless of whether or not previous versions of the function are preserved.
+Therefore, our implementation currently does not provide a workaround for this specific scenario. 
+
 
 
 
 
 \section{Limitations of the Implementation}
 
-The current implementation has three limitations.
+We are aware of three limitations of our implementation.
 
 \paragraph{Availability of ECMAScript 6 Proxies}
-Our implementation requires the ECMAScript 6 Direct Proxies to be available.
+Our implementation requires the ECMAScript 6 proxies to be available.
 The proxies are, however, part of the next version of ECMAScript, which has currently neither been finalized nor completely implemented, as described in \ref{sec:IMPLEMENTATION:4}.
-For this reason, our implementation works only in recent versions of Firefox and Chrome that already implement preliminary versions of the proxies.
-For Chrome, users also need to enable the proxies through explicitly setting the \emph{Experimental JavaScript}-option.
+For this reason, our implementation works only in versions of Firefox and Chrome that already implement preliminary versions of the proxies.
+In Chrome, users also need to enable the proxies through explicitly setting the \emph{Experimental JavaScript}-option.
 
 \paragraph{Proxies Impede Developer Tools}
 The current implementation of proxies impedes debugging.
 The proxies are partly implemented by a JavaScript library and every trapped object access is visible in multiple frames in the debugger.
-That is, the stack of the debugger is cluttered with frames that belong to the proxy implementation, not to the application source code.
-In addition, the developer tools in Chrome do not handle proxies correctly under all circumstances.
-In particular, hovering variable names that are currently bound to proxies yields errors and stepping into proxied functions does not work.
+That is, the stack of the debugger is cluttered with frames that belong to the proxy implementation, not to the application code.\\
+Moreover, the developer tools in Chrome do not handle proxies correctly under all circumstances.
+In particular, hovering over variable names that are bound to proxies yields errors.
+It is also not possible to step into proxied functions in Chrome's debugger.
+We did not test the developer tools of Firefox.
 
 \paragraph{Concurrent JavaScript}
 Even though JavaScript is executed with a single thread, scripts can be executed concurrently.
-In general, scripts can be started from events and explicitly from other scripts using the \lstinline{setTimeout} or the \lstinline{setInterval} function.
-Switching the system version can be problematic for such concurrently running scripts.
-For example, the Lively Kernel makes use of the \lstinline{setInterval} function to repeatedly execute a method of an object.
-Re-establishing a previous version can interfere with such ticking behavior as the object or its method can be unavailable in previous versions.
+In general, scripts can be started from events and from other scripts using the \lstinline{setTimeout} or the \lstinline{setInterval} function.
+Switching the system version can be problematic for such concurrently running scripts.\\
+In the Lively Kernel, the \lstinline{setInterval} function is used to repeatedly execute a method of an object.
+Re-establishing a previous version of the system can interfere with such ticking behavior.
+For example, the method that is called repeatedly can be unavailable in previous versions.
 For this reason, we stop scripts from future versions, when the system version changes.
 We did, however, not succeed in finding a way to restart the scripts again when the future versions are re-established.
 Thus, subsequentely undoing and redoing changes can stop concurrently running scripts.
-
-% single-threaded and cooperative scheduling, but setTimeout / setInterval... stop asynchronous actions from following versions when undoing... source transformations, which scripts belongs to which version
