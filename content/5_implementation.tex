@@ -33,17 +33,6 @@ Traps are called when a proxy intercepts corresponding object interactions.
 For example, the \emph{get} trap is called for property reads.
 With these traps, the handler specifies how the proxy reacts on object interaction.
 
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=\textwidth]{figures/5_implementation/1_loggingProxy.pdf}
-    \caption{A \lstinline{client} object has access to a \lstinline{server} object via a proxy.}
-    \label{fig:LoggingProxy}
-\end{figure}
-
-Listing~\ref{lst:loggingProxy} shows an example, in which a proxy is used to log property reads.
-A \lstinline{client} object is connected to a \lstinline{server} object via a proxy, as shown in Figure~\ref{fig:LoggingProxy}:
-The \lstinline{client}'s \lstinline{server} property is a reference to a proxy and that proxy's target is the \lstinline{server}.
-
 \iffalse
 \begin{verbatim}\fi
 \begin{code}[lst:loggingProxy]{Using a proxy to log property reads to an object.}{float,numbers=left}
@@ -62,11 +51,22 @@ client.server = new Proxy(server, handler);
 \iffalse
 \end{verbatim}\fi
 
+Listing~\ref{lst:loggingProxy} shows an example, in which a proxy is used to log property reads.
+A \lstinline{client} object is connected to a \lstinline{server} object via a proxy, as shown in Figure~\ref{fig:LoggingProxy}:
+The \lstinline{client}'s \lstinline{server} property is a reference to a proxy and that proxy's target is the \lstinline{server}.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{figures/5_implementation/1_loggingProxy.pdf}
+    \caption{A \lstinline{client} object has access to a \lstinline{server} object via a proxy.}
+    \label{fig:LoggingProxy}
+\end{figure}
+
 The proxy's \lstinline{handler} object implements a \lstinline{get} trap.
 The \lstinline{get} trap receives two arguments when called: \lstinline{target} and \lstinline{name}.
-The \lstinline{target} parameter refers to the proxy's \lstinline{target} object.
+The \lstinline{target} parameter refers to the proxy's target object.
 The \lstinline{name} parameter refers to the name of the property that was read.
-In our example, the \lstinline{get} trap logs the property read (Line~5), then forwards the read to the \lstinline{target} object and returns the result (Line~7).
+In Listing~\ref{lst:loggingProxy}, the \lstinline{get} trap logs the property read (Line~5), then forwards the read to the \lstinline{target} object and returns the result (Line~7).
 Therefore, reading a property of the server object via the proxy as shown in Listing~\ref{lst:propertyRead} would print a log statement similar to the following: ``openSecret was read at Sat May 10 2014 23:00:54 GMT+0200 (CEST)''.
 
 \iffalse
@@ -154,7 +154,7 @@ Therefore, they do not forward to their targets.
 \begin{figure}[h]
     \centering
     \includegraphics[width=\textwidth]{figures/5_implementation/2_versioningProxy.pdf}
-    \caption{TODO}
+    \caption{A proxy with a handler that forwards to two versions of an \lstinline{address} object.}
     \label{fig:VersioningProxy}
 \end{figure}
 
@@ -163,7 +163,7 @@ For example, its \lstinline{get} trap works as shown in Listing~\ref{lst:getTrap
 
 \iffalse
 \begin{verbatim}\fi
-\begin{code}[lst:getTrap]{TODO}{float,numbers=left}
+\begin{code}[lst:getTrap]{The handler's \lstinline{get} trap.}{float,numbers=left}
 get: function(dummyTarget, name) {
     var version = this.currentVersion();
     
@@ -189,7 +189,7 @@ Instead, the \lstinline{currentVersion} function retrieves the latest available 
 
 \iffalse
 \begin{verbatim}\fi
-\begin{code}[lst:currentVersion]{TODO}{float,numbers=left}
+\begin{code}[lst:currentVersion]{The handler's \lstinline{currentVersion} method.}{float,numbers=left}
 currentVersion: function() {
     var objectVersion,
         systemVersion = lively.CurrentVersion;
@@ -210,6 +210,28 @@ Traps that intercept changes are not allowed to forward to object versions of pr
 Instead, they need to make sure that a version of the object exists for the current system version.
 If such a version does not exist, the latest available version is copied and stored in the \lstinline{versions} object.
 
+Listing~\ref{lst:versionForWriteAccess} shows the \lstinline{versionForWriteAccess} function that always returns an object version for the current system version.
+The function is used by all traps that intercept changes, which are listed in Table~\ref{table:writeTraps}.
+The \lstinline{apply} trap is included in this list, because built-in array functions such as \lstinline{push} and \lstinline{pop} are mutating.
+
+\iffalse
+\begin{verbatim}\fi
+\begin{code}[lst:versionForWriteAccess]{The handler's \lstinline{versionForWriteAccess} method.}{float,numbers=left}
+versionForWriteAccess: function() {
+    var newVersion;
+    
+    if (!this.versions[lively.CurrentVersion.ID]) {
+        newVersion = this.copyObject(this.currentVersion());
+        
+        this.versions[lively.CurrentVersion.ID] = newVersion;
+    }
+    
+    return this.currentVersion();
+},
+\end{code}
+\iffalse
+\end{verbatim}\fi
+
 \begin{table}[h]
 \begin{center}
 \begin{tabular}{|l|l|r|}
@@ -227,28 +249,7 @@ apply: function(target, thisArg, args) \\ \hline
 \end{center}
 \end{table}
 
-Listing~\ref{lst:versionForWriteAccess} shows the \lstinline{versionForWriteAccess} function that always returns an object version for the current system version.
-The function is used by all traps that intercept changes, which are listed in Table~\ref{table:writeTraps}.
-The \lstinline{apply} trap is included in this list, because built-in array functions such as \lstinline{push} and \lstinline{pop} are mutating.
-The remaining traps select the version to forward using the \lstinline{currentVersion} function.
-
-\iffalse
-\begin{verbatim}\fi
-\begin{code}[lst:versionForWriteAccess]{TODO}{float,numbers=left}
-versionForWriteAccess: function() {
-    var newVersion;
-    
-    if (!this.versions[lively.CurrentVersion.ID]) {
-        newVersion = this.copyObject(this.currentVersion());
-        
-        this.versions[lively.CurrentVersion.ID] = newVersion;
-    }
-    
-    return this.currentVersion();
-},
-\end{code}
-\iffalse
-\end{verbatim}\fi
+The remaining traps select the version to forward to using the \lstinline{currentVersion} function.
 
 Given the \lstinline{currentVersion} and the \lstinline{versionForWriteAccess} functions, the current version of the system is written as long as it is referred to by \lstinline{lively.CurrentVersion}.
 To re-establish a different version, only this reference has to be changed.
@@ -257,7 +258,7 @@ For this, the system provides the functions \lstinline{lively.undo} (Listing~\re
 
 \iffalse
 \begin{verbatim}\fi
-\begin{code}[lst:undo]{TODO}{float,numbers=left}
+\begin{code}[lst:undo]{The \lstinline{lively.undo} method.}{float,numbers=left}
 undo: function() {
     var predecessor = lively.CurrentVersion.predecessor;
     
@@ -273,7 +274,7 @@ undo: function() {
 
 \iffalse
 \begin{verbatim}\fi
-\begin{code}[lst:redo]{TODO}{float,numbers=left}
+\begin{code}[lst:redo]{The \lstinline{lively.redo} method.}{float,numbers=left}
 redo: function() {
     var successor = Lively.CurrentVersion.successor;
     
@@ -289,7 +290,7 @@ redo: function() {
 
 \iffalse
 \begin{verbatim}\fi
-\begin{code}[lst:commit]{TODO}{float,numbers=left}
+\begin{code}[lst:commit]{The \lstinline{lively.commit} method.}{float,numbers=left}
 commit: function() {
     var predecessor = lively.CurrentVersion,
         newVersion;
@@ -438,7 +439,7 @@ Listing~\ref{lst:accessorOriginal} shows an example in which an accessor functio
 
 \iffalse
 \begin{verbatim}\fi
-\begin{code}[lst:accessorOriginal]{TODO}{float,numbers=left}
+\begin{code}[lst:accessorOriginal]{An object literal with accessor function.}{float,numbers=left}
 var person = {
     birthdate: new Date(1984,27,5),
     get age() {
@@ -460,7 +461,7 @@ This allows to have the object be available in a variable for the subsequent \ls
 
 \iffalse
 \begin{verbatim}\fi
-\begin{code}[lst:accessorTransformed]{TODO}{float,numbers=left}
+\begin{code}[lst:accessorTransformed]{The result of transforming an object literal with accessor function.}{float,numbers=left}
 var person = function() {
     var newObject = lively.proxyFor({
         birthdate: new Date(1984,27,5);
@@ -488,7 +489,7 @@ Listing~\ref{lst:constructorFunction} shows how a literal function is used to co
 
 \iffalse
 \begin{verbatim}\fi
-\begin{code}[lst:constructorFunction]{TODO}{float, numbers=left}
+\begin{code}[lst:constructorFunction]{Applying a function with the \lstinline{new} operator.}{float, numbers=left}
 function Person() {}
 var someone = new Person();
 \end{code}
@@ -500,7 +501,7 @@ Listing~\ref{lst:constructTrap} shows the \lstinline{construct} trap of our prox
 
 \iffalse
 \begin{verbatim}\fi
-\begin{code}[lst:constructTrap]{TODO}{float,numbers=left}
+\begin{code}[lst:constructTrap]{The handler's \lstinline{contruct} trap.}{float,numbers=left}
 construct: function(dummyTarget, args) {
     var constructor, prototype, newObject, result;
     
@@ -720,9 +721,9 @@ However, the \lstinline{typeof} and the \lstinline{instanceof} operator are not 
 
 The \lstinline{typeof} operator returns a distinction between a certain set of types.
 Proxies stand in for objects, arrays, and functions.
-The \lstinline{typeof} operator returns \lstinline{"object"} for arrays and objects and \lstinline{"function"} for functions.
+The \lstinline{typeof} operator returns \emph{``object''} for arrays and objects and \emph{``function''} for functions.
 Therefore, the target object of our proxies is an object when the proxy stands in for the versions of an array or an object, while it is a function when the proxy stands for the versions of functions.
-This is also necessary as the \emph{apply} and \emph{construct} traps are only called for proxies with function targets.
+This is also necessary as the \lstinline{apply} and \lstinline{construct} traps are only called for proxies with function targets.
 
 The \lstinline{instanceof} operator needs to be handled differently as it does not necessarily return the same value for all versions of an object.
 
@@ -805,7 +806,7 @@ The functions are patched with functions that unwrap proxies before executing th
 
 \iffalse
 \begin{verbatim}\fi
-\begin{code}[lst:stringPatch]{TODO}{float,numbers=left}
+\begin{code}[lst:stringPatch]{Patching a method of string instances.}{float,numbers=left}
 var originalStringMatch = String.prototype.match;
 String.prototype.match = function match(regexp) {
     var exp = Object.isProxy(regexp) ?
