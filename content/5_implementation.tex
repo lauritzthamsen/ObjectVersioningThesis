@@ -343,8 +343,8 @@ As a result, references to proxies are passed around instead of references to ob
 In JavaScript, there are three categories of expressions that create new objects: 
 \begin{itemize}
     \item literal expressions: e.g. \lstinline|{age: 12}|
-    \item specific built-in functions: e.g. \lstinline|Object.create(prototype, {age: 12})|
     \item constructor functions: e.g. \lstinline|new Person(12)|
+    \item specific built-in functions: e.g. \lstinline|Object.create(prototype, {age: 12})|
 \end{itemize}
 
 Our implementation uses source transformations and proxy traps to have these expression return proxies.
@@ -535,34 +535,45 @@ These are not created from function literals and, therefore, cannot be proxied b
 
 \subsection{Wrapping Built-in Functions}
 
+Some built-in functions can be used to create new objects.
+
 For example, objects and arrays can be created by evaluating \lstinline{new Object()} and \lstinline{new Array()}.
 % can also be called without the new operator: Object() / Array()
-We transform these built-in constructor functions explicity, wrapping each into calls to the \lstinline{proxyFor} function.
+% Object.create()
+% eval()
 
+
+% OBJECT() / ARRAY .. 
+
+We transform built-in constructor functions explicity, wrapping each into calls to the \lstinline{proxyFor} function.
 
 % example:      Object() --> proxyFor(Object)()
 
 % returns a proxy for the function object \lstinline{Object}.. 
 % \lstinline{construct} trap:  for functions then return proxies for the newly created objects from their construct-traps.
 
+% This is also true for the \emph{apply} trap, because, for example, the \lstinline{Array} and \lstinline{Object} functions also create objects when called without the \lstinline{new} operator and, for example, the built-in function \lstinline{Object.create(proto)} also returns a new object.
+
+
+
+% OBJECT.CREATE
 
 % object.create.. wrapping object.. 
 
 % example:      Object.create(proto) --> proxyFor(Object).create(proto)
 
-% This is also true for the \emph{apply} trap, because, for example, the \lstinline{Array} and \lstinline{Object} functions also create objects when called without the \lstinline{new} operator and, for example, the built-in function \lstinline{Object.create(proto)} also returns a new object.
+% the \emph{get}-trap also makes sure to return always proxy in this fashion.
 
-% In fact, with our proxy handler the \emph{get}-trap also makes sure to return always proxy in this fashion.
 
-% not just the apply-traps, but also the get-traps return ensuredProxied:
-% while all application-specific objects properties are expected to be proxied, some built-in objects in JavaScript refer to their properties directly and not through proxies.
-% These properties are required to be proxied as well to handle proxies correctly.
-
-% this way. it is enough to wrap Object into proxyFor.. to have Object.create be proxied as well
+% this way. it is enough to wrap Object into proxyFor.. to have Object.create be proxied as well, even though the actual \lstinline{Object} object does not refer to its \lstinline{create} function through a proxy.
 % So, wrapping \lstinline{Object} is enough to have \lstinline{Object.create(proto)} return a proxy: \lstinline{Object.create(proto)} transforms to \lstinline{proxyFor(Object).create(proto)} and getting the property \emph{create} then returns a proxy for the function, which when applied also returns a proxy.
-% so the source transformations wrap a number global objects, but do not wrap each of the properties.
+
+% therefore, the source transformations wrap the global objects, but do not wrap each of the properties.
 
 
+
+
+% EVAL
 
 there are also very specific built-in functions, that we transform separately to specific alternatives.
 One example for such a function is the global \lstinline{eval} function.
@@ -570,6 +581,8 @@ One example for such a function is the global \lstinline{eval} function.
 In the specific case of eval, we proxy \lstinline{eval}'s result but additionally also pass its string argument through the source transformations.
 
 
+
+% PROXY TABLE
 
 For example, \lstinline{Array(100)} becomes \lstinline{proxyFor(Array(100))}.
 As every call to such built-in objects is transformed in this way, the same Object---in this case the \lstinline{Array} function---gets passed to the \lstinline{proxyFor} function multiple times.
@@ -581,9 +594,7 @@ That is, the following statement yields true for an arbitrary object \lstinline{
 
 
 
-
-
-
+% SOURCE TRANSFORMATION, NO MONKEY PATCHING
 
 % The built-in functions could be overwritten globally to return proxies for the new objects, but our implementation of object versioning is itself just a JavaScript library and makes itself use of the built-in data types.
 % Additionally, at the time of writing, some JavaScript engines do not allow to overwrite particular built-in functions and we want our implementation of object versioning to work in every JavaScript engine that supports the ECMAScript 6 Direct Proxies.
