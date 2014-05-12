@@ -10,10 +10,10 @@ It concludes with current limitations.
 
 \section{ECMAScript 6 Proxies as Version-aware References} \label{sec:IMPLEMENTATION:1}
 
-This section first describes the proxies proposed with the next version of JavaScript's standard~\cite{Ecma2014ES6}.
+This section first describes the proxies proposed with the next version of JavaScript's standard.
 It then explains how the proxies are used in our implementation.
 
-\subsection{ECMAScript 6 Proxies by Example}
+\subsection{ECMAScript 6 Proxies by Example} \label{subsec:IMPLEMENTATION:1.1}
 
 The ECMAScript 6 proxies stand in for objects and intercept all kinds of object interactions.
 
@@ -659,28 +659,36 @@ Additionally, at the time of writing, some JavaScript engines do not allow to ov
 Our implementation uses \emph{UglifyJS}\footnote{\url{http://github.com/mishoo/UglifyJS2}, accessed March 12, 2014} for all source transformations.
 UglifyJS parses source code without relying on JavaScript exceptions.
 Therefore, when code is transformed before evaluation and the transformation steps do not yield exceptions that could be caught by an open debugger.
-In addition, UglifyJS supports Source Maps \footnote{\url{https://docs.google.com/document/d/1U1RGAehQwRypUTovF1KRlpiOFze0b-_2gc6fAH0KY0k/edit\#heading=h.ue4jskhddao6}, accessed May 2, 2014}.
+In addition, UglifyJS supports Source Maps\footnote{\url{https://docs.google.com/document/d/1U1RGAehQwRypUTovF1KRlpiOFze0b-_2gc6fAH0KY0k/edit\#heading=h.ue4jskhddao6}, accessed May 2, 2014}.
 This allows the browser's developer tools to present the original sources, even though transformed code is executed.
 
 
 
 
 
-\section{Workarounds for the Current State of the Proxies} \label{sec:IMPLEMENTATION:4}
+\section{Workarounds for the Current State of the ECMAScript 6 Proxies} \label{sec:IMPLEMENTATION:4}
 
 % TODO: each subsection should be divided into a problem and a solution/approach/workaround part/subsubsection
 
-Certain workarounds are required due to the preliminary status of the proxy implementation.
+Certain workarounds are required due to the preliminary implementation of ECMAScript 6 proxies in the JavaScript engines.
 
-While the specification of Direct Proxies already progressed from proposal status to being part of the current ECMAScript 6 Draft\footnote{\url{http://people.mozilla.org/~jorendorff/es6-draft.html}, accessed March 5th, 2014}, it is still in draft status and not yet implemented in the JavaScript engines used by Chrome and Firefox.
-These two engines currently both implement two different deprecated proposals for the proxies instead of the most recent ECMAScript 6 Draft.
-The \emph{harmony-reflect} library\footnote{\url{http://github.com/tvcutsem/harmony-reflect}, accessed February 3, 2014, used version 0.0.11}, however, provides the current API of Direct Proxies for recent versions of both Chrome and Firefox, on top of the implementations of the different deprecated proposal states.
-That is, our implementation uses the \emph{harmony-reflect} shim and, thereby, works in both Chrome and Firefox.
+\paragraph{ECMAScript 6 Specification}
+ECMAScript 6 will be the next version of JavaScript.
+Its specification has not yet been finalized.
+Drafts of it are released periodically with a target release date of December 2014\footnote{http://github.com/rwaldron/tc39-notes/blob/48c5d285bf8bf0c4e6e8bb0c02a7c840c01cd2ff/es6/2013-03/mar-13.md\#416-current-status-of-es6, accessed May 12, 2014}.
+The current draft is Revision 24~\cite{Ecma2014ES6}.
+It includes the proposal of the proxies we used for our implementation.
 
-However, even with the shim, three issues need to be addressed with technical workarounds:
+\paragraph{ECMAScript 6 Implementation}
+The JavaScript engines used by Chrome and Firefox provide preliminary implementations for some of the ECMAScript 6 features.
+They implement two different deprecated proposals of the proxy \ac{api}.
+However, the \emph{harmony-reflect} library\footnote{\url{http://github.com/tvcutsem/harmony-reflect}, accessed February 3, 2014, used version 0.0.11} provides the current \ac{api} on top of the implemented states.
+Our implementation uses the \emph{harmony-reflect} library and, thereby, works in Chrome and Firefox.
+
+However, even with the library, three issues need to be addressed with technical workarounds:
 
 \begin{enumerate}
-    \item The proxies have to be provided with an actual target, even when implementing virtual objects, and consistency invariants compare return values of traps to the state of the actual target. 
+    \item The proxies have to be provided with an actual target, even when implementing virtual objects, and consistency invariants compare return values of the traps to the state of the actual target. 
     \item The proxies do not intercept the \lstinline{instanceof} operator, but always delegate to the current target.
     \item Certain built-in JavaScript functions dont handle proxies correctly.
 \end{enumerate}
@@ -692,53 +700,81 @@ These workarounds might no longer be necessary once the ECMAScript 6 standard ge
 
 % While these are supposed to stand in for particular objects, their \emph{targets}, they can also be used as fully virtual objects.
 
-Using the \emph{harmony-reflect} shim in a recent Chrome, proxies require an actual \emph{target} object even though the current ECMAScript 6 draft says otherwise\footnote{\url{http://people.mozilla.org/~jorendorff/es6-draft.html\#sec-proxy-object-internal-methods-and-internal-slots}, accessed April 15, 2014}.
+\subsubsection{Problem}
+As explained in Section~\label{subsec:IMPLEMENTATION:1.1}, the proxies as available in Chrome require a fixed target object, even though the current ECMAScript 6 draft says otherwise\footnote{\url{http://people.mozilla.org/~jorendorff/es6-draft.html\#sec-proxy-object-internal-methods-and-internal-slots}, accessed April 15, 2014}.
+Therefore, even in case the proxies are used as \emph{virtual objects}, they still forward to a particular object by default.
+Moreover, the proxies are designed to ensure invariants between the return values of traps and the target's state~\cite{Cutsem2013TRP}.
+For example, when an object's properties are made immutable through the \lstinline{Object.freeze} function, invariants ensure that the target object has in fact been frozen, even if the trap delegates the operation to another object such as one of our versions of an object.
+Another invariant ensures that immutable values of the target object are reported by the traps.
+Therefore, the \emph{get}-trap has to report the values of the target object when it previously has been frozen.
+That is, in our case, configuring any property as immutable would effectively make that property immutable for all versions.
+Moreover, reading the property in a version where the property is different from the immutable target's property would raises inconsistency errors.
 
-When an actual target object is provided on creation of a proxy, the internal link between proxy and target object is fixed and cannot be changed at runtime.
-Therefore, in our use case of the proxies, in which proxies stand in for a group of objects from which one is chosen dynamically, the proxy is still linked to a particular object by default.
-Additionally, the Direct Proxies are designed to ensure invariants between the trap behavior and the target's properties~\cite{Cutsem2013TRP}.
-
-For example, when an object's properties are made immutable using \lstinline{Object.freeze}, the invariants ensure that the target object has in-fact been frozen, even if the trap delegates the operation to another object such as one of our versions of an object.
-Further, another invariant ensures that all immutable values of the target object are returned correctly by the \lstinline{get}-trap, even when the \emph{get}-trap reads from another object than the target. 
-That is, in our case, configuring any property as immutable would effectively declare make that property immutable for all versions.
-Additionally, in this scenario, reading the property in a version where the value of this property is different from what it is in the immutable target would raise incosistency errors.
-
+\subsubsection{Solution}
 For this reason, we adapted our copy of the \emph{harmony-reflect} library.
-In particular, we added a boolean flag to the Proxy constructor function that indicates whether a proxy is standing in for one target object or is a virtual object.
-This boolean flag is then used to disable all consistency checks when a proxy is meant to be a virtual object.
+In particular, the \lstinline{Proxy} constructor function takes a third argument.
+This argument is a boolean that indicates whether a proxy is standing in for one target object or is a virtual object.
+This boolean flag is then used to disable all consistency checks when a proxy is used as virtual object.
 
-The proxy constructor still requires an actual object as \emph{target} object, but this target object is now only used for the \lstinline{typeof} operator for the virtual object-kind of proxies.
 
-The \lstinline{typeof} operator returns only a distinction between a certain set of types in JavaScript.
-The only necessary difference for the \lstinline{typeof} operator is that a proxy representing the versions of an object or array has an object as target, while a proxy representing the versions of a function needs to have a function as target.
-This difference in the type of supplied target objects is also necessary as the \emph{apply}- and \emph{construct}-trap are also only called on proxies with functions as targets.
+\subsubsection{Discussion}
+
+The proxy constructor still requires an actual object as \emph{target} object.
+This target object is used for object interactions that are not intercepted by any traps.
+All trapped interactions are forwarded to the correct object version without any consistency checks.
+However, the \lstinline{typeof} and the \lstinline{instanceof} operator are not trapped and forwarded to the target object by default.
+
+The \lstinline{typeof} operator returns a distinction between a certain set of types.
+Proxies stand in for objects, arrays, and functions.
+The \lstinline{typeof} operator returns \lstinline{"object"} for arrays and objects and \lstinline{"function"} for functions.
+Therefore, the target object of our proxies is an object when the proxy stands in for the versions of an array or an object, while it is a function when the proxy stands for the versions of functions.
+This is also necessary anyway as the \emph{apply} and \emph{construct} traps are only called for proxies with function targets.
+
+The \lstinline{instanceof} operator needs to be handled differently as it does not necessarily return the same value for all versions of an object.
 
 
 \subsection{Forwarding the \emph{Instanceof} Operator}
 
-There is currently no \lstinline{instanceof} trap to intercept the behavior of the \lstinline{instanceof} operator.
+\subsubsection{Problem}
 
-The \lstinline{instanceof} operator returns the of an object, which is defined by an object's prototype chain in JavaScript.
-The prototype of an object is a property and can be changed at runtime.
-It gets versioned as any other property.
-The \lstinline{instanceof} operator, thus, also needs to be delegated to the current version of an object.
-% When creating a proxy a \emph{target} object can be provided to be linked from the proxy and the \lstinline{instanceof} operator would follow this link to report the target's type, but as the target link cannot be changed later on, while proxies stand in for multiple versions with potentially different types, this is not an option.
-
-For this, we implemented a custom \lstinline{Object.instanceof} function, which implements the semantics of the \lstinline{instanceof} operator but does delegate to the correct version of an object.
-All usage of the \lstinline{instanceof} operator is then transformed to usage of the custom function.
-These transformations change code as shown by the following example: 
-
-% TODO: table!
-
+The \lstinline{instanceof} operator can be used to test whether an object has a specific type.
+In particular, it checks whether the \lstinline{prototype} property of a function is in an object's prototype chain.
+For example, the following statement checks this for the \lstinline{Person} function and the \lstinline{me} object:
 \iffalse
 \begin{verbatim}\fi
-\begin{code}[]{}{float}
-anObject instanceof Type -> Object.instanceof(anObject, Type)
+\begin{code}{}{}
+me instanceof Person
 \end{code}
 \iffalse
 \end{verbatim}\fi
 
-While there is no trap for the \lstinline{instanceof} operator in the current specification, trapping the operator is under discussion\footnote{\url{http://wiki.ecmascript.org/doku.php?id=harmony:direct_proxies\#discussed_during_tc39_july_2012_meeting_microsoft_redmond}, accessed May 1, 2014}.
+The prototype of an object is a property and can be changed at runtime.
+Moreover, the \lstinline{prototype} property of a function is also mutable.
+As any other property, the prototype properties get versioned with our implementation .
+The \lstinline{instanceof} operator, thus, also needs to be delegated to the current version of an object.
+However, there is currently no \lstinline{instanceof} trap to intercept the application of the \lstinline{instanceof} operator.
+
+Trapping the \lstinline{instanceof} operator is under discussion\footnote{\url{http://wiki.ecmascript.org/doku.php?id=harmony:direct_proxies\#discussed_during_tc39_july_2012_meeting_microsoft_redmond}, accessed May 1, 2014}.
+
+
+\subsubsection{Solution}
+
+Our implementation provides a custom \lstinline{Object.instanceof} function, which implements the semantics of the \lstinline{instanceof} operator but delegates to the correct version of an object when applied with a proxy.
+All usage of the \lstinline{instanceof} operator is then transformed to the \lstinline{Object.instanceof} function.
+Table~\ref{table:transformingInstanceof} shows this transformation by example.
+
+\begin{table}[h]
+\begin{center}
+\begin{tabular}{| l | l | l |}
+\hline
+Input & Output \\ \hline
+\lstinline|me instanceof Person| & \lstinline|Object.instanceof(me, Person)| \\ \hline
+\end{tabular}
+\end{center}
+\caption[Table caption text]{Transforming the \lstinline{instanceof} operator.}
+\label{table:transformingInstanceof}
+\end{table}
+
 
 
 \subsection{Unwrapping Versions for Native Code} \label{subsec:IMPLEMENTATION:4.3}
