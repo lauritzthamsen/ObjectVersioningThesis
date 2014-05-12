@@ -310,7 +310,7 @@ commit: function() {
 \end{verbatim}\fi
 
 Using a global version of the system is reasonable as JavaScript is executed single-threaded and scheduled cooperatively by the JavaScript engines.
-That is, while a script runs, the global version cannot be changed by another script.
+While a script runs, the global version cannot be changed by another script.
 
  
 \subsubsection{Scope of the Versioning} \label{subsubsec:IMPLEMENTATION:5.2.1}
@@ -324,6 +324,8 @@ Moreover, the \ac{dom} objects are referred to from the browser's \ac{dom}, whic
 However, this is not a problem, because the state of the \ac{dom} can be derived from the Lively Kernel's morph objects.
 Therefore, we update the \ac{dom} from the current set of visible morphs when the system version changes.
 Besides these host objects, all objects that are accessed through our proxies are versioned with the system versions.
+
+
 
 
 
@@ -350,8 +352,8 @@ Our implementation uses source transformations and proxy traps to have these exp
 
 \subsection{Transforming Literal Expressions}
 
-We use source transformations to wrap literal expressions into a \lstinline{proxyFor} function
-The \lstinline{proxyFor} function takes an object as its argument and returns a proxy for it.
+We use source transformations to wrap literal expressions into calls to a \lstinline{proxyFor} function.
+The \lstinline{proxyFor} function returns a proxy for its argument.
 The transformations for literal objects, arrays, and functions are shown in Table~\ref{table:literalTransforms}.
 
 \begin{table}[h]
@@ -374,19 +376,46 @@ In particular, function declarations and accessor functions need to be handled d
 
 \subsubsection{Function Declarations}
 
-% TODO: continue here !!!
+A \emph{function declaration} is a function literal that creates a named function and makes it available by the name.
+It does not need to be assigned to a variable to be available in the surrounding scope.
+The following statement is a function declaration:
+\iffalse
+\begin{verbatim}\fi
+\begin{code}{}{}
+function add(a, b) {return a + b}
+\end{code}
+\iffalse
+\end{verbatim}\fi
 
-Function declarations are named functions, where the name is available in the function itself and also in the surrounding scope.
-% TODO: explain the difference (decl: function definition that is also a variable decl, function definition were func is only returned from expression)
-% TODO: code listings that show the differences..
+In contrast, a \emph{function expression} creates a function that needs to be assigned to a variable to be accessible.
+The following statement assigns a function expression to a variable:
+\iffalse
+\begin{verbatim}\fi
+\begin{code}{}{}
+var subtract = function(a, b) {return a - b}
+\end{code}
+\iffalse
+\end{verbatim}\fi
 
-% function expression that creates an anonymous function: var add = function(a, b) {return a + b};
-% function declaration function add(a,b) {return a + b};
+Function expressions can create anonymous and named functions.
+The example above creates an anonymous function.
+The following example assigns a named function to a variable:
+\iffalse
+\begin{verbatim}\fi
+\begin{code}{}{}
+var multiply = function multiply(a, b) {return a * b}
+\end{code}
+\iffalse
+\end{verbatim}\fi
 
-% TODO: show with why declarations cannot be just wrapped.. functions passed as arguments are always expressions..
-% proxyFor(function add(a,b) {return a + b}) .. function declaration becomes an expression.. it is not available as \lstinline{add} in the surrounding scope
+An anonymous function is always a function expression.
+A named function is either a function expression or a function declaration, depending on where it is expressed.
+A function declaration cannot be nested into other statements such as variable assignments.
+It has to start with the \lstinline{function} keyword.
 
-The function declaration are transformed to function expressions that are assigned to matching variable names.
+Therefore, when a function declaration is wrapped into a function call, it becomes a function expression.
+The function would no longer be available by its name in the surrounding scope.
+For this reason, the function declarations that are wrapped into calls to the \lstinline{proxyFor} function are assigned to matching variable names.
 Table~\ref{table:funcTransform} shows an example for this transformation.
 
 \begin{table}[h]
@@ -394,14 +423,14 @@ Table~\ref{table:funcTransform} shows an example for this transformation.
 \begin{tabular}{| l | l | l |}
 \hline
 Input & Output \\ \hline
-\lstinline|function func() {}| & \lstinline|var func = function func() {}| \\ \hline
+\lstinline|function div() {}| & \lstinline|var div = proxyFor(function div() {})| \\ \hline
 \end{tabular}
 \end{center}
-\caption[Table caption text]{Transforming literal objects, arrays, and functions.}
+\caption[Table caption text]{Transforming a function declaration.}
 \label{table:funcTransform}
 \end{table}
 
-In addition, because function declarations get hoisted in JavaScript, the source transformation moves the transformed function declarations to the beginning of the defining scope while preserving the original order among the transformed function declarations.
+In addition, because function declarations get hoisted in JavaScript, transformed function declarations are moved to the beginning of the defining scope.
 
 
 \subsubsection{Accessor Functions}
@@ -453,49 +482,6 @@ var person = function() {
 
 
 
-\subsection{Wrapping Built-in Functions}
-
-Some functions are built into the JavaScript engines.
-These are not created from function literals and, therefore, not proxied by transforming literals.
-For example, the built-in data types like objects and arrays can be created by evaluating \lstinline{new Object()} and \lstinline{new Array()} as well as \lstinline{Object()} and \lstinline{Array()}.
-We transform these built-in constructor functions explicity, wrapping each into the proxying function.
-Further, the proxy's \emph{construct}- and \emph{apply}-traps then also return proxies.
-
-Besides built-in constructors, there are also very specific built-in functions, that we transform separately to specific alternatives.
-One example for such functions is the global \lstinline{eval} function.
-\lstinline{eval} takes arbitrary code which might express an arbitrary object structure and which, therefore, might require proxies for multiple objects.
-In the specific case of eval, we proxy \lstinline{eval}'s result but additionally also pass its string argument through the source transformations.
-
-Similar to the wrapping of object literals without accessor functions, of arrays, and of function expressions, the source transformation also wraps specific built-in functions into calls to the \lstinline{proxyFor} function.
-For example, \lstinline{Array(100)} becomes \lstinline{proxyFor(Array(100))}.
-As every call to such built-in objects is transformed in this way, the same Object---in this case the \lstinline{Array} function---gets passed to the \lstinline{proxyFor} function multiple times.
-To nevertheless return the same proxy, we use a map that associates objects with their proxies.
-This \emph{Proxy Table} is a weak-key map and does prevent the version objects used as keys from being gargabe collected when their proxies get garbage collected.
-Using the same proxies for objects is also necessary for identity checks.
-That is, the following statement yields true for an arbitrary object \lstinline{obj}: \lstinline{proxyFor(obj) === proxyFor(obj)}.
-
-
-% This is also true for the \emph{apply} trap, because, for example, the \lstinline{Array} and \lstinline{Object} functions also create objects when called without the \lstinline{new} operator and, for example, the built-in function \lstinline{Object.create(proto)} also returns a new object.
-
-% In fact, with our proxy handler the \emph{get}-trap also makes sure to return always proxy in this fashion.
-
-% not just the apply-traps, but also the get-traps return ensuredProxied:
-% while all application-specific objects properties are expected to be proxied, some built-in objects in JavaScript refer to their properties directly and not through proxies.
-% These properties are required to be proxied as well to handle proxies correctly.
-
-% this way. it is enough to wrap Object into proxyFor.. to have Object.create be proxied as well
-% So, wrapping \lstinline{Object} is enough to have \lstinline{Object.create(proto)} return a proxy: \lstinline{Object.create(proto)} transforms to \lstinline{proxyFor(Object).create(proto)} and getting the property \emph{create} then returns a proxy for the function, which when applied also returns a proxy.
-% so the source transformations wrap a number global objects, but do not wrap each of the properties.
-
-
-
-
-% The built-in functions could be overwritten globally to return proxies for the new objects, but our implementation of object versioning is itself just a JavaScript library and makes itself use of the built-in data types.
-% Additionally, at the time of writing, some JavaScript engines do not allow to overwrite particular built-in functions and we want our implementation of object versioning to work in every JavaScript engine that supports the ECMAScript 6 Direct Proxies.
-
-
-
-
 \subsection{Returning Proxies from Constructor Functions} 
 
 In JavaScript, all functions can be used as constructors and create new objects when called with the \emph{new} operator.
@@ -512,6 +498,71 @@ In JavaScript, all functions can be used as constructors and create new objects 
 % % The last line of code of the \lstinline{construct} function of our proxy handler is therefore: \lstinline{return this.ensureProxied(newInstance)}.\\
 
 % The result is passed to a \lstinline{ensureProxied} function.
+
+
+% show construct trap code
+
+
+
+
+
+\subsection{Wrapping Built-in Functions}
+
+Some functions are built into the JavaScript engines.
+These are not created from function literals and, therefore, not proxied by transforming literals.
+For example, objects and arrays can be created by evaluating \lstinline{new Object()} and \lstinline{new Array()}.
+% can also be called without the new operator: Object() / Array()
+We transform these built-in constructor functions explicity, wrapping each into calls to the \lstinline{proxyFor} function.
+
+
+% example:      Object() --> proxyFor(Object)()
+
+% returns a proxy for the function object \lstinline{Object}.. 
+% \lstinline{construct} trap:  for functions then return proxies for the newly created objects from their construct-traps.
+
+
+% object.create.. wrapping object.. 
+
+% example:      Object.create(proto) --> proxyFor(Object).create(proto)
+
+% This is also true for the \emph{apply} trap, because, for example, the \lstinline{Array} and \lstinline{Object} functions also create objects when called without the \lstinline{new} operator and, for example, the built-in function \lstinline{Object.create(proto)} also returns a new object.
+
+% In fact, with our proxy handler the \emph{get}-trap also makes sure to return always proxy in this fashion.
+
+% not just the apply-traps, but also the get-traps return ensuredProxied:
+% while all application-specific objects properties are expected to be proxied, some built-in objects in JavaScript refer to their properties directly and not through proxies.
+% These properties are required to be proxied as well to handle proxies correctly.
+
+% this way. it is enough to wrap Object into proxyFor.. to have Object.create be proxied as well
+% So, wrapping \lstinline{Object} is enough to have \lstinline{Object.create(proto)} return a proxy: \lstinline{Object.create(proto)} transforms to \lstinline{proxyFor(Object).create(proto)} and getting the property \emph{create} then returns a proxy for the function, which when applied also returns a proxy.
+% so the source transformations wrap a number global objects, but do not wrap each of the properties.
+
+
+
+there are also very specific built-in functions, that we transform separately to specific alternatives.
+One example for such a function is the global \lstinline{eval} function.
+\lstinline{eval} takes arbitrary code which might express an arbitrary object structure and which, therefore, might require proxies for multiple objects.
+In the specific case of eval, we proxy \lstinline{eval}'s result but additionally also pass its string argument through the source transformations.
+
+
+
+For example, \lstinline{Array(100)} becomes \lstinline{proxyFor(Array(100))}.
+As every call to such built-in objects is transformed in this way, the same Object---in this case the \lstinline{Array} function---gets passed to the \lstinline{proxyFor} function multiple times.
+To nevertheless return the same proxy, we use a map that associates objects with their proxies.
+This \emph{Proxy Table} is a weak-key map and does prevent the version objects used as keys from being gargabe collected when their proxies get garbage collected.
+Using the same proxies for objects is also necessary for identity checks.
+That is, the following statement yields true for an arbitrary object \lstinline{obj}: \lstinline{proxyFor(obj) === proxyFor(obj)}.
+
+
+
+
+
+
+
+
+% The built-in functions could be overwritten globally to return proxies for the new objects, but our implementation of object versioning is itself just a JavaScript library and makes itself use of the built-in data types.
+% Additionally, at the time of writing, some JavaScript engines do not allow to overwrite particular built-in functions and we want our implementation of object versioning to work in every JavaScript engine that supports the ECMAScript 6 Direct Proxies.
+
 
 
 
@@ -605,6 +656,8 @@ For this, we implemented a custom \lstinline{Object.instanceof} function, which 
 All usage of the \lstinline{instanceof} operator is then transformed to usage of the custom function.
 These transformations change code as shown by the following example: 
 
+% TODO: table!
+
 \iffalse
 \begin{verbatim}\fi
 \begin{code}[]{}{float}
@@ -640,7 +693,9 @@ Strings, however, do have methods and these also do not handle proxies correctly
 As the arguments to these methods is not handled in traps, because strings are not proxied, our implementation patches such functions with functions that unwrap proxies before executing the original functions.
 
 
+% TODO: get-trap.. proxy X to proxy X.method()..
 
+% TODO: code?
 
 
 
