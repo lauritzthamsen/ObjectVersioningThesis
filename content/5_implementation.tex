@@ -66,7 +66,7 @@ The proxy's \lstinline{handler} object implements a \lstinline{get} trap.
 The \lstinline{get} trap receives two arguments when called: \lstinline{target} and \lstinline{name}.
 The \lstinline{target} parameter refers to the proxy's \lstinline{target} object.
 The \lstinline{name} parameter refers to the name of the property that was read.
-In our example, the \lstinline{get} trap logs the property read (Line 5), then forwards the read to the \lstinline{target} object and returns the result (Line 7).
+In our example, the \lstinline{get} trap logs the property read (Line~5), then forwards the read to the \lstinline{target} object and returns the result (Line~7).
 Therefore, reading a property of the server object via the proxy as shown in Listing~\ref{lst:propertyRead} would print a log statement similar to the following: ``openSecret was read at Sat May 10 2014 23:00:54 GMT+0200 (CEST)''.
 
 \iffalse
@@ -173,8 +173,8 @@ get: function(dummyTarget, name) {
 \iffalse
 \end{verbatim}\fi
 
-First, the trap retrieves the current version of the object using a helper function, which is named \lstinline{currentVersion} (Line 2).
-Subsequentely, the trap reads the property from the current version and returns the result (Line 4).
+First, the trap retrieves the current version of the object using a helper function, which is named \lstinline{currentVersion} (Line~2).
+Subsequentely, the trap reads the property from the current version and returns the result (Line~4).
 
 The \lstinline{currentVersion} function chooses one of the versions of the object the proxy stands in for.
 It does so according to the version of the system.
@@ -475,7 +475,7 @@ var person = function() {
         configurable: true
     });
     return newObject;
-}();'
+}();
 \end{code}
 \iffalse
 \end{verbatim}\fi
@@ -484,32 +484,57 @@ var person = function() {
 
 \subsection{Returning Proxies from Constructor Functions} 
 
-In JavaScript, all functions can be used as constructors and create new objects when called with the \emph{new} operator.
+When functions are used as constructors, they need to return proxies.
+In JavaScript, all functions can be used as constructors and create objects when called with the \lstinline{new} operator.
+Listing~\ref{lst:constructorFunction} shows how a literal function is used to construct a new object.
 
-% TODO: code example: function defintion / literal function + function applied with \lstinline{new} => new object
+\iffalse
+\begin{verbatim}\fi
+\begin{code}[lst:constructorFunction]{TODO}{float, numbers=left}
+function Person() {}
+var someone = new Person();
+\end{code}
+\iffalse
+\end{verbatim}\fi
 
-% function object created from function literal or built-in. either way, function object is proxied through STEPS_ABOVE.
-% construct trap used to return the new object proxied. trap-code: return this.ensureProxied(..).
+We use the \lstinline{construct} trap to return proxies from proxied functions used as constructors.
+Listing~\ref{lst:constructTrap} shows the \lstinline{construct} trap of our proxy handlers.
 
+\iffalse
+\begin{verbatim}\fi
+\begin{code}[lst:constructTrap]{TODO}{float,numbers=left}
+construct: function(dummyTarget, args) {
+    var constructor, prototype, newObject, result;
+    
+    constructor = this.currentVersion()
+    
+    prototype = constructor.prototype ? constructor.prototype : {}    
+    newObject = Object.create(prototype);
+    
+    result = constructor.apply(newObject, args);
+    
+    return proxyFor(result ? result : newObject);
+}
+\end{code}
+\iffalse
+\end{verbatim}\fi
 
-% Functions expressed as function literals get proxied with the previous source transformations.
-% Proxies for functions then return proxies for the newly created objects from their \emph{construct}-traps.
+The \lstinline{construct} trap does the following:
+\begin{enumerate}
+    \item It retrieves the current version of the constructor (Line~4).
+    \item It creates a new object with the correct prototype (Line~7).
+    \item It applies the constructor to the new object (Line~9).
+    \item It returns a proxy for either the return value of the constructor function or, in case the constructor did not return a value, the new object (Line~11).
+\end{enumerate}
 
-% % The last line of code of the \lstinline{construct} function of our proxy handler is therefore: \lstinline{return this.ensureProxied(newInstance)}.\\
-
-% The result is passed to a \lstinline{ensureProxied} function.
-
-
-% show construct trap code
-
-
-
+This way, all proxied functions return proxies when used as constructors.
+With the transformations of literal functions presented in the previous subsection all literal functions are accessed through proxies.
+However, there are also functions built into the JavaScript engines.
+These are not created from function literals and, therefore, cannot be proxied by transforming literals.
 
 
 \subsection{Wrapping Built-in Functions}
 
-Some functions are built into the JavaScript engines.
-These are not created from function literals and, therefore, not proxied by transforming literals.
 For example, objects and arrays can be created by evaluating \lstinline{new Object()} and \lstinline{new Array()}.
 % can also be called without the new operator: Object() / Array()
 We transform these built-in constructor functions explicity, wrapping each into calls to the \lstinline{proxyFor} function.
@@ -585,7 +610,6 @@ This way, the browser's developer tools, including the debugger, present the ori
 
 % rough sketch of how transformations are done???
     % code of modules passed to source transformation. parsing, AST transformations, printing. 
-
 
 
 
