@@ -2,7 +2,7 @@
 
 This chapter introduces our approach to preserving access to previous states in systems like the Lively Kernel.
 The approach is based on alternative, version-aware references that manage versions of objects transparently.\\
-The chapter also presents a design that allows implementing version-aware references with proxies.
+The chapter also presents a design that allows implementing version-aware references using proxies.
 
 
 \section{Version-aware References} \label{sec:APPROACH:1}
@@ -21,8 +21,8 @@ The state of such an \emph{address} object could be as shown in Figure~\ref{fig:
     \label{fig:SingleObject}
 \end{figure}
 
-If the \lstinline{address} object gets values assigned to its \lstinline{city} and \lstinline{number} fields, the object's state is changed.
-As the address object's state is part of the system state, changing the address object changes the system state.
+If values are assigned to the \lstinline{city} and \lstinline{number} fields of the \lstinline{address} object, the object's state is changed.
+As the \lstinline{address} object's state is part of the system state, changing the object's state changes the system state as well.
 If we call the initial state version \emph{v1} and the state after making changes to the object version \emph{v2}, the state of the address object is different in the two versions of the system, as shown in Figure~\ref{fig:ObjectChanged}.
 
 \begin{figure}[h]
@@ -47,7 +47,7 @@ When the \lstinline{address} object is changed in version \emph{v2} of the syste
 As shown in Figure~\ref{fig:VersionPreserved}, there are now two versions of the \lstinline{address} objects in version \emph{v2} of the system.
 One of the objects holds the original state, while the other holds the state the object should have in version \emph{v2} of the system.
 The two objects hold no information that indicates to which version of the system they belong.
-They also store no information that one object is a copy of the other one.
+They also do not store any information showing that one object is a copy of the other.
 At the same time, references to objects remain unchanged.
 For example, there could have been a \lstinline{person} object referring to the \lstinline{address} object.
 This reference would still be referring to the original \lstinline{address} object, even in version \emph{v2} of the system, as shown in Figure~\ref{fig:ReferenceFixedToPreviousVersion}.
@@ -74,12 +74,12 @@ aPerson.address.city === null
 
 Our approach uses \emph{version-aware references}.
 Version-aware references know the available versions of an object and always resolve to one of those.
-Moreover, version-aware references know which version of an object belongs to which version of the system.
-Using context information, the version-aware references resolve dynamically to the correct versions.
-That is, none of the versions is hard-wired to be the active version.
+Furthermore, version-aware references know which object version belongs to which system version.
+None of the versions is hard-wired to be the active version.
+Instead, the version-aware references resolve dynamically to the correct versions using context information.
 
-Otherwise, the version-aware references behave like ordinary references.
-They can be assigned to variables, object fields, and are passed around.
+Apart from that, the version-aware references behave like ordinary references.
+They can be assigned to variables and object fields, and are passed around.
 
 When the \lstinline{person} object uses a version-aware reference to refer to its \lstinline{address} property, it can resolve to the versions of its \lstinline{address} object.
 The version-aware reference knows both versions of the address object.
@@ -127,32 +127,32 @@ aCompany.CEO.address.number
 
 Evaluating the statement in version \emph{v1} would return the value \lstinline{null}, in version \emph{v2} the value \lstinline{148}, and in version \emph{v3} the value \lstinline{112b}.
 
-The information that one version is the predecessor of another version can be used to resolve to the an earlier version of an object when current version is available.
+The information that one version is the predecessor of another version can be used to resolve to an earlier object version when no current version is available.
 This allows to only create new versions of objects when necessary.
 
 The version identifier needs to be accessible to the version-aware references.
 It could be available globally, to have a single active version of the system, but could also be scoped more locally such as thread-local or in the dynamic scope of a code block.
 It should, however, not be changed while multiple version-aware references of an object graph are resolved transitively.
-That is, the version-aware references involved in evaluating the previous example statement should be resolved together for the same version identifier.
+Consequentely, the version-aware references involved in evaluating the previous example statement should be resolved together for the same version identifier.
 
 To be able to actually re-establish a particular version of the system with our approach, two requirements need to be fullfilled:
 First, all mutable objects of the programming runtime need to be accessed via version-aware references.
 Second, the particular version of the system needs to be available.
-That is, not every state is recoverable, but specific states have to be preserved.
-Programmers could preserve versions explicitly or the programming system could do this implicitly.
+Our approach does not allow re-establishing every state but specific states that have to been preserved.
+Programmers could preserve versions explicitly or the programming system could do so implicitly.
 When the programming system automatically preserves versions, each programmer action could implicitly yield a new version of the system.
-This way, programmers could undo and redo the changes of their actions regardless of whether they preserved a version in anticipation of recovery needs or not.
+This way, programmers could undo and redo the changes of their actions regardless of whether or not they preserved a version in anticipation of recovery needs.
 
 \subsubsection{Discussion}
 
-The version-aware references allow to preserve and re-establish versions of the system without completely halting the program execution.
-That is, the presented approach is incremental, not a stop-the-world approach.\\
+The presented approach is incremental, not a stop-the-world approach.
+The version-aware references allow to preserve and re-establish versions of the system without completely halting the program execution.\\
 First, the version-aware references resolve dynamically to particular versions based on context information.
 Only this context information has to be changed to have all references resolve to another version.
 The version-aware references do not have to be re-configured individually.\\
 Second, versions of the system are preserved incrementally.
 Instead of saving the state of all objects the moment a version is preserved, new versions of objects are created only when objects change.
-Before such writes, previous object versions continue to reflect the current state and can be read until written to.
+Before such writes, previous object versions continue to reflect the current state and can be read until they are changed.
 
 
 \section{Using Proxies as Version-aware References} \label{sec:APPROACH:2}
@@ -176,7 +176,7 @@ The proxy in turn knows which versions are available for the \lstinline{address}
 \end{figure}
 
 When the \lstinline{address} property of the \lstinline{person} object is accessed, the proxy forwards the access transparently to a version.
-For example, in version \emph{v2} of the system as indicated by Figure~\ref{fig:ProxyBasedVersionAwareReference}, even if the \lstinline{address} property is a proxy, reading the proxy's \lstinline{city} property returns the string \lstinline{'Berlin'} .
+For example, in version \emph{v2} of the system as indicated in Figure~\ref{fig:ProxyBasedVersionAwareReference}, even if the \lstinline{address} property is a proxy, reading the proxy's \lstinline{city} property returns the string \lstinline{'Berlin'} .
 Given \lstinline{aPerson} refers to the \lstinline{person} object, evaluating the following statement returns \lstinline{true} in version \emph{v2}:
 \iffalse
 \begin{verbatim}\fi
@@ -197,7 +197,7 @@ The proxies fulfill three responsibilities:
     \item They forward all interactions transparently to a chosen version.
 \end{enumerate}
 
-The proxies required by this design are \emph{virtual objects}~\cite{VanCutsem2010PDP}.
+The proxies in this design are \emph{virtual objects}~\cite{VanCutsem2010PDP}.
 They do not stand in for specific objects, but can forward intercepted interactions to any object.
 
 
@@ -214,7 +214,7 @@ The proxies also always return proxies as return values.
 Thus, when proxied constructors are used, the constructors return proxies for the new objects.
 
 The reference to the initial version of an object is only available to the proxy.
-The reference to the proxy gets passed around instead.
+The reference to the proxy is passed around instead.
 For this reason, all references that would usually point to the same object point to the same proxy.
 This way, proxies provide object identity.
 Checks that would usually compare an object to another objects now compare a proxy to another proxy.
