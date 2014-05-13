@@ -45,7 +45,7 @@ It creates many objects while parsing code.
 Therefore, parsing takes much more time when all object interactions go through proxies.
 Many objects capture intermediate states of the parser, while in the end often only a success or failure needs to be returned.
 Given JavaScript's single-threaded, cooperatively scheduled execution it is not possible to switch versions during parsing.
-So, there would not be multiple versions of the objects that are only available while the parser runs.\\
+There would not be multiple versions of the objects that are only available while the parser runs.\\
 The parser could, however, return objects as results or otherwise make objects available to other system parts.
 At that moment, these objects would have to be wrapped into proxies before becoming part of the versioned system state.
 
