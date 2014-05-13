@@ -79,7 +79,7 @@ Second, to test whether our proxy-based version-aware references, inserted by th
 
 \paragraph{Results}
 All benchmarks in this suite run without errors and return the same results as if executed without any source transformations.
-That is, at least for these tests, our source transformations produce working source code and our proxy-based version-aware references forward correctly to object versions.\\
+Therefore, at least for these tests, our source transformations produce working source code and our proxy-based version-aware references forward correctly to object versions.\\
 During the development of our system, the \emph{DeltaBlue} benchmark revealed a problem when proxies are used as prototypes of objects.
 We reported the issue to the \emph{harmony-reflect} repository\footnote{\url{http://github.com/tvcutsem/harmony-reflect/issues/18}, accessed April 23, 2014}.
 The problem was identified as an issue with the \emph{v8} JavaScript engine\footnote{\url{http://code.google.com/p/v8/issues/detail?id=2804}, accessed April 23, 2014}.
@@ -191,7 +191,7 @@ Their state is part of the system state.\\
 We closed all tools before taking memory snapshots to exclude their state from the snapshots, but the Lively Kernel caches some state of these tools.
 The cached state might be different in the three states.
 Thus, the size of the cached state might be different in the three snapshots.
-Moreover, previous versions of the cached state might be preserved with the versions of the system.
+Furthermore, previous versions of the cached state might get preserved with the versions of the system.
 
 \subsubsection{Results}
 Figure~\ref{fig:MemoryOverheadForVersions} shows the size of the three snapshots.
@@ -293,7 +293,7 @@ In all setups, the \lstinline{server} object holds a reference that directly ref
 Table~\ref{table:microbenchmarkResults} shows the results of running the microbenchmark in the three setups.
 Using a proxy with our proxy handler takes three orders of magnitude more time than using an ordinary reference does: Instead of on average 10 milliseconds the test requires on average about 11000 milliseconds to finish.
 The difference between \emph{Setup 3} and \emph{Setup 1} is an order of magnitude less: 2000 milliseconds compared to 10 milliseconds.
-This shows, however, that even a proxy with a fixed target and the default proxy behavior slows down the execution of the microbenchmark close to 200 times.
+This shows that even a proxy with a fixed target and the default proxy behavior slows down the execution of the microbenchmark close to 200 times.
 
 \begin{table}[h]
 \begin{center}
@@ -307,11 +307,6 @@ This shows, however, that even a proxy with a fixed target and the default proxy
 \caption[Table caption text]{Times to run the three setups of the microbenchmark.}
 \label{table:microbenchmarkResults}
 \end{table}
-
-% In the first setup, the microbenchmark takes three orders of magnitude more time when the proxy is used to forward the property read to the \lstinline{server} object: instead of on average 10 milliseconds the test requires on average about 11000 milliseconds to finish.\\
-% In the second setup, the difference is an order of magnitude less: with a direct reference the benchmark still requires around 10 milliseconds, but the benchmark requires requires close to 2000 milliseconds when the proxy forwards to its fixed target.
-% That is, even the default proxy behavior slows down the microbenchmark close to 200 times.
-
 
 
 \subsection{Execution of the Lively Kernel}
@@ -370,4 +365,4 @@ The microbenchmarks show that a considerable part of the overhead is introduced 
 Even when these proxies are used to forward to a fixed target instead of a dynamically chosen target, they introduce a substantial overhead:
 It takes 200 times the time to have a proxy intercept and forward property reads than it takes to read a property after resolving an ordinary reference.\\
 For this reason, we still consider our approach feasible for providing object versioning for the Lively Kernel.
-The performance of our current implementation, however, needs to be improved before it provides practical recovery support to Lively Kernel programmers.
+However, the performance of our current implementation needs to be improved before it provides practical recovery support to programmers.

@@ -702,7 +702,7 @@ Moreover, the proxies are designed to ensure invariants between the return value
 For example, when an object's properties are made immutable through the \lstinline{Object.freeze} function, invariants ensure that the target object has in fact been frozen, even if the trap delegates the operation to another object such as one of our versions of an object.
 Another invariant ensures that immutable values of the target object are reported by the traps.
 Therefore, the \emph{get}-trap has to report the values of the target object when it previously has been frozen.
-That is, in our case, configuring any property as immutable would effectively make that property immutable for all versions.
+In our case, configuring any property as immutable would effectively make that property immutable for all versions.
 Moreover, reading the property in a version where the property is different from the immutable target's property would raises inconsistency errors.
 
 \subsubsection{Solution}
@@ -835,14 +835,14 @@ We are aware of three limitations of our implementation.
 
 \paragraph{Availability of ECMAScript 6 Proxies}
 Our implementation requires the ECMAScript 6 proxies to be available.
-The proxies are, however, part of the next version of ECMAScript, which has currently neither been finalized nor completely implemented, as described in \ref{sec:IMPLEMENTATION:4}.
+The proxies are part of the next version of ECMAScript, which has currently neither been finalized nor completely implemented, as described in \ref{sec:IMPLEMENTATION:4}.
 For this reason, our implementation works only in versions of Firefox and Chrome that already implement preliminary versions of the proxies.
 In Chrome, users also need to enable the proxies through explicitly setting the \emph{Experimental JavaScript}-option.
 
 \paragraph{Proxies Impede Developer Tools}
 The current implementation of proxies impedes debugging.
 The proxies are partly implemented by a JavaScript library and every trapped object access is visible in multiple frames in the debugger.
-That is, the stack of the debugger is cluttered with frames that belong to the proxy implementation, not to the application code.\\
+Consequentely, the stack of the debugger is cluttered with frames that belong to the proxy implementation, not to the application code.\\
 Moreover, the developer tools in Chrome do not handle proxies correctly under all circumstances.
 In particular, hovering over variable names that are bound to proxies yields errors.
 It is also not possible to step into proxied functions in Chrome's debugger.
@@ -856,5 +856,5 @@ In the Lively Kernel, the \lstinline{setInterval} function is used to repeatedly
 Re-establishing a previous version of the system can interfere with such ticking behavior.
 For example, the method that is called repeatedly can be unavailable in previous versions.
 For this reason, we stop scripts from future versions, when the system version changes.
-We did, however, not succeed in finding a way to restart the scripts again when the future versions are re-established.
+However, we did not succeed in finding a way to restart the scripts again when the future versions are re-established.
 Thus, subsequentely undoing and redoing changes can stop concurrently running scripts.

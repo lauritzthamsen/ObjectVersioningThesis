@@ -30,7 +30,7 @@ The current draft can be used in Chrome and Firefox, but is not fully implemente
 Instead, the proxies are currently provided partly by a JavaScript library and partly by the JavaScript engines.
 In the future, the proxies will be implemented fully by the JavaScript engines.
 This will likely reduce the execution overhead.\\
-Moreover, it seems reasonable to assume that the parts already implemented by the engines have not yet been optimized. 
+Furthermore, it seems reasonable to assume that the parts already implemented by the engines have not yet been optimized. 
 It is, after all, an experimental feature that has not yet been officially added to JavaScript.
 
 \subsubsection{Using Fewer Proxies}
@@ -46,8 +46,8 @@ Therefore, parsing takes much more time when all object interactions go through 
 Many objects capture intermediate states of the parser, while in the end often only a success or failure needs to be returned.
 Given JavaScript's single-threaded, cooperatively scheduled execution it is not possible to switch versions during parsing.
 There would not be multiple versions of the objects that are only available while the parser runs.\\
-The parser could, however, return objects as results or otherwise make objects available to other system parts.
-At that moment, these objects would have to be wrapped into proxies before becoming part of the versioned system state.
+However, the parser could return objects as results or otherwise make objects available to other system parts.
+These objects would have to be wrapped into proxies before becoming part of the versioned system state.
 
 Another option would be to use object versioning only during development.
 This way, applications could run without the overhead of the proxies when versioning is not required.\\
@@ -142,7 +142,7 @@ Preserving versions is an effort.
 It is difficult to assess the risk of upcoming changes when deciding whether a state needs to be preserved.
 Programmers could deliberately decide against preserving a version after underestimating the risk of changes.
 They might forget to preserve versions.
-Moreover, it is time-consuming to run appropriate tests to ensure that the current state is a good state to preserve.\\
+Furthermore, it is time-consuming to run appropriate tests to ensure that the current state is a good state to preserve.\\
 For these reasons, we want the system to preserve a fine-grained history automatically.
 
 The system could create versions of the runtime for any change to an object.
