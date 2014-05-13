@@ -1,7 +1,7 @@
 \chapter{Evaluation} \label{chapter:EVALUATION}
 
 We evaluated the functionality and practicability of our implementation.\\
-For this, we used the setup described in the following section.
+For this evaluation, we used the setup described in the following section.
 
 
 \section{Test Setup} \label{sec:EVALUATION:1}
@@ -108,8 +108,7 @@ With this, we tested that the source transformations yield valid JavaScript code
 The Lively Kernel loads when its modules are transformed to use our version-aware references.
 Most of its basic functionality works as expected and we were able to preserve and re-establish runtime states of multiple examples.
 However, not all functionality works as expected and we were, thus, not able to re-establish all preserved states.
-In particular, we learned about the many built-in functions that currently do not handle proxies correctly in Chrome.
-For this, we implemented the workaround described in Section~\ref{subsec:IMPLEMENTATION:4.3}.
+In particular, we learned about the many built-in functions that currently do not handle proxies correctly in Chrome and for which we implemented the workaround described in Section~\ref{subsec:IMPLEMENTATION:4.3}.
 
 \paragraph{Discussion}
 Most of the tested functionality of the the Lively Kernel works correctly.

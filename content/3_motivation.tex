@@ -1,7 +1,7 @@
 \chapter{Motivation} \label{chapter:MOTIVATION}
 
 In the Lively Kernel, programmers can create applications by manipulating and composing graphical parts.
-This chapter demonstrates the development of such parts and related recovery needs by example.
+This chapter presents the development of such parts and related recovery needs by example.
 
 
 \section{Part Development By Example}
@@ -15,12 +15,12 @@ To exemplify how developers work directly on objects in the Lively Kernel, we wi
     \label{fig:MagnifierButton}
 \end{figure}
 
-The editor has been been developed by composing and editing graphical objects.
-For this reason, the user does not adapt any source code modules to change the editor, but rather manipulates objects directly.
+The editor has been developed by composing and editing graphical objects.
+Thus, the user does not adapt any source code modules to change the editor, but rather manipulates objects directly.
 
-The feature the user adds in this example is a magnifier tool.
-The magnifier tool helps in finding the editor's target, which is the object that the editor currently presents scripts for.
-Adding the new feature requires to create a new button morph and to add the button to the editor, as shown in Figure~\ref{fig:MagnifierButton}.
+In this example, the user adds a magnifier tool to the Object Editor.
+The magnifier tool helps finding the editor's target, which is the object the editor currently presents scripts for.
+Implementing the new feature requires to create a new button morph and to add it to the editor, as shown in Figure~\ref{fig:MagnifierButton}.
 
 The magnifier button has two features:
 \begin{enumerate}
@@ -28,7 +28,7 @@ The magnifier button has two features:
     \item When a programmer clicks the button, the current target selection is revoked and the programmer can select the new target of the editor.
 \end{enumerate}
 
-This example covers the first of the two features, which is also shown in Figure~\ref{fig:MagnifierBehavior} for an Object Editor currently targeting the character of a game.
+The following covers the first of the two features, which is also shown in Figure~\ref{fig:MagnifierBehavior} for an Object Editor currently targeting the character of a game.
 
 \begin{figure}[h]
     \centering
@@ -43,9 +43,9 @@ Figure~\ref{fig:ButtonBuilding} shows the steps in which the button is manipulat
 A basic button, as visible in \circnum{1}, can be found in the Parts Bin repository.
 In \circnum{2}, the user resizes the button and gives it a square extent using the \emph{Resize} halo button.
 Next, the user loads an image showing a magnifier icon.
-Using drag and drop the image is added to the button in \circnum{3}.
+Using drag and drop, the image is added to the button in \circnum{3}.
 Dropping a morph onto another connects the two morphs.
-Moving the button around will then also move the image accordingly.
+Moving the button around will then move the image accordingly.
 Finally, the users adds the result of these manipulations, visible in \circnum{4}, to the Object Editor.
 
 \begin{figure}[h]
@@ -61,9 +61,9 @@ For example, when adding the new button to the Object Editor, the button is visi
 Programmers do not need to run any code to see and test the button.
 
 \paragraph{Scripting the Button Morph}
-Next, the magnifier button needs its behavior.
+Now the user implements the button's behavior.
 The user adds scripts to the button that lay a translucent rectangle over the current target.
-The button gets an \lstinline{onMouseMove} script and an \lstinline{onMouseOut} script.
+In particular, the button receives two scripts: \lstinline{onMouseMove} and \lstinline{onMouseOut}.
 The implementation of the behavior includes the following: 
 \begin{itemize}
     \item The button holds a semitransparent rectangle morph.
@@ -72,17 +72,17 @@ The implementation of the behavior includes the following:
 \end{itemize}
  
 The Lively Kernel's scripting tools allow to evaluate code in the context of their target objects.
-So, when programmers want to test a script or even just specific lines of code, they can often try the behavior directly for the actual target.
+Hence, when programmers want to test a script or even just specific lines of code, they can try the behavior directly for the actual target.
 
 
 \section{Recovery Needs When Developing Parts}
 
-While manipulating objects directly, developers might make changes that they later want to undo.
+While manipulating objects directly, developers might make changes which they later want to undo.
 
 In the previous example the user could make \emph{accidental changes}:
 
 \begin{itemize}
-    \item \textbf{Accidental changes to state}: The user could accidentally grap and move a morph such as the new button and, thereby, change a carefully arranged layout. Similarly, meaningful state could also be lost when a morph as, for example, the new button is accidentally removed from the world.
+    \item \textbf{Accidental changes to state}: The user could accidentally grap and move a morph such as the new button and, thereby, change a carefully arranged layout. Similarly, meaningful state can be lost when a morph, for example the new button, is accidentally removed from the world.
     \item \textbf{Accidental changes to scripts}: The user could introduce a typographical error to or accidentally remove a script. Moreover, editing a script could introduce a defect or a decrease in performance.
 \end{itemize}
 
@@ -106,10 +106,10 @@ The Object Editor allows evaluating code directly for its target object.
 While such evaluation might help to understand the effects of particular code, it might also change the state of objects.
 For example, the user could be working on the button's \lstinline{onMouseMove} script and could evaluate a few lines of code to quickly test them.
 These lines, as shown in Figure~\ref{fig:onMouseOverScript}, would add the rectangle to the editor's current target.
-Evaluating just the selecting line would, however, not check the conditions usually checked above or set the state usually set below the selected lines.
-Therefore, evaluating this selection allows to test the highlighting behavior but leaves the system in a state that it would not normally be in.
+Only evaluating the selected lines would, however, neither check the conditions usually checked above nor set the state usually set below the selected lines.
+Therefore, evaluating this selection allows to test the highlighting behavior but leaves the system in a state it normally would not be in.
 
-The examples show that there are many situations in which the user might want to undo actions.
+The examples show that there are many situations in which the user might want to undo previous actions.
 In programming systems like the Lively Kernel, where programmers work on objects, changes are always made to the state of objects.
 Functions are properties of objects.
 Even classes and modules are objects.
@@ -126,5 +126,5 @@ The \lstinline{world} object has now one more submorph, as shown in Figure~\ref{
 Thus, the \lstinline{world}'s collection of submorphs is changed.
 
 To undo the side-effect of the script and re-establish the previous situation, the change to the \lstinline{world} object needs to be undone.
-The \lstinline{world}'s \lstinline{submorphs} property needs to be as it previously was.\\
+The \lstinline{submorphs} property of \lstinline{world} has to be as it previously was.\\
 When the state of all objects is preserved and can be re-established, previous system states can be recovered when necessary.

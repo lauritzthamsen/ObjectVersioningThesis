@@ -79,7 +79,7 @@ function get(standIn, propertyName) {
 
 The first parameter to this \lstinline{get} function would be an ordinary object that stands in for the versions of an object.
 The \lstinline{getCurrentVersionOf} function in Line~2 of Listing~\ref{lst:getFunction} uses this \lstinline{standIn} parameter to retrieve the current version of an object.
-For this, the \lstinline{standIn} object could hold the versions of an object or be a key to a dictionary.
+The \lstinline{standIn} object could hold the versions of an object or be a key to a dictionary.
 
 Functions like the \lstinline{get} function could be inserted automatically by source transformations.
 The source transformation necessary to read an \lstinline{age} property from a version of a \lstinline{person} object could be as exemplified by Table~\ref{table:transformingReads}.
@@ -175,7 +175,7 @@ The system could present three categories of information:
     \item[what] Versions could store information on what was changed between two version: which objects did change, how these objects changed, and how this affected tests and benchmarks.
 \end{description}
 
-Changes can often be associated with static information as, for example, a class, a module, and a containing file.
+Changes can often be associated with static information such as the name of a class, a module, and a containing file.
 Some objects as, for example, morphs could be related to the scenegraph of visible morphs.
 Furthermore, morphs can have individual names in the Lively Kernel.
 
