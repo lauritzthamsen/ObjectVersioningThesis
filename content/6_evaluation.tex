@@ -99,7 +99,7 @@ Moreover, we tested whether versions of its state can be preserved with our impl
 % what was done?
 We transformed the JavaScript modules of the Lively Kernel at load-time to test whether it loads and works correctly with our proxy-based version-aware references.\\
 Furthermore, we tested whether the system allows re-establishing versions of the Lively Kernel's state in practice.
-Here, we tried multiple example scenarios, including to undo changes to the state and behavior of basic morphs, morph compositions, and the state of more complicated graphical applications as, for example, text editors and developer tools.\\
+Here, we tried multiple example scenarios, including to undo changes to the state and behavior of basic morphs, morph compositions, and the state of more complicated graphical applications such as text editors and developer tools.\\
 % why / to test what?
 With this, we tested that the source transformations yield valid JavaScript code for the modules of the Lively Kernel, that the version-aware references delegate to the correct versions of objects, and that the version-aware references are used consistently.
 
@@ -329,7 +329,7 @@ We measured the time three user interactions take when using proxies and compare
 We measured the time from the user events until the single-threaded JavaScript engine becomes responsive again programmatically.
 The three typical interaction we chose to investigate are: bringing up the halo buttons on a particular morph, opening the Lively Kernel's main menu, and opening the Lively Kernel's System Code Browser.\\
 % why?
-We chose these three interactions as we expect them to be more impacted by the version-aware references as, for example, interactions that are more browser-supported and less reliant on the execution of JavaScript code such as dragging elements around the screen.
+We chose these three interactions as we expect them to be more impacted by the version-aware references compared to interactions that are more browser-supported and less reliant on the execution of JavaScript code such as dragging elements around the screen.
 All three interaction trigger code from multiple different modules, including event handling code, rendering code, and tool-specific code.
 
 \begin{figure}[h!]
