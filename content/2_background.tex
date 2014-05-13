@@ -50,7 +50,7 @@ It incorporates tools and techniques to be completely self-sufficient.
 Thus, programmers can create versions of the Lively Kernel with the Lively Kernel.
 
 The Lively Kernel is a browser-based system.
-It is implemented in JavaScript and renders to \ac{HTML}.
+It is implemented in JavaScript and renders to \ac{html}.
 
 \subsubsection{Programming with Prototypes and Classes}
 
@@ -74,10 +74,6 @@ Programmers can change the position of morphs by \emph{dragging} and the composi
 When a morph is grabbed, it can be added to another morph and becomes that morph's submorph.
 This way, a morph does not have to be a basic shapes or simple widgets, but can be the interface of any application.
 
-The Lively Kernel provides a set of manipulation tools, called \emph{Halos}, as shown in Figure~\ref{fig:Halos}.
-Developers can bring up these tools for each morph.
-The different buttons of a morph's halo allow, for example, to resize, rotate, and copy morphs.
-
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.3\textwidth]{figures/2_background/1_halos.pdf}
@@ -85,14 +81,11 @@ The different buttons of a morph's halo allow, for example, to resize, rotate, a
     \label{fig:Halos}
 \end{figure}
 
-Other halo buttons open specific tools, which are shown in Figure~\ref{fig:LivelyTools}:
+The Lively Kernel provides a set of manipulation tools, called \emph{Halos}, as shown in Figure~\ref{fig:Halos}.
+Developers can bring up these tools for each morph.
+The different buttons of a morph's halo allow, for example, to resize, rotate, and copy morphs.
 
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=\textwidth]{figures/2_background/2_LivelyTools.pdf}
-    \caption{Three Lively Kernel's tools to manipulate morphs: the Inspector, the Style Editor, and the Object Editor.}
-    \label{fig:LivelyTools}
-\end{figure}
+Other halo buttons open specific tools, which are shown in Figure~\ref{fig:LivelyTools}:
 
 \begin{enumerate}
     \item The \emph{Inspector}~\circnum{1} presents all the values that make up a morph's current state. It also has a small code pane at the bottom that can be used to manipulate the morph's properties programmatically.
@@ -100,6 +93,12 @@ Other halo buttons open specific tools, which are shown in Figure~\ref{fig:Livel
     \item The \emph{Object Editor}~\circnum{3} is a tool to edit the object-specific behavior of morphs. It shows all scripts of a particular morph and allows programmers to add, remove, and edit scripts.
 \end{enumerate}
 
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{figures/2_background/2_LivelyTools.pdf}
+    \caption{Three Lively Kernel's tools to manipulate morphs: the Inspector, the Style Editor, and the Object Editor.}
+    \label{fig:LivelyTools}
+\end{figure}
 
 \subsubsection{Saving Morphs to the Shared Parts Bin Repository}
 
@@ -131,14 +130,7 @@ Programmers can review their programming sessions, inspect the impact changes ha
 
 \subsubsection{Tools to Recover Previous Development States}
 
-CoExist provides two tools to help programmers benefit from the preserved histories, shown in Figure~\ref{fig:CoExist}:
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=\textwidth]{figures/2_background/4_coexistTools.pdf}
-    \caption{CoExist's tools to manage the preserved development states: the \emph{Timeline} and the \emph{Version Browser}.}
-    \label{fig:CoExist}
-\end{figure}
+CoExist provides two tools to help programmers benefit from the preserved histories, shown in Figure~\ref{fig:CoExist}.
 
 \paragraph{Timeline}
 CoExist's \emph{Timeline} tool is located at the bottom of the development environment.
@@ -156,6 +148,12 @@ Moreover, it provides a screenshot of the development environment for each versi
 The tools support programmers in re-tracing their steps, understanding the impact of their actions, and in recovering previous development states.
 They can withdraw changes permanently or recover only specific information from previous versions.
 
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{figures/2_background/4_coexistTools.pdf}
+    \caption{CoExist's tools to manage the preserved development states: the \emph{Timeline} and the \emph{Version Browser}.}
+    \label{fig:CoExist}
+\end{figure}
 
 \subsubsection{Benefits of Continuous Versioning}
 

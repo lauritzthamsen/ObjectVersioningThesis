@@ -8,19 +8,19 @@ This chapter presents the development of such parts and related recovery needs b
 
 To exemplify how developers work directly on objects in the Lively Kernel, we will outline how a Lively Kernel user adds a new feature to the Object Editor.
 
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.7\textwidth]{figures/3_motivation/1_magnifierButton.png}
-    \caption{The Object Editor with its magnifier button highlighted with a red outline.}
-    \label{fig:MagnifierButton}
-\end{figure}
-
 The editor has been developed by composing and editing graphical objects.
 Thus, the user does not adapt any source code modules to change the editor, but rather manipulates objects directly.
 
 In this example, the user adds a magnifier tool to the Object Editor.
 The magnifier tool helps finding the editor's target, which is the object the editor currently presents scripts for.
 Implementing the new feature requires to create a new button morph and to add it to the editor, as shown in Figure~\ref{fig:MagnifierButton}.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.7\textwidth]{figures/3_motivation/1_magnifierButton.png}
+    \caption{The Object Editor's magnifier button highlighted with a red outline.}
+    \label{fig:MagnifierButton}
+\end{figure}
 
 The magnifier button has two features:
 \begin{enumerate}
@@ -33,7 +33,7 @@ The following covers the first of the two features, which is also shown in Figur
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.8\textwidth]{figures/3_motivation/2_magnifierBehavior.png}
-    \caption{Hovering the Object Editor's magnifier button highlights the current target object.}
+    \caption{The Object Editor's magnifier button as it highlights the editor's target.}
     \label{fig:MagnifierBehavior}
 \end{figure}
 
@@ -48,17 +48,17 @@ Dropping a morph onto another connects the two morphs.
 Moving the button around will then move the image accordingly.
 Finally, the users adds the result of these manipulations, visible in \circnum{4}, to the Object Editor.
 
+All these changes are made directly to the state of objects: the button morph, the magnifier image morph, and the editor morph.\\
+When programmers edit parts in this way, they often see the effects of their actions immediately.
+For example, when adding the new button to the Object Editor, the button is visible at all times.
+Programmers do not need to run any code to see and test the button.
+
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.8\textwidth]{figures/3_motivation/3_buildingTheButton.pdf}
     \caption{Directly manipulating a button morph.}
     \label{fig:ButtonBuilding}
 \end{figure}
-
-All these changes are made directly to the state of objects: the button morph, the magnifier image morph, and the editor morph.\\
-When programmers edit parts in this way, they often see the effects of their actions immediately.
-For example, when adding the new button to the Object Editor, the button is visible at all times.
-Programmers do not need to run any code to see and test the button.
 
 \paragraph{Scripting the Button Morph}
 Now the user implements the button's behavior.
@@ -93,13 +93,6 @@ Besides these accidental changes, well-intentioned changes can also turn out to 
     \item \textbf{Inappropriate changes through scripts}: The user could make a mistake in a workspace snippet that is intended to manipulate morph properties programmatically. Such a snippet can change many properties of many objects.
 \end{itemize}
 
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.7\textwidth]{figures/3_motivation/4_workspaceDoIt.png}
-    \caption{The button's \lstinline{onMouseMove} script with a text selection.}
-    \label{fig:onMouseOverScript}
-\end{figure}
-
 \paragraph{Explorative Script Evaluation}
 Undesirable changes can also be introduced when a programmer explores the behavior of objects by evaluating scripts.
 The Object Editor allows evaluating code directly for its target object.
@@ -109,17 +102,17 @@ These lines, as shown in Figure~\ref{fig:onMouseOverScript}, would add the recta
 Only evaluating the selected lines would, however, neither check the conditions usually checked above nor set the state usually set below the selected lines.
 Therefore, evaluating this selection allows to test the highlighting behavior but leaves the system in a state it normally would not be in.
 
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.7\textwidth]{figures/3_motivation/4_workspaceDoIt.png}
+    \caption{The button's \lstinline{onMouseMove} script with a text selection.}
+    \label{fig:onMouseOverScript}
+\end{figure}
+
 The examples show that there are many situations in which the user might want to undo previous actions.
 In programming systems like the Lively Kernel, where programmers work on objects, changes are always made to the state of objects.
 Functions are properties of objects.
 Even classes and modules are objects.
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.6\textwidth]{figures/3_motivation/5_stateChanges.pdf}
-    \caption{Adding a submorph changes the state of a morph.}
-    \label{fig:changedCharacter}
-\end{figure}
 
 For example, evaluating the text selection in Figure~\ref{fig:onMouseOverScript} changes the \lstinline{world} object's state.
 The \lstinline{world} object has now one more submorph, as shown in Figure~\ref{fig:changedCharacter}.
@@ -128,3 +121,10 @@ Thus, the \lstinline{world}'s collection of submorphs is changed.
 To undo the side-effect of the script and re-establish the previous situation, the change to the \lstinline{world} object needs to be undone.
 The \lstinline{submorphs} property of \lstinline{world} has to be as it previously was.\\
 When the state of all objects is preserved and can be re-established, previous system states can be recovered when necessary.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.6\textwidth]{figures/3_motivation/5_stateChanges.pdf}
+    \caption{Adding a submorph changes the state of a morph.}
+    \label{fig:changedCharacter}
+\end{figure}

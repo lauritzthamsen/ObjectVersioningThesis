@@ -5,13 +5,16 @@
 %
 \PassOptionsToPackage{final}{graphics}
 
-\documentclass[draft,master]{swathesis}
+\documentclass[final,master]{swathesis}
 
 \def\fromname{by}
 
 \KOMAoptions{parskip=true}
 
 \lstset{language=JavaScript,extendedchars=true}
+
+\usepackage{geometry}
+\special{papersize=210mm,297mm}
 
 \usepackage{pifont}
 \newcounter{dingdistance}
@@ -33,9 +36,8 @@ Prof.\,Dr.\,Robert Hirschfeld\and
 Bastian Steinert
 }
 
-% ABGABEDATUM
-% \setdate{2012}{04}{05}
-% \date{\datedate}
+\setdate{2014}{05}{13}
+\date{\datedate}
 
 \author{Lauritz Thamsen}
 \location{Potsdam}
@@ -44,13 +46,13 @@ Bastian Steinert
 
 \begin{document}
 \frontmatter
+\newpage
+\newpage
 \maketitle
 \input{content/0_1_abstract}
 \input{content/0_2_acknowledgment}
 \tableofcontents
 \listoffigures
-% \listoftables
-% \lstlistoflistings
 \mainmatter
 
 \input{content/1_introduction}
@@ -62,8 +64,6 @@ Bastian Steinert
 \input{content/7_related_work}
 \input{content/8_future_work}
 \input{content/9_summary}
-
-% \listofacronyms
 
 \printbibliography
 

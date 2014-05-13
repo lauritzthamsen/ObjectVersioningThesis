@@ -1,7 +1,7 @@
 \begin{abstract}
 
 % Background
-In programming systems such as the Lively Kernel programmers construct applications from objects.
+In programming systems such as the Lively Kernel, programmers construct applications from objects.
 Dedicated tools allow them to manipulate the state and behavior of objects at runtime.
 Programmers are encouraged to make changes directly and receive immediate feedback on their actions.
 
@@ -43,13 +43,9 @@ Diese Arbeit stellt einen Ansatz für die Versionierung von Objekten in Systemen
 Der Ansatz basiert auf \emph{versionsbewusste Referenzen}.
 Diese können zu mehreren Versionen von Objekten aufgelöst werden und erlauben so vorherige Systemzustände wiederherzustellen.
 
-Die Arbeit beschreibt eine auf Proxys basierende Implementierung in JavaScript.
+Die Arbeit beschreibt einen auf Proxys basierenden Entwurf und eine Implementierung in JavaScript.
 Die Evaluierung der Implementierung zeigt, dass Systemzustände des Lively Kernels damit erhalten und wiederhergestellt werden können.
 Der zusätzlich nötige Arbeitsspeicher für die versionsbewussten Referenzen ist dabei vertretbar, während die Programmausführung erheblich verlangsamt wird.
 Mit Verbesserungen könnte die vorgestellte Lösung allerdings benutzt werden, um Entwickler mit praktikablen Wiederherstellungs-Werkzeugen zu unterstützen.
 
 \end{zusammenfassung}
-
-%%% Local Variables:
-%%% mode: latex
-%%% End:
