@@ -254,7 +254,7 @@ The remaining traps select the version to forward to using the \lstinline{curren
 Given the \lstinline{currentVersion} and the \lstinline{versionForWriteAccess} functions, the current version of the system is written as long as it is referred to by \lstinline{lively.CurrentVersion}.
 To re-establish a different version, only this reference has to be changed.
 Changing the global version is an undo, redo, or commit depending on whether the version is set to a previous, following, or new version.
-For this, the system provides the functions \lstinline{lively.undo} (Listing~\ref{lst:undo}), \lstinline{lively.redo} (Listing~\ref{lst:redo}), and \lstinline{lively.commit} (Listing~\ref{lst:commit}).
+The system provides these measures in the three functions: \lstinline{lively.undo} (Listing~\ref{lst:undo}), \lstinline{lively.redo} (Listing~\ref{lst:redo}), and \lstinline{lively.commit} (Listing~\ref{lst:commit}).
 
 \iffalse
 \begin{verbatim}\fi

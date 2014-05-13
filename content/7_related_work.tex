@@ -33,8 +33,8 @@ However, CoExist recognizes only changes to the source code of classes, while ou
 
 Offline Worlds~\cite{Czuchra2012OfW} is an approach to protect state against system failures by saving it periodically.
 In a fixed time interval the current Lively Kernel world is saved automatically as protection against unexpected crashes and network outages.
-For this, the implementation serializes the state and object-specific behavior of all morphs.
-For each serialized state only the differences to the previously saved one is stored.
+The implementation serializes the state and object-specific behavior of all morphs.
+For each serialized state only the differences to the previous state is stored.
 Further, the implementation uses client-side storage for fast access and to safeguard against outages of both the client-side and the server-side.
 As only the differences to the last saved version is stored and previous versions, therefore, remain available, Offline Worlds could, conceivably, also be used to re-establish other versions than the latest, but does not provide support for this.
 
@@ -87,7 +87,7 @@ Worlds provide a language construct for controlling the scope of side effects: c
 These worlds are first-class values and can be used to execute statements with particular side effects being active.
 A new world can be spawned from an existing world, which establishes a child-parent relationship between the two worlds.
 Developers can commit changes from a child world to its parent world, thereby extending the scope of the captured side effects.
-For this, the Worlds approach includes conditions to prevent inconsistencies as result of commits.
+The Worlds approach includes conditions that prevent commits that would potentially introduce inconsistencies.
 
 In comparison, Worlds provides a language construct for experimenting with different states of the system, while object versioning allows to preserve versions of the system to recover previous states: Our approach does not include extensions to the host programming languages and no conditions for combining versions with their predecessor versions, but provides a basis for CoExist-like continuous versioning and recovery tools.
 
