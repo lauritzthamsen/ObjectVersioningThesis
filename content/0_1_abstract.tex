@@ -17,14 +17,12 @@ Access to previous versions of objects is preserved using \emph{version-aware re
 These references can be resolved to multiple versions of objects and, thereby, allow re-establishing preserved states of the system.
 
 % Results
-We present a design based on proxies and an implementation in JavaScript.
-An evaluation shows that the Lively Kernel can run with our proxy-based version-aware references and that preserved system states can be re-established.
-The memory overhead of the version-aware references is reasonable.
-The execution overhead is not yet practical.
+This thesis presents a design based on proxies and an implementation in JavaScript.
+The evaluation of this implementation shows that the Lively Kernel can run with our version-aware references and that preserved system states can be re-established.
+While the memory overhead of the version-aware references is reasonable, the execution overhead is not yet practical.
 However, with performance improvements, the solution could be used to provide practical recovery support to programmers.
 
 \end{abstract}
-
 
 
 
@@ -36,19 +34,19 @@ In Programmiersystemen wie dem Lively Kernel können Programmierer Anwendungen a
 Dabei erlauben dedizierte Werkzeuge den Zustand und das Verhalten von Objekten zur Laufzeit zu verändern.
 Programmierer werden ermutigt Änderungen direkt zu machen und erhalten umgehend Feedback.
 
-Wenn Programmierer in solchen Programmiersystemen aber Fehler machen, müssen sie Änderungen rückgängig machen.
+Wenn Programmierer in solchen Programmiersystemen jedoch Fehler machen, müssen sie Änderungen rückgängig machen.
 Dazu müssen sie entweder Objekte manuell bearbeiten oder Teile ihrer Anwendungen neu laden.
 Die gemachten Änderungen können dabei über viele Objekte verteilt sein.
 Vorherige Zustände wiederherzustellen ist deshalb häufig schwierig und zeitaufwendig.
 
 Diese Arbeit stellt einen Ansatz für die Versionierung von Objekten in Systemen wie dem Lively Kernel vor.
-Der Ansatz basiert auf \emph{Versions-bewussten-Referenzen}.
+Der Ansatz basiert auf \emph{versionsbewusste Referenzen}.
 Diese können zu mehreren Versionen von Objekten aufgelöst werden und erlauben so vorherige Systemzustände wiederherzustellen.
 
-Für den Ansatz beschreibt diese Arbeit eine auf Proxys basierenden Implementierung in JavaScript.
-Eine Evaluierung davon zeigt, dass die Implementierung es erlaubt Systemzustände des Lively Kernels zu erhalten und wiederherzustellen.
-Der zusätzlich nötige Arbeitsspeicher für die Versions-bewussten-Referenzen ist dabei vertretbar, während die Programmausführung erheblich verlangsamt wird.
-Mit Verbesserungen könnte die Lösung allerdings benutzt werden, um Entwickler mit praktikablen Wiederherstellungs-Werkzeugen zu unterstützen.
+Die Arbeit beschreibt eine auf Proxys basierende Implementierung in JavaScript.
+Die Evaluierung der Implementierung zeigt, dass Systemzustände des Lively Kernels damit erhalten und wiederhergestellt werden können.
+Der zusätzlich nötige Arbeitsspeicher für die versionsbewussten Referenzen ist dabei vertretbar, während die Programmausführung erheblich verlangsamt wird.
+Mit Verbesserungen könnte die vorgestellte Lösung allerdings benutzt werden, um Entwickler mit praktikablen Wiederherstellungs-Werkzeugen zu unterstützen.
 
 \end{zusammenfassung}
 
