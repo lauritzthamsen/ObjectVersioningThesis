@@ -10,7 +10,6 @@ We evaluated our implementation with the benchmark suite, the Lively Kernel vers
 
 \subsection{Octane Benchmark Suite}
 
-% what?
 We used the \emph{Octance} benchmark suite\footnote{\url{http://code.google.com/p/octane-benchmark/}, accessed February 3, 2014, at version 26} to evaluate the behavior and performance of our implementation.
 Octane consists of eight JavaScript benchmarks.
 It is a suite of real programs such as the \emph{DeltaBlue}~\cite{FreemanBenson1990ICS} constraint solver.
@@ -18,7 +17,6 @@ It does not test JavaScript's features systematically, but the benchmarks make u
 Octane is used for evaluating the performance of \emph{v8}, the engine used by Chrome and Node.js.
 It is part of v8's official source code repository\footnote{\url{http://v8.googlecode.com/svn/}, accessed April 23, 2014, at revision 20901}.
 
-% why?
 We use Octane for three reasons:
 
 \begin{itemize}
@@ -30,7 +28,6 @@ We use Octane for three reasons:
 
 \subsection{Lively Kernel}
 
-% what?
 During the implementation of our approach, we tested our prototype continuously with the Lively Kernel.
 
 We developed our system in the Lively Kernel repository.
@@ -39,7 +36,6 @@ Only the Lively Kernel's bootstrap code, its module system, extensions to built-
 All modules loaded after these parts are transformed at load-time to enable versioning for them.
 This includes, for example, all classes of the Lively Kernel.
 
-% why?
 We tested our implementation with the Lively Kernel for two reasons:
 
 \begin{itemize}
@@ -50,12 +46,10 @@ We tested our implementation with the Lively Kernel for two reasons:
 
 \subsection{Machine Configuration}
 
-% what?
 All tests and measurements were done on May 9, 2014 using a Macbook Air with a 2 GHz Intel Core i7 and 8 GB main memory, Mac OS X 10.9.2, and version 34.0.1847.131 of Chrome.
 
 The presented measurement results were averaged over five runs.
 
-% why?
 We used Chrome for all experiments as the Lively Kernel currently works best in Chrome.
 
 
@@ -69,9 +63,7 @@ We tested whether the version-aware references forward correctly to versions of 
 We ran the Octane benchmark suite to test the functionality of our implementation.
 
 \paragraph{Method}
-% what was done?
 We transformed the Octane benchmarks with our source transformations, executed the resulting code, and then checked for JavaScript errors and compared the results of the transformed benchmarks to their usual results.\\
-% why / to test what?
 We did this to test two aspects.
 First, to test whether our source transformations yield syntactically correct JavaScript code for the benchmarks.
 Second, to test whether our proxy-based version-aware references, inserted by the source transformations, allow to run the benchmarks without errors and with the expected results.
@@ -96,11 +88,9 @@ We tested whether the Lively Kernel loads and works with our version-aware refer
 Moreover, we tested whether versions of its state can be preserved with our implementation.
 
 \paragraph{Method}
-% what was done?
 We transformed the JavaScript modules of the Lively Kernel at load-time to test whether it loads and works correctly with our proxy-based version-aware references.\\
 Furthermore, we tested whether the system allows re-establishing versions of the Lively Kernel's state in practice.
 Here, we tried multiple example scenarios, including the undo of changes to the state and behavior of basic morphs, morph compositions, and the state of more complicated graphical applications such as text editors and developer tools.\\
-% why / to test what?
 With this, we tested that the source transformations yield valid JavaScript code for the modules of the Lively Kernel, that the version-aware references delegate to the correct versions of objects, and that the version-aware references are used consistently.
 
 
@@ -134,12 +124,9 @@ For each snapshot, Chrome shows the total size in \ac{mb}.
 We measured how much more memory is required when loading the Lively Kernel with version-aware references.
 
 \paragraph{Method}
-% what was done?
 We measured the memory required for loading a Lively Kernel world with and without version-aware references.
 We took heap snapshots right after the world was completely loaded without interacting with the system.
 We used an empty Lively Kernel world for this experiment and did not preserve any versions.
-% why / to test what? 
-% We decided to use an empty Lively Kernel world to measure the minimal overhead, while we expect the add to grow linearly with the number of proxied objects.
 
 \paragraph{Results}
 As shown in Figure~\ref{fig:MemoryOverheadForReferences}, loading an empty Lively Kernel world requires three times more space with proxies than without proxies.
@@ -160,18 +147,14 @@ While the system creates proxies for most objects, it does not use proxies for a
 In particular, it does not create proxies for objects that are present before our implementation of object versioning is loaded and all objects used by our implemenation itself.
 We expect the number of objects that are excluded from versioning to be relatively stable.
 All additional objects created at runtime will be accompanied by proxies.\\
-% Currently, the proxies are not optimized to consume as little space as possible.
-% Two improvements of the current implementation would be to not create a dictionary for managing multiple versions as long as a proxy stands in for only one version and to have all proxy handler objects share their behavior.
-% However, the memory overhead does not appear to be problematic at the moment.
 The memory overhead does not appear to be problematic at the moment.
 
 
-\subsection{Memory Used When Preserving Versions}
+\subsection{Memory Consumption When Preserving Versions}
 
 Besides the memory required for the version-aware references, memory is consumed when versions of the system are preserved.
 
 \subsubsection{Method}
-% what?
 We measured how much memory is consumed when multiple versions of the system are preserved while working on a group of morphs.
 The three states for which we took snapshots are shown as \circnum{1}, \circnum{2}, and \circnum{3} in the upper half of Figure~\ref{fig:MemoryOverheadForVersions}.
 In particular, we did the following in this experiment:
@@ -199,7 +182,7 @@ State \circnum{1} required the least memory.
 State \circnum{2} requires 1.8 MB more memory.
 It also requires 0.3 MB more memory than State \circnum{3}.
 
-\begin{figure}[h!]
+\begin{figure}[h]
     \centering
     \includegraphics[width=0.76\textwidth]{figures/6_evaluation/2_memoryForVersions.pdf}
     \caption{Memory consumed for three different states when the previous states are preserved in separate versions.}
@@ -216,7 +199,7 @@ In the presented scenario, the space required for preserving the three states is
 
 The results also show that the memory consumption does not always increase even when previous states are preserved: State \circnum{3} requires less memory than State \circnum{2}.
 One explanation for this is that not all objects are preserved with the versions.
-One category of such objects are the objects that only provide access to the elements of the browser's \ac{dom}, as described in \ref{subsubsec:IMPLEMENTATION:5.2.1}.
+One category of such objects are the objects that only provide access to the elements of the browser's \ac{dom}, as described in Section~\ref{subsubsec:IMPLEMENTATION:5.2.1}.
 
 
 \section{Practicability: Impact on Execution Speed} \label{sec:EVALUATION:4}
@@ -225,7 +208,7 @@ We measured the overhead our implementation of version-aware references imposes 
 A discussion of the results follows at the end of this section.
 
 
-\subsection{Running Benchmarks}
+\subsection{Execution of Benchmarks}
 
 The Octane benchmark suite shows how the proxies currently slow down a variety of different JavaScript programs.\\
 A microbenchmarks shows the specific cost of having proxies forward object interactions.
@@ -235,20 +218,20 @@ A microbenchmarks shows the specific cost of having proxies forward object inter
 Measuring the Octane benchmark suite highlights how the execution of eight JavaScript programs is affected by the proxies.
 
 \paragraph{Method}
-We ran the Octane benchmarks\footnote{Note: We reduced the input size of the Splay benchmark by an order of magnitude to prevent the browser from prompting for user input during the benchmark's execution. The prompt is triggered due to the long time required to run the benchmark. It cannot be disabled and would influence the benchmark result.} with and without previous transformation of the benchmark code and, therefore, with or without version-aware references.
+We ran the Octane benchmarks\footnote{Note: We reduced the input size of the Splay benchmark by an order of magnitude to prevent the browser from prompting for user input during the benchmark's execution. The prompt is triggered due to the long time required to run the benchmark. It cannot be disabled and would influence the benchmark result.} with and without previous transformation of the benchmark code and, therefore, with and without version-aware references.
 The source transformations for this were done separately before measuring the execution times.
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=\textwidth]{figures/6_evaluation/3_executionOverhead.pdf}
-    \caption{Execution overhead of proxy-based version-aware references for the Octane benchmark suite.}
-    \label{fig:ExecutionOverhead}
-\end{figure}
 
 \paragraph{Results}
 Figure~\ref{fig:ExecutionOverhead} shows how much more time the benchmarks take when their source is transformed before execution and references are, therefore, version-aware.
 Executing individual benchmarks takes between 90 and 405 times longer with version-aware references than without.
 On average the execution is slowed down by a factor of 187.5.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{figures/6_evaluation/3_executionOverhead.pdf}
+    \caption{Execution overhead for the Octane benchmark suite.}
+    \label{fig:ExecutionOverhead}
+\end{figure}
 
 
 \subsubsection{Microbenchmarks}
@@ -257,7 +240,6 @@ We implemented a microbenchmark to measure the overhead the proxies impose on re
 In particular, the microbenchmark shows how much time the proxies require to intercept and forward property reads to the single version of an object.
 
 \paragraph{Method}
-% We resolved a reference that connects a \lstinline{client} object to a \lstinline{server} object a million times to read and call a function property.
 We measured how long it takes to resolve a reference as well as read and call a function property a million times.
 The reference connects a \lstinline{client} object to a \lstinline{server} object.
 The code of which we measured the execution time is shown in Listing~\ref{lst:microbenchmark}.
@@ -276,18 +258,12 @@ We compared the execution times of three different setups:
 
 \begin{description}
     \item[Setup 1] The \lstinline{client} object holds a reference directly to the \lstinline{server}.
-    \item[Setup 2] The \lstinline{client} object holds a proxy as its \lstinline{server} property. In this setup, we used the proxy handler described in Section~\ref{sec:IMPLEMENTATION:1} for the proxy. The proxy has access to the actual \lstinline{server} object as one of its version objects. It selects the \lstinline{server} object when it intercepts the property read.
+    \item[Setup 2] The \lstinline{client} object holds a proxy as its \lstinline{server} property. In this setup, we used the proxy handler described in Section~\ref{subsec:IMPLEMENTATION:1.2} for the proxy. The proxy has access to the actual \lstinline{server} object as one of its version objects. It selects the \lstinline{server} object when it intercepts the property read.
     \item[Setup 3] The \lstinline{client} object's \lstinline{server} property is also a proxy but one created with a fixed target and without proxy handler. The fixed target is the \lstinline{server} object to which the proxy then forwards by default.
 \end{description}
 
 In all setups, the \lstinline{server} object holds a reference that directly refers to the \lstinline{foo} function.
 
-% The \lstinline{client}'s reference is either an ordinary reference or version-aware.
-% In the latter case, an ordinary reference refers from the \lstinline{client} to a proxy and that proxy forwards all object interactions to the \emph{server} object.\\
-% In a first version of this setup, we provided the handler object described in \ref{sec:IMPLEMENTATION:1} when creating the proxy, so the proxy provides our versioning behavior: it has no fixed target object, but chooses the \lstinline{server} object dynamically following the global version identifier.\\
-% In a second version of this microbenchmark, we provided no handler object when creating the proxy.
-% In this case, the proxy falls back on the default proxy behavior, which is forwarding to a fixed target.
-% The fixed target is the \lstinline{server} object.
 
 \paragraph{Results}
 Table~\ref{table:microbenchmarkResults} shows the results of running the microbenchmark in the three setups.
@@ -318,25 +294,22 @@ We measured the overhead imposed on three typical user interactions and how much
 As our goal is to provide recovery support for development in Lively Kernel, the overhead imposed on user interactions is especially interesting as it directly affects developers.
 
 \paragraph{Method}
-% what?
 We measured the time three user interactions take when using proxies and compared this to the time the interactions usually take.
 We measured the time from the user events until the single-threaded JavaScript engine becomes responsive again programmatically.
 The three typical interaction we chose to investigate are: bringing up the halo buttons on a particular morph, opening the Lively Kernel's main menu, and opening the Lively Kernel's System Code Browser.\\
-% why?
 We chose these three interactions as we expect them to be more impacted by the version-aware references compared to interactions that are more browser-supported and less reliant on the execution of JavaScript code such as dragging elements around the screen.
 All three interaction trigger code from multiple different modules, including event handling code, rendering code, and tool-specific code.
 
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=0.8\textwidth]{figures/6_evaluation/4_LivelyInteractionsOverhead.pdf}
+    \includegraphics[width=0.76\textwidth]{figures/6_evaluation/4_LivelyInteractionsOverhead.pdf}
     \caption{Execution overhead for three user interactions in the Lively Kernel.}
     \label{fig:LivelyInteractionsOverhead}
 \end{figure}
 
 \paragraph{Results}
-Figure \ref{fig:LivelyInteractionsOverhead} shows the results.
+Figure~\ref{fig:LivelyInteractionsOverhead} shows the results.
 Each of the three interactions takes on average 43 times the time when triggered after the system was loaded with proxies.
-
 
 
 \subsubsection{Loading a Lively Kernel World}

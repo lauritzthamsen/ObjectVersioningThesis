@@ -17,7 +17,7 @@ The state of such an \emph{address} object could be as shown in Figure~\ref{fig:
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.22\textwidth]{figures/4_approach/1_singleObject.pdf}
-    \caption{An \emph{address} object with three properties.}
+    \caption{An \lstinline{address} object with three properties.}
     \label{fig:SingleObject}
 \end{figure}
 
@@ -28,7 +28,7 @@ If we call the initial state version \emph{v1} and the state after making change
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.7\textwidth]{figures/4_approach/2_objectChange.pdf}
-    \caption{Two versions of an \emph{address} object in two versions of the system.}
+    \caption{Two versions of an \lstinline{address} object in two versions of the system.}
     \label{fig:ObjectChanged}
 \end{figure}
 
@@ -37,25 +37,26 @@ For this reason, versions of objects are preserved and changes are made to new v
 A version of an object is, in the simplest case, a copy of an object.
 When the \lstinline{address} object is changed in version \emph{v2} of the system, the system does not change the orginal \lstinline{address} object but the copy.
 
-\begin{figure}[h!]
-    \centering
-    \includegraphics[width=0.7\textwidth]{figures/4_approach/3_previousVersionPreserved.pdf}
-    \caption{Preserving the previous version of the \emph{address} object.}
-    \label{fig:VersionPreserved}
-\end{figure}
-
 As shown in Figure~\ref{fig:VersionPreserved}, there are now two versions of the \lstinline{address} objects in version \emph{v2} of the system.
 One of the objects holds the original state, while the other holds the state the object should have in version \emph{v2} of the system.
 The two objects hold no information that indicates to which version of the system they belong.
 They also do not store any information showing that one object is a copy of the other.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.7\textwidth]{figures/4_approach/3_previousVersionPreserved.pdf}
+    \caption{Preserving the previous version of the \lstinline{address} object.}
+    \label{fig:VersionPreserved}
+\end{figure}
+
 At the same time, references to objects remain unchanged.
 For example, there could have been a \lstinline{person} object referring to the \lstinline{address} object.
 This reference would still be referring to the original \lstinline{address} object, even in version \emph{v2} of the system, as shown in Figure~\ref{fig:ReferenceFixedToPreviousVersion}.
 
-\begin{figure}[h!]
+\begin{figure}[h]
     \centering
     \includegraphics[width=\textwidth]{figures/4_approach/4_referenceToPreviousVersion.pdf}
-    \caption{A reference refers to the previous version of the \emph{address} object.}
+    \caption{A reference refers to the previous version of the \lstinline{address} object.}
     \label{fig:ReferenceFixedToPreviousVersion}
 \end{figure}
 
@@ -88,7 +89,7 @@ In version \emph{v2} of the system, it resolves to the second version of the obj
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.8\textwidth]{figures/4_approach/5_versionAwareReferenceFollowingVersion2.pdf}
-    \caption{A version-aware reference relates a \emph{person} object to two versions of its \emph{address} property.}
+    \caption{A version-aware reference relates a \lstinline{person} object to two versions of its \lstinline{address} property.}
     \label{fig:VersionAwareReferenceFollowingVersion2}
 \end{figure}
 
@@ -104,7 +105,7 @@ In version \emph{v3}, the company has a different CEO.
 \begin{figure}[h]
     \centering
     \includegraphics[width=\textwidth]{figures/4_approach/6_objectGraphWithVersonAwareReferences.pdf}
-    \caption{Three versions of a \emph{company} object, in which objects are connected through version-aware references.}
+    \caption{An object graph with version-aware references.}
     \label{fig:ObjectGraphWithReferencesResolvedAlongVersion2}
 \end{figure}
 
@@ -171,7 +172,7 @@ The proxy in turn knows which versions are available for the \lstinline{address}
 \begin{figure}[h]
     \centering
     \includegraphics[width=\textwidth]{figures/4_approach/7_proxyBasedVersionAwareReference.pdf}
-    \caption{Using a proxy as version-aware reference to connect a \emph{person} object with two versions of an \emph{address} object.}
+    \caption{Using a proxy as version-aware reference to connect a \lstinline{person} object to two versions of an \lstinline{address} object.}
     \label{fig:ProxyBasedVersionAwareReference}
 \end{figure}
 
@@ -253,20 +254,20 @@ In the example, version \emph{v2} is the current version of the system.
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.65\textwidth]{figures/4_approach/8_systemVersions.pdf}
-    \caption{Four objects representing four linear versions of the system.}
+    \caption{Four versions of the system.}
     \label{fig:SystemVersions}
 \end{figure}
 
 The current version of the system is accessible to the proxies.
 Proxies use it to decide to which version of an object they currently should forward to.
-Figure~\ref{fig:ProxyUseSystemVersion} shows a proxy with \emph{versions of an object} in the context of \emph{versions of the system}.
+Figure~\ref{fig:ProxyUseSystemVersion} shows a proxy, versions of an object, and versions of the system.
 In this example, there are two object versions that correspond to the two system versions.
 The current version of the system is \emph{v2} and, therefore, the version the proxy currently forwards to is version \emph{v2} of the object.
 
 \begin{figure}[h]
     \centering
     \includegraphics[width=\textwidth]{figures/4_approach/9_proxyUsesSystemVersion.pdf}
-    \caption{A proxy with two versions of an object in context of the versions of the system.}
+    \caption{A proxy with two object versions in context of the system versions.}
     \label{fig:ProxyUseSystemVersion}
 \end{figure}
 
@@ -279,16 +280,16 @@ In that case, proxies forward interactions to previous versions of the objects.
 \emph{To preserve the current version}, the system version has to be set to a different version.
 The proxies forward interactions to other object versions or, when no such version of the object exist, create new versions.
 
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.86\textwidth]{figures/4_approach/10_newVersionOfAnObject.pdf}
-    \caption{A new version of an object needs is created for a new version of the system.}
-    \label{fig:NewVersion}
-\end{figure}
-
 A situation in which a new version of an object is created is shown in Figure~\ref{fig:NewVersion}.
 In a new version \emph{v3} of the system, the proxy intercepts a manipulation but has no object version it can forward to.
 It, therefore, copies the most recent version of the object and forwards to the copy.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.86\textwidth]{figures/4_approach/10_newVersionOfAnObject.pdf}
+    \caption{A new version of an object is created for a new version of the system.}
+    \label{fig:NewVersion}
+\end{figure}
 
 New versions are only necessary when a proxy is about to delegate manipulations.
 As long as the state of an object is only read, the proxy reports values from a previous version as the old version of the object still reflects the current state.

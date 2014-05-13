@@ -1,6 +1,3 @@
-% Proxies stand in for multiple versions, intercept all access, and forward to the correct version.
-
-
 \chapter{Implementation} \label{chapter:IMPLEMENTATION}
 
 This chapter describes how we used the ECMAScript 6 proxies\footnote{\url{http://wiki.ecmascript.org/doku.php?id=harmony:direct_proxies}, accessed February 3rd, 2014} to implement version-aware references for the Lively Kernel.
@@ -8,7 +5,7 @@ It presents the proxy's behavior and shows how proxies are inserted for ordinary
 The chapter also presents workarounds for the current state of ECMAScript 6 proxies.
 It concludes with current limitations.
 
-\section{ECMAScript 6 Proxies as Version-aware References} \label{sec:IMPLEMENTATION:1}
+\section{Using the ECMAScript 6 Proxies as Version-aware References} \label{sec:IMPLEMENTATION:1}
 
 This section first describes the proxies proposed with the next version of JavaScript's standard.
 It then explains how the proxies are used in our implementation.
@@ -161,7 +158,7 @@ They do not forward to their target objects.
 \end{figure}
 
 Our handler uses all traps to forward to the current version of an object.
-For example, its \lstinline{get} trap is implemented as shown in Listing~\ref{lst:getTrap}\footnote{The code in this chapter is a simplified version of the actual code. It omits special cases for workarounds (Section \ref{sec:IMPLEMENTATION:4}) and debugging the implementation. The actual code is available at \url{http://github.com/LivelyKernel/LivelyKernel/commits/50181548}.}.
+For example, its \lstinline{get} trap is implemented as shown in Listing~\ref{lst:getTrap}\footnote{The code in this chapter is a simplified version of the actual code. It omits special cases for workarounds (Section~\ref{sec:IMPLEMENTATION:4}) and debugging the implementation. The actual code is available at \url{http://github.com/LivelyKernel/LivelyKernel/commits/50181548}.}.
 
 \iffalse
 \begin{verbatim}\fi
@@ -257,6 +254,9 @@ To re-establish a different version, only \lstinline{lively.CurrentVersion} has 
 Changing the global version is an undo, redo, or commit depending on whether the version is set to a previous, following, or new version.
 The system provides the following three functions for this: \lstinline{lively.undo} (Listing~\ref{lst:undo}), \lstinline{lively.redo} (Listing~\ref{lst:redo}), and \lstinline{lively.commit} (Listing~\ref{lst:commit}).
 
+Using a global version of the system is reasonable as JavaScript is executed single-threaded and scheduled cooperatively by the JavaScript engines.
+Therefore, while a script runs, the global version cannot be changed by another script.
+
 \iffalse
 \begin{verbatim}\fi
 \begin{code}[lst:undo]{The \lstinline{lively.undo} method.}{float,numbers=left}
@@ -309,9 +309,6 @@ commit: function() {
 \iffalse
 \end{verbatim}\fi
 
-Using a global version of the system is reasonable as JavaScript is executed single-threaded and scheduled cooperatively by the JavaScript engines.
-Therefore, while a script runs, the global version cannot be changed by another script.
-
  
 \subsubsection{Scope of the Versioning} \label{subsubsec:IMPLEMENTATION:5.2.1}
 
@@ -329,7 +326,7 @@ Besides these host objects, all objects that are accessed through our proxies ar
 
 
 
-\section{Proxies For All Mutable JavaScript Objects}
+\section{Accessing All Mutable JavaScript Objects Through Proxies}
 
 To be able to re-establish the system state with our versioning, our proxies need to be used to access all objects, arrays, and functions.
 This is necessary because objects, arrays, and functions are mutable in JavaScript.
@@ -450,9 +447,9 @@ var person = {
 \iffalse
 \end{verbatim}\fi
 
-Wrapping the accessor function into the \lstinline{proxyFor} function would not yield valid JavaScript syntax.
+Wrapping the accessor function into a call to the \lstinline{proxyFor} function would not yield valid JavaScript syntax.
 However, accessor functions can also be defined using the \lstinline{Object.defineProperty} function.
-For this reason, the object is first created without accessor functions and the accessor function defined separately using \lstinline{Object.defineProperty} in our implementation.
+For this reason, the object is first created without the accessor function and the function is added afterwards using \lstinline{Object.defineProperty}.
 Listing~\ref{lst:accessorTransformed} shows the result of transforming the example in Listing~\ref{lst:accessorOriginal} in this way.
 The object literal and the call to \lstinline{Object.defineProperty} are wrapped into an anonymous functions that is applied directly.
 This allows to have the object be available in a variable for the \lstinline{Object.defineProperty} function call without polluting the variable bindings of the originally surrounding scope.
@@ -530,7 +527,7 @@ However, there are also functions built into the JavaScript engines.
 These are not created from function literals and, therefore, cannot be proxied by transforming function literals.
 
 
-\subsection{Wrapping Built-in Functions}
+\subsection{Wrapping Built-in Functions Into Proxies}
 
 Some built-in functions can be used to create new objects.
 For example, the built-in constructors \lstinline{Object} and \lstinline{Array} can be used to create new objects and arrays.
@@ -827,7 +824,7 @@ We are aware of three limitations of our implementation.
 
 \paragraph{Availability of ECMAScript 6 Proxies}
 Our implementation requires the ECMAScript 6 proxies to be available.
-The proxies are part of the next version of ECMAScript, which has currently neither been finalized nor completely implemented, as described in \ref{sec:IMPLEMENTATION:4}.
+The proxies are part of the next version of ECMAScript, which has currently neither been finalized nor completely implemented, as described in Section~\ref{sec:IMPLEMENTATION:4}.
 For this reason, our implementation works only in versions of Firefox and Chrome that already implement preliminary versions of the proxies.
 Furthermore, Chrome users need to enable the proxies explicitly\footnote{\url{http://plus.google.com/+PaulIrish/posts/T615Md5JPQG}, accessed May 13, 2014}.
 
