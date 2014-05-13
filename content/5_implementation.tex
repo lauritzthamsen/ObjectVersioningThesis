@@ -331,7 +331,7 @@ Besides these host objects, all objects that are accessed through our proxies ar
 
 \section{Proxies For All Mutable JavaScript Objects}
 
-To be able to re-establish the entire state with our versioning, our proxies need to be used to access all objects, arrays, and functions.
+To be able to re-establish the system state with our versioning, our proxies need to be used to access all objects, arrays, and functions.
 This is necessary because objects, arrays, and functions are mutable in JavaScript.
 In fact, functions and arrays are objects.
 They can have arbitrary properties.
@@ -347,13 +347,13 @@ In JavaScript, there are three categories of expressions that create new objects
     \item specific built-in functions: e.g. \lstinline|Object.create(prototype, {age: 12})|
 \end{itemize}
 
-Our implementation uses source transformations and proxy traps to have these expression return proxies.
+Our implementation uses source transformations and the proxy traps to have these expression return proxies.
 
 
 \subsection{Transforming Literal Expressions}
 
 We use source transformations to wrap literal expressions into calls to a \lstinline{proxyFor} function.
-The \lstinline{proxyFor} function returns a proxy for its argument.
+The function returns a proxy for its argument.
 The transformations for literal objects, arrays, and functions are shown in Table~\ref{table:literalTransforms}.
 
 \begin{table}[h]
@@ -398,8 +398,7 @@ var subtract = function(a, b) {return a - b}
 \end{verbatim}\fi
 
 Function expressions can create anonymous and named functions.
-The example above creates an anonymous function.
-The following example assigns a named function to a variable:
+The previous example creates an anonymous function, while the following example creates a named function:
 \iffalse
 \begin{verbatim}\fi
 \begin{code}{}{}
@@ -435,8 +434,8 @@ In addition, because function declarations get hoisted in JavaScript, transforme
 
 \subsubsection{Accessor Functions}
 
-Accessor functions are functions that are executed transparently instead of property reads or writes.
-Listing~\ref{lst:accessorOriginal} shows an example in which an accessor function is used to allow reading a \lstinline{person}'s \lstinline{age} even though the \lstinline{person} object only has a \lstinline{birthdate} property.
+Accessor functions are functions that are executed instead of property reads or writes.
+Listing~\ref{lst:accessorOriginal} shows an example in which an accessor function is used to allow reading a \lstinline{person} object's \lstinline{age} property even though the object actually only has a \lstinline{birthdate} property.
 
 \iffalse
 \begin{verbatim}\fi
@@ -452,13 +451,11 @@ var person = {
 \end{verbatim}\fi
 
 Wrapping the accessor function into the \lstinline{proxyFor} function would not yield valid JavaScript syntax.
-However, accessor functions can also be defined with the \lstinline{Object.defineProperty} function.
-Therefore, the object is created without accessor functions and the accessor function defined separately using \lstinline{Object.defineProperty}.
-Both the object and the accessor functions can be wrapped into calls to the \lstinline{proxyFor} function when expressed in this way.
-Listing~\ref{lst:accessorTransformed} shows the result of transforming the example in Listing~\ref{lst:accessorOriginal}.
-The new object is created in an anonymous functions that is applied directly.
-In this anonymous function, the new object is assigned to a variable called \lstinline{newObject}.
-This allows to have the object be available in a variable for the subsequent \lstinline{Object.defineProperty}-function call without polluting the variable bindings of the originally surrounding scope.
+However, accessor functions can also be defined using the \lstinline{Object.defineProperty} function.
+For this reason, the object is first created without accessor functions and the accessor function defined separately using \lstinline{Object.defineProperty} in our implementation.
+Listing~\ref{lst:accessorTransformed} shows the result of transforming the example in Listing~\ref{lst:accessorOriginal} in this way.
+The object literal and the call to \lstinline{Object.defineProperty} are wrapped into an anonymous functions that is applied directly.
+This allows to have the object be available in a variable for the \lstinline{Object.defineProperty} function call without polluting the variable bindings of the originally surrounding scope.
 
 \iffalse
 \begin{verbatim}\fi
@@ -497,7 +494,7 @@ var someone = new Person();
 \iffalse
 \end{verbatim}\fi
 
-We use the \lstinline{construct} trap to return proxies from proxied functions used as constructors.
+We use the \lstinline{construct} trap to return proxies from proxied functions that are used as constructors.
 Listing~\ref{lst:constructTrap} shows the \lstinline{construct} trap of our proxy handlers.
 
 \iffalse
@@ -523,14 +520,14 @@ The \lstinline{construct} trap does the following:
 \begin{enumerate}
     \item It retrieves the current version of the constructor (Line~4).
     \item It creates a new object with the correct prototype (Line~7).
-    \item It applies the constructor to the new object (Line~9).
-    \item It returns a proxy for either the return value of the constructor function or, in case the constructor did not return a value, the new object (Line~11).
+    \item It calls the constructor with the new object as argument (Line~9).
+    \item It returns a proxy for either the return value of the constructor function or, in case the constructor did return a falsy value, the new object (Line~11).
 \end{enumerate}
 
 This way, all proxied functions return proxies when used as constructors.
-With the transformations of literal expressions presented in the previous subsection all literal functions are accessed through proxies.\\
+With the previously presented transformations of literal expressions all literal functions are accessed through proxies.\\
 However, there are also functions built into the JavaScript engines.
-These are not created from function literals and, therefore, cannot be proxied by transforming literals.
+These are not created from function literals and, therefore, cannot be proxied by transforming function literals.
 
 
 \subsection{Wrapping Built-in Functions}
@@ -538,9 +535,9 @@ These are not created from function literals and, therefore, cannot be proxied b
 Some built-in functions can be used to create new objects.
 For example, the built-in constructors \lstinline{Object} and \lstinline{Array} can be used to create new objects and arrays.
 They return new objects when called with the \lstinline{new} operator and when called without.\\
-Other global functions that allow creating new objects include, for example, \lstinline{Object.create} and \lstinline{eval}.
+Other global functions that create new objects include, for example, \lstinline{Object.create} and \lstinline{eval}.
 The \lstinline{Object.create} function takes an object as argument, uses the argument as prototype of a new object, and returns the new object.
-The \lstinline{eval} function takes a string as argument it.
+The \lstinline{eval} function takes a string as argument.
 It evaluates the string as JavaScript code and, depending on the code string, can return new objects and even object graphs.
 
 
@@ -562,11 +559,11 @@ Input & Output \\ \hline
 \label{table:transformingBuiltInConstructors}
 \end{table}
 
-The global symbols that are wrapped into calls to the \lstinline{proxyFor} are: \lstinline{Array}, \lstinline{Boolean}, \lstinline{Date}, \lstinline{Function}, \lstinline{Iterator}, \lstinline{Number}, \lstinline{Object}, \lstinline{RegExp}, \lstinline{String}, \lstinline{JSON}, \lstinline{Math}, \lstinline{Intl}, \lstinline{window}, \lstinline{document}, \lstinline{XMLHttpRequest}, \lstinline{Worker}, \lstinline{XMLSerializer}.
+The global symbols that are wrapped into calls to the \lstinline{proxyFor} are: \lstinline{Array}, \lstinline{Boolean}, \lstinline{Date}, \lstinline{Function}, \lstinline{Iterator}, \lstinline{Number}, \lstinline{Object}, \lstinline{RegExp}, \lstinline{String}, \lstinline{JSON}, \lstinline{Math}, \lstinline{Intl}, \lstinline{XMLHttpRequest}, \lstinline{Worker}, \lstinline{XMLSerializer}, \lstinline{window}, and \lstinline{document}.
 
-Therefore, when these function objects are used as constructors, the \lstinline{construct} trap is called and returns proxies for the new objects as explained in the previous subsection.
+Therefore, when these function objects are used as constructors, the \lstinline{construct} trap is called and returns proxies for the new objects as explained previously.
 As these functions also create objects when called without the \lstinline{new} operator, we also have the \lstinline{apply} trap return proxies.
-Therefore, the last line of the \lstinline{apply} trap is:
+Therefore, the last line of our \lstinline{apply} trap is:
 \iffalse
 \begin{verbatim}\fi
 \begin{code}{}{}
@@ -575,17 +572,17 @@ this.ensureProxied(result);
 \iffalse
 \end{verbatim}\fi
 
-When the argument to \lstinline{ensureProxied} is already a proxy or an immutable value such as a string or a number, it returns the argument unchanged.
-When the argument is however an object, an array, or a function, the \lstinline{ensureProxied} returns a proxy for that object.
-This distinction is necessary as the \lstinline{apply} trap is all functions, not only built-in constructors.
+When the argument to the \lstinline{ensureProxied} function is already a proxy or an immutable value such as a string or a number, it returns the argument unchanged.
+When the argument is, however, an object, an array, or a function, the \lstinline{ensureProxied} returns a proxy for that object.
+This distinction is necessary as the \lstinline{apply} trap is called for all functions, not only built-in constructors.
 
 
 \paragraph{Proxy Table}
 With our solution each occurrence of a built-in constructor is wrapped into a separate call to the \lstinline{proxyFor} function.
 Therefore, the same function objects are passed to the \lstinline{proxyFor} function multiple times.
-To nevertheless return the same proxies for the same objects, a map is used to associate objects with their proxies.
+To nevertheless return the same proxies for the same objects, we use a map to associate objects with their proxies.
 This \emph{Proxy Table} is a weak-key map.
-It does not prevent garbage collection of objects used as keys when the proxies to the objects get garbage collected.\\
+It does not prevent the garbage collector from reclaiming the objects used as keys.\\
 Using the same proxies for the same objects is not only an optimization, but necessary for identity checks.
 As a result of using the Proxy Table, the following statement returns \lstinline{true} for an arbitrary \lstinline{obj} object:
 \iffalse
@@ -600,18 +597,18 @@ proxyFor(obj) === proxyFor(obj);
 
 \subsubsection{Wrapping Other Built-In Functions}
 
-Besides the built-in constructors, other built-in functions that return new objects need to return proxies as well.
+Besides the built-in constructors, other built-in functions that create new objects need to return proxies as well.
 For example, the following statement needs to return a proxy:
 \iffalse
 \begin{verbatim}\fi
 \begin{code}{}{}
-Object.create(proto)
+Object.create(proto);
 \end{code}
 \iffalse
 \end{verbatim}\fi
 
 In addition to the \lstinline{construct} trap and the \lstinline{apply} trap, we also have the \lstinline{get} trap return proxies.
-Analogous to the \lstinline{apply} trap, the last line of the \lstinline{get} trap is:
+Analogous to our \lstinline{apply} trap, the last line of our \lstinline{get} trap is:
 \iffalse
 \begin{verbatim}\fi
 \begin{code}{}{}
@@ -620,11 +617,10 @@ this.ensureProxied(result);
 \iffalse
 \end{verbatim}\fi
 
-
-Therefore, proxies for objects always return proxies for the object's properties.
-As a result, when the built-in constructor \lstinline{Object} gets wrapped into a call to the \lstinline{proxyFor} function as with the transformations presented above, reading its \lstinline{create} property returns a proxy for the property.
-Furthermore, this proxy's \lstinline{construct} trap also returns a proxy when applied.
-Thus, the following statement returns a proxy for the newly created object:
+Therefore, proxies for objects always return proxies when properties are read.
+As a result, when the built-in constructor \lstinline{Object} gets wrapped into a call to the \lstinline{proxyFor} function as with the previously presented transformations, reading its \lstinline{create} property returns a proxy for the property.
+Furthermore, this proxy's \lstinline{construct} trap returns a proxy when applied.
+Thus, the following statement returns a proxy for the new object:
 \iffalse
 \begin{verbatim}\fi
 \begin{code}{}{}
@@ -637,7 +633,7 @@ Therefore, the previous transformations are sufficient to have all functions of 
 
 The \lstinline{eval} function, however, is handled differently.
 It can return object graphs for the string argument provided.
-For example, the following statement returns an object with a \lstinline{address} property, which is in turn an object:
+For example, the following statement returns an object with an \lstinline{address} property, which is in turn an object:
 \iffalse
 \begin{verbatim}\fi
 \begin{code}{}{}
@@ -646,19 +642,19 @@ eval("{age: 12, address: {street: 'Kantstr', city: 'Berlin'}}")
 \iffalse
 \end{verbatim}\fi
 
-It is not sufficient to proxy object the \lstinline{eval} function returns.
-Instead, the object also needs to access its \lstinline{address} property via a proxy.\\
+Therefore, it is not sufficient to ensure that the return value of the \lstinline{eval} function is a proxy.
+Instead, the object in the example also needs to access its \lstinline{address} property via a proxy.\\
 Moreover, the code passed to \lstinline{eval} could access built-in constructors or itself use the \lstinline{eval} function.
-For this reason, we pass the string argument of the \lstinline{eval} function through our source transformations first.
+For this reason, we pass the string argument of the \lstinline{eval} function to our source transformations before it is evaluated.
 
-The built-in functions could be overwritten globally to return proxies for the new objects, but our implementation of object versioning is itself just a JavaScript library and makes use of the built-in types.
-Additionally, at the time of writing, some JavaScript engines do not allow to overwrite particular built-in functions and we want our implementation of object versioning to work in every JavaScript engine that supports the ECMAScript 6 Direct Proxies.
+The built-in functions could be overwritten globally to return proxies for the new objects, but our implementation of object versioning is a JavaScript library and makes itself use of the built-in types.
+Additionally, at the time of writing, some JavaScript engines do not allow to overwrite particular built-in globals and we want our implementation of object versioning to work in every JavaScript engine that supports the ECMAScript 6 proxies.
 
 \subsubsection{Implementation of Source Transformations}
 
-Our implementation uses \emph{UglifyJS}\footnote{\url{http://github.com/mishoo/UglifyJS2}, accessed March 12, 2014} for all source transformations.
+Our implementation uses the \emph{UglifyJS}\footnote{\url{http://github.com/mishoo/UglifyJS2}, accessed March 12, 2014} library for all source transformations.
 UglifyJS parses source code without relying on JavaScript exceptions.
-Therefore, when code is transformed before evaluation and the transformation steps do not yield exceptions that could be caught by an open debugger.
+Therefore, when code is transformed, it does not yield exceptions that could be caught by an open debugger.\\
 In addition, UglifyJS supports Source Maps\footnote{\url{https://docs.google.com/document/d/1U1RGAehQwRypUTovF1KRlpiOFze0b-_2gc6fAH0KY0k/edit\#heading=h.ue4jskhddao6}, accessed May 2, 2014}.
 This allows the browser's developer tools to present the original sources, even though transformed code is executed.
 
