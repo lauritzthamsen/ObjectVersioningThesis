@@ -65,7 +65,7 @@ Morphs are often edited directly and not through adapting existing or creating n
 This way, the Lively Kernel mixes the class-based with the prototype-based style of object-oriented programming.
 
 The Lively Kernel's copy operation does not establish a prototypical inheritance relationship between the copy and the original.
-Instead it creates a full copy of the original morph's properties, including its class.
+Instead, it creates a full copy of the original morph's properties, including its class.
 Therefore, even though JavaScript incorporates prototypical inheritance, the Lively Kernel encourages programmers to use classes to share behavior among objects.
 
 \subsubsection{Direct Manipulation of Morphs}
@@ -165,10 +165,10 @@ Without CoExist, either compensational or precautionary actions are necessary fo
 When programmers unintentionally introduce errors, decrease performance, or harm the program design, they have to repair changed code.
 They either need to edit the code again or load a previously commited version of the code.
 Editing code of potentially many methods across and many classes is obviously a significant effort and error-prone.
-Loading a previous version is only possible if a version had been commited previously.
-That is, programmers can reduce the cost of recovery by anticipating recovery needs beforehand.
-Preserving versions is, however, also an effort and especially so when revision histories are expected to be well-documented and immediately useful.
-For that, programmers need to assemble changes to meaningful increments, test these, and write helpful commit messages.
+Loading a previous version is only possible if a version has been commited previously.
+Therefore, programmers can reduce the cost of recovery by anticipating recovery needs beforehand.
+However, preserving versions is also an effort and especially so when revision histories are expected to be well-documented and immediately useful.
+For that, programmers need to assemble changes to meaningful increments, run tests, and write helpful commit messages.
 
 CoExist, in contrast, makes recovery fast and easy.
 It is similar to the undo/redo of applications.
