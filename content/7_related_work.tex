@@ -42,7 +42,7 @@ Offline Worlds preserves the latest state of a Lively Kernel world to support re
 Offline Worlds only preserves the state of all graphical objects.
 In contrast, our system also recognizes changes to classes, globally accessible state, and morph state explicitly excluded from serialization.
 Further, our approach saves versions incrementally and re-establishes versions dynamically, while Offline Worlds saves and loads versions of the world in discrete, interruptive steps.
-That is, even when not used to recover from a system failure, Offline Worlds still requires to re-load the entire world, while our system only switches which versions of particular objects should be used and even preserves object identity of these through the version-aware references.
+Even when not used to recover from a system failure, Offline Worlds still requires to re-load the entire world, while our system only switches which versions of particular objects should be used and even preserves object identity of these through the version-aware references.
 
 
 \subsection{Back-in-Time Debugging}
@@ -62,16 +62,16 @@ We expect object versioning to be active at least during all development tasks, 
 \subsection{Software Transactional Memory}
 
 \ac{stm}~\cite{Shavit1995STM} captures changes to values in transactions, analogous to database transactions.
-Each transaction has its own view of the memory, unaffected by other concurrently running transactions.
-That is, multiple versions of the system state can coexist and which version is read and written to depends on the transaction.
+Each transaction has its own view of the memory, which is unaffected by other concurrently running transactions.
+Multiple versions of the system state can coexist and which version is read and written to depends on the transaction.
 Transactions contain a number of program statements that are executed atomically.
 The changes from a transactions are only permanent when no conflicts occur with other transactions.
 On conflicts, all changes from the transaction are rolled back and undone.
 
 \ac{stm} and our approach are similar in that multiple versions of the system state can coexist and that a previous state can be re-established if necessary.
-\ac{stm}, however, provides concurrency control and an alternative to lock-based synchronization, while our approach provides recovery support to developers when changes turn out be inappropriate.
+However, \ac{stm} provides concurrency control and an alternative to lock-based synchronization, while our approach provides recovery support to developers when changes turn out be inappropriate.
 \ac{stm} transactions are automatically rolled back when changes conflict with changes from other concurrently running transactions, while our versions are offered to programmers to undo changes when necessary.
-That is, with our system programmers actively decide to undo changes when these, for example, negatively impact the functionality, design, or performance of programs. 
+Programmers can actively decide to undo changes when these, for example, negatively impact the functionality, design, or performance of programs. 
 Our versions of the runtime are also first-class objects, which can be stored in variables and be re-established at any time, while transactions are always created implicitly through particular control structures and commited immediately upon success.
 
 
@@ -102,7 +102,7 @@ Our source transformations are faster and do not use JavaScript exceptions.
 Object Graph Versioning\cite{Pluquet2009ECP} allows programmers to preserve access to previous states of objects.
 Fields of objects can be marked as \emph{selected} fields.
 When a snapshot is created, the values of these selected fields are preserved.
-That is, not every state can be re-established, but states that are part of global snapshots. 
+Therefore, not every state can be re-established, but states that are part of global snapshots. 
 The approach, thus, provides fine-grained control to programmers regarding which fields of which objects should be preserved when.
 
 The technical solution is similar to our design.
@@ -127,7 +127,7 @@ In comparison to our approach, \ac{cop} allows to activate combinations of layer
 In \ac{cop} layers are indepedent, while our versions are predecessors and successors of each other.
 
 \ac{cop} aims at supporting the separation of heterogeneous cross-cutting concerns, while object versioning aims at supporting developers with the recovery of previous states.
-\cite{Lincke2012SCS}, however, showed that \ac{cop} can also be used to experiment with changes to a system: developers can implement experimental changes to behavior in layers, not to modularize context-dependent adaptions, but to be able to scope changes dynamically and recover the original system behavior easily.
+However, \cite{Lincke2012SCS} showed that \ac{cop} can also be used to experiment with changes to a system: developers can implement experimental changes to behavior in layers, not to modularize context-dependent adaptions, but to be able to scope changes dynamically and recover the original system behavior easily.
 However, this requires programmers to make experiments explicitly.
 They need to use layers for their adaptions, enable the layers for test runs, and move code from layers back to the base system when experiments are successes and they want to maintain the original modularization of the system.
 \ac{cop} also allows only behavior variations, while our approach recognizes changes to both state and behavior.
@@ -159,7 +159,7 @@ These objects contain information about the history and origin of the values sto
 Aliases are not passed around, but instead are created for each read or write of a field and for each value passed as parameter.
 Each alias refers to an actual value, but also to another alias---its \emph{predecessor}---representing the value previously stored by a field and to the alias that was used to create this new alias from---its \emph{origin}.
 An alias and its origin both refer to the same value, but provide different information on their creation context, which is a particular method.
-That is, the origin link can be used to follow the object's ``flow'' through the program.
+The origin link can be used to follow the object's ``flow'' through the program.
 Each alias also records a timestamp on its creation and with this information the predecessor link can be followed to read a value as it was at a particular moment in time.
 
 In comparison, with aliases it is possible to recreate all states the system was in and also retrace the flow of all values, while our system stores only particular versions.
