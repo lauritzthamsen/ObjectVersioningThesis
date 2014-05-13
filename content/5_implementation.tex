@@ -121,7 +121,7 @@ proxy();
 \end{code}
 \iffalse
 \end{verbatim}\fi
-The \lstinline{preventExtensions} trap fires when a proxy is passed to the \lstinline{preventExtensions} function of the global \lstinline{Object}.
+The \lstinline{preventExtensions} trap fires when a proxy is passed to the respective function of the global \lstinline{Object}.
 The \lstinline{preventExtensions} function prevents subsequentely adding new properties to an object.
 The trap would be triggered by the following statement:
 \iffalse
@@ -505,7 +505,7 @@ construct: function(dummyTarget, args) {
     
     constructor = this.currentVersion()
     
-    prototype = constructor.prototype ? constructor.prototype : {}    
+    prototype = constructor.prototype ? constructor.prototype : {};
     newObject = Object.create(prototype);
     
     result = constructor.apply(newObject, args);
@@ -669,58 +669,57 @@ Certain workarounds are required due to the preliminary implementation of ECMASc
 \paragraph{ECMAScript 6 Specification}
 ECMAScript 6 will be the next version of JavaScript.
 Its specification has not yet been finalized.
-Drafts of it are released periodically with a target release date of December 2014\footnote{http://github.com/rwaldron/tc39-notes/blob/48c5d285bf8bf0c4e6e8bb0c02a7c840c01cd2ff/es6/2013-03/mar-13.md\#416-current-status-of-es6, accessed May 12, 2014}.
+Drafts of it are released continuously with a target release date of December 2014\footnote{http://github.com/rwaldron/tc39-notes/blob/48c5d285bf8bf0c4e6e8bb0c02a7c840c01cd2ff/es6/2013-03/mar-13.md\#416-current-status-of-es6, accessed May 12, 2014}.
 The current draft is Revision 24~\cite{Ecma2014ES6}.
 It includes the proposal of the proxies we used for our implementation.
 
 \paragraph{ECMAScript 6 Implementation}
-The JavaScript engines used by Chrome and Firefox provide preliminary implementations for some of the ECMAScript 6 features.
-They implement two different deprecated proposals of the proxy \ac{api}.
-However, the \emph{harmony-reflect} library\footnote{\url{http://github.com/tvcutsem/harmony-reflect}, accessed February 3, 2014, used version 0.0.11} provides the current \ac{api} on top of the implemented states.
-Our implementation uses the \emph{harmony-reflect} library and, thereby, works in Chrome and Firefox.
+The JavaScript engines used by Chrome and Firefox provide preliminary implementations for some of ECMAScript~6's features.
+Among other features, they implement two different deprecated proposals of the proxy \ac{api}.
+The \emph{harmony-reflect} library\footnote{\url{http://github.com/tvcutsem/harmony-reflect}, accessed February 3, 2014, used version 0.0.11} provides the current \ac{api} on top of these.
+Our implementation uses the \emph{harmony-reflect} library and, therefore, works in Chrome and Firefox.
 
 However, even with the library, three issues need to be addressed with technical workarounds:
 
 \begin{enumerate}
-    \item The proxies have to be provided with an actual target, even when implementing virtual objects, and consistency invariants compare return values of the traps to the state of the actual target. 
+    \item The proxies have to be provided with a target object, even when implementing virtual objects, and consistency invariants compare return values of the traps to the state of the target. 
     \item The proxies do not intercept the \lstinline{instanceof} operator, but always delegate to the current target.
-    \item Certain built-in JavaScript functions dont handle proxies correctly.
+    \item Certain built-in JavaScript functions don not handle proxies correctly.
 \end{enumerate}
 
-These workarounds might no longer be necessary once the ECMAScript 6 standard gets finalized and fully implemented by the JavaScript engines. 
+These workarounds might no longer be necessary once the ECMAScript 6 specification gets released and fully implemented by the JavaScript engines. 
 
 
 \subsection{Disabling Target Object Invariants}
 
 \subsubsection{Problem}
-As explained in Section~\label{subsec:IMPLEMENTATION:1.1}, the proxies as available in Chrome require a fixed target object, even though the current ECMAScript 6 draft says otherwise\footnote{\url{http://people.mozilla.org/~jorendorff/es6-draft.html\#sec-proxy-object-internal-methods-and-internal-slots}, accessed April 15, 2014}.
-Therefore, even in case the proxies are used as \emph{virtual objects}, they still forward to a particular object by default.
-Moreover, the proxies are designed to ensure invariants between the return values of traps and the target's state~\cite{Cutsem2013TRP}.
-For example, when an object's properties are made immutable through the \lstinline{Object.freeze} function, invariants ensure that the target object has in fact been frozen, even if the trap delegates the operation to another object such as one of our versions of an object.
+Even though the current ECMAScript 6 draft says otherwise\footnote{\url{http://people.mozilla.org/~jorendorff/es6-draft.html\#sec-proxy-object-internal-methods-and-internal-slots}, accessed April 15, 2014}, the proxies require a target object, as explained in Section~\label{subsec:IMPLEMENTATION:1.1}.
+Even when the proxies are used as \emph{virtual objects}, they still are connected to a particular object.
+Furthermore, the proxies are designed to ensure invariants between the return values of traps and the target's state~\cite{Cutsem2013TRP}.
+For example, when an object's properties are made immutable through the \lstinline{Object.freeze} function, invariants ensure that the target object has in fact been frozen, even if the trap delegates the operation to another object.
 Another invariant ensures that immutable values of the target object are reported by the traps.
 Therefore, the \emph{get}-trap has to report the values of the target object when it previously has been frozen.
-In our case, configuring any property as immutable would effectively make that property immutable for all versions.
-Moreover, reading the property in a version where the property is different from the immutable target's property would raises inconsistency errors.
+As a result, in our case, configuring any property as immutable would effectively make that property immutable for all versions.
+Moreover, reading the property from object versions would potentially raise inconsistency errors.
 
 \subsubsection{Solution}
 For this reason, we adapted our copy of the \emph{harmony-reflect} library.
-In particular, the \lstinline{Proxy} constructor function takes a third argument.
+In particular, the \lstinline{Proxy} constructor takes a third argument.
 This argument is a boolean that indicates whether a proxy is standing in for one target object or is a virtual object.
-This boolean flag is then used to disable all consistency checks when a proxy is used as virtual object.
+Providing \lstinline{true} as this argument effectively disables all consistency checks.
 
 
 \subsubsection{Discussion}
 
-The proxy constructor still requires an actual object as \emph{target} object.
-This target object is used for object interactions that are not intercepted by any traps.
-All trapped interactions are forwarded to the correct object version without any consistency checks.
-However, the \lstinline{typeof} and the \lstinline{instanceof} operator are not trapped and forwarded to the target object by default.
+Even with disabled consistency checks, the proxies still require actual objects as \emph{target} objects.
+All trapped interactions are forwarded to the correct object versions, yet interactions that are not intercepted by any traps are still forwarded to the target objects.
+The current draft does not include traps for the \lstinline{typeof} operator and the \lstinline{instanceof} operator.
 
-The \lstinline{typeof} operator returns a distinction between a certain set of types.
+The \lstinline{typeof} operator returns a certain set of values for different types.
 Proxies stand in for objects, arrays, and functions.
-The \lstinline{typeof} operator returns \emph{``object''} for arrays and objects and \emph{``function''} for functions.
-Therefore, the target object of our proxies is an object when the proxy stands in for the versions of an array or an object, while it is a function when the proxy stands for the versions of functions.
-This is also necessary as the \lstinline{apply} and \lstinline{construct} traps are only called for proxies with function targets.
+It returns \emph{``object''} for arrays and objects and \emph{``function''} for functions.
+Therefore, the target object of our proxies is an object when a proxy stands in for the versions of an array or an object, while it is a function when a proxy stands for the versions of functions.
+Using a function object as target for a proxy that stands in for the version of a function is also necessary as the \lstinline{apply} and \lstinline{construct} traps are only called for proxies with function targets.
 
 The \lstinline{instanceof} operator needs to be handled differently as it does not necessarily return the same value for all versions of an object.
 
@@ -742,17 +741,14 @@ me instanceof Person
 
 The prototype of an object is a property and can be changed at runtime.
 Moreover, the \lstinline{prototype} property of a function is also mutable.
-As any other property, the prototype properties get versioned with our implementation .
-The \lstinline{instanceof} operator, thus, also needs to be delegated to the current version of an object.
-However, there is currently no \lstinline{instanceof} trap to intercept the application of the \lstinline{instanceof} operator.
-
-Trapping the \lstinline{instanceof} operator is under discussion\footnote{\url{http://wiki.ecmascript.org/doku.php?id=harmony:direct_proxies\#discussed_during_tc39_july_2012_meeting_microsoft_redmond}, accessed May 1, 2014}.
-
+As any other property, these properties can be different in different object versions.
+Thus, the \lstinline{instanceof} operator needs to be delegated to the current object version.
+However, while trapping the \lstinline{instanceof} operator is under discussion\footnote{\url{http://wiki.ecmascript.org/doku.php?id=harmony:direct_proxies\#discussed_during_tc39_july_2012_meeting_microsoft_redmond}, accessed May 1, 2014}, there is currently no \lstinline{instanceof} trap.
 
 \subsubsection{Solution}
 
-Our implementation provides a custom \lstinline{Object.instanceof} function, which implements the semantics of the \lstinline{instanceof} operator but delegates to the correct version of an object when applied with a proxy.
-All usage of the \lstinline{instanceof} operator is then transformed to the \lstinline{Object.instanceof} function.
+Our implementation provides a custom \lstinline{Object.instanceof} function, which implements the semantics of the \lstinline{instanceof} operator but delegates to object versions when applied with a proxy as argument.
+Consequentely, all usage of the \lstinline{instanceof} operator is transformed to the \lstinline{Object.instanceof} function.
 Table~\ref{table:transformingInstanceof} shows this transformation by example.
 
 \begin{table}[h]
@@ -777,28 +773,28 @@ Input & Output \\ \hline
 Some built-in JavaScript functions do not work correctly with proxies.
 The functions react with errors, return wrong results, or silently ignore calls when applied with proxies as arguments or as their \lstinline{this}-context.
 These built-in functions include, for example, the \lstinline{concat} function of array instances and all functions that manipulate the browser's \ac{dom}.
-Moreover, all string instance methods return wrong results when provided with proxies for their \lstinline{RegExp} arguments.
+Moreover, string instance methods return wrong results when called with proxies for \lstinline{RegExp} arguments.
 
 Furthermore, the \lstinline{onreadystatechanged} property of \lstinline{XMLHttpRequest} objects is not allowed to be proxy.
 The \lstinline{onreadystatechanged} property is expected to be a function, which is called when the server responds to asynchronous \ac{http} requests. 
-However, when a proxy for a function is used as the property, the callback is not called with the response.
+However, when a proxy is assigned as the property, the callback is not called with the response.
 
 
 \subsubsection{Solution}
 
 The problematic functions need to be provided with actual objects instead of proxies.
-Therefore, our implementation unwraps the current versions from the proxies and provides these to the function.
-The \emph{apply}-trap unwraps all arguments and the \emph{thisContext} object when the applied function is a built-in functions that does not handle proxies correctly.
+Therefore, our implementation retrieves the current object versions from the proxies and provides these to the functions.
+The \lstinline{apply} trap unwraps all arguments and the \emph{thisContext} before applying built-in functions.
 
 The \lstinline{apply} trap detects built-in functions through their print strings.
 Built-in functions print to \emph{``[native code]''}, while functions created from literals print to their function body.\\
 However, the \lstinline{apply} trap does not unwrap the arguments to specific built-in functions.
-For example, the argument to an array's \lstinline{indexOf} function is not unwrapped as the function compares the argument's identity to the identity of its content.
+For example, the argument to an array's \lstinline{indexOf} function is not unwrapped as the function compares the argument's identity to the identity of array elements.
 Additionally, the iterator functions of arrays handle proxies correctly.
 
 Instances of strings are immutable and are not accessed through proxies in our implemention.
 Therefore, unwrapping arguments in the \lstinline{apply} trap is not a solution for the string methods that do not handle proxies correctly.
-For this reason, our implementation patches these string functions.
+For this reason, our implementation patches these string functions explicitly.
 The functions are patched with functions that unwrap proxies before executing the original functions, as shown in Listing~\ref{lst:stringPatch}.
 
 \iffalse
@@ -817,13 +813,12 @@ String.prototype.match = function match(regexp) {
 The four string methods that are patched in this way are: \lstinline{match}, \lstinline{search}, \lstinline{replace}, \lstinline{split}.
 
 For the \lstinline{onreadystatechanged} property of \lstinline{XMLHttpRequest} objects, we have the \lstinline{set} trap unwrap the assigned proxy.
-Unwrapping a particular version of the callback function is potentially problematic.
-Even though JavaScript does get executed with a single thread using cooperative scheduling, other concurrent scripts might get executed and switch the global version before the callback can be called.
-However, it is unlikely that a callback function's \emph{properties} are changed while waiting for the response and even bad programming style as it introduces dependencies on network timing regardless of whether or not previous versions of the function are preserved.
-Therefore, our implementation currently does not provide a workaround for this specific scenario. 
-
-
-
+However, unwrapping a particular version of the callback function is potentially problematic.
+Even though JavaScript does get executed with a single thread using cooperative scheduling, other scripts might get executed while the browser waits for the server's response.
+Such concurrently executed scripts can switch the global version before the callback is called.
+In a different version, the properties of the callback function can be different.
+Moreover, the callback function might not be available in a previous version. 
+Switching the system version while the browser waits for a response is a problem for which our implementation currently does not provide a workaround.
 
 
 \section{Limitations of the Implementation}
@@ -834,12 +829,12 @@ We are aware of three limitations of our implementation.
 Our implementation requires the ECMAScript 6 proxies to be available.
 The proxies are part of the next version of ECMAScript, which has currently neither been finalized nor completely implemented, as described in \ref{sec:IMPLEMENTATION:4}.
 For this reason, our implementation works only in versions of Firefox and Chrome that already implement preliminary versions of the proxies.
-In Chrome, users also need to enable the proxies through explicitly setting the \emph{Experimental JavaScript}-option.
+Furthermore, Chrome users need to enable the proxies explicitly\footnote{\url{http://plus.google.com/+PaulIrish/posts/T615Md5JPQG}, accessed May 13, 2014}.
 
 \paragraph{Proxies Impede Developer Tools}
-The current implementation of proxies impedes debugging.
-The proxies are partly implemented by a JavaScript library and every trapped object access is visible in multiple frames in the debugger.
-Consequentely, the stack of the debugger is cluttered with frames that belong to the proxy implementation, not to the application code.\\
+The current implementation of ECMAScript 6 proxies impedes debugging.
+The proxies are partly implemented by a JavaScript library and every trapped object interaction is visible in multiple frames in the debugger.
+Consequentely, the stack of the debugger is cluttered with frames that belong to the proxy implementation, not to application code.\\
 Moreover, the developer tools in Chrome do not handle proxies correctly under all circumstances.
 In particular, hovering over variable names that are bound to proxies yields errors.
 It is also not possible to step into proxied functions in Chrome's debugger.
@@ -851,7 +846,7 @@ In general, scripts can be started from events and from other scripts using the 
 Switching the system version can be problematic for such concurrently running scripts.\\
 In the Lively Kernel, the \lstinline{setInterval} function is used to repeatedly execute a method of an object.
 Re-establishing a previous version of the system can interfere with such ticking behavior.
-For example, the method that is called repeatedly can be unavailable in previous versions.
+For example, the method that is called repeatedly can be unavailable in the previous version.
 For this reason, we stop scripts from future versions, when the system version changes.
 However, we did not succeed in finding a way to restart the scripts again when the future versions are re-established.
 Thus, subsequentely undoing and redoing changes can stop concurrently running scripts.
