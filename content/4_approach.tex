@@ -271,13 +271,13 @@ The current version of the system is \emph{v2} and, therefore, the version the p
 \end{figure}
 
 As long as the system version stays the same, the proxies forward to the same version of the object.
-Therefore, an object version is changed only as long it the current system versions matches.
+Therefore, an object version is changed only as long as it matches the current system version.
 
-\emph{To re-establish the previous version}, the current system version has to be set to its predecessor.
+\emph{To re-establish the previous version}, the system version has to be set to its predecessor.
 In that case, proxies forward interactions to previous versions of the objects.
 
-\emph{To preserve the current version}, the current system version has to be set to another version.
-The proxies forward interactions to objects of the other version or, when no such version of the object exist, create new versions.
+\emph{To preserve the current version}, the system version has to be set to a different version.
+The proxies forward interactions to other object versions or, when no such version of the object exist, create new versions.
 
 \begin{figure}[h]
     \centering

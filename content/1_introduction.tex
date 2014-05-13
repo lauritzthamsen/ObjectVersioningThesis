@@ -49,8 +49,8 @@ The Command pattern packages changes into actions.
 These actions can then be recorded to be able to subsequentely undo them.
 This requires developers to implement undos for all possible actions.
 Therefore, an implementation of the command pattern---even when limited to the Lively Kernel tools that manipulate objects---would be rather comprehensive.
-Using the Command pattern would also require developers to follow the pattern when implementing new tools.
-Furthermore, the Command pattern is entirely unpractical for undoing the effects of evaluating arbitrary code from the Lively Kernel's workspaces and editors.
+Furthermore, using the Command pattern requires developers to follow the pattern when implementing new tools.
+The Command pattern is entirely impractical for undoing the effects of evaluating arbitrary code from the Lively Kernel's workspaces and editors.
 
 Worlds~\cite{Warth2011Wor,Warth2009PhD}, in contrast, is a more generic approach for controlling the scope of side effects.
 Code is executed in \emph{world} objects, which capture all side effects.

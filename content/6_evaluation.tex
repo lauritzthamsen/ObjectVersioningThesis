@@ -19,7 +19,7 @@ Octane is used for evaluating the performance of \emph{v8}, the engine used by C
 It is part of v8's official source code repository\footnote{\url{http://v8.googlecode.com/svn/}, accessed April 23, 2014, at revision 20901}.
 
 % why?
-We decided to use Octane for our evaluation for three reasons:
+We use Octane for three reasons:
 
 \begin{itemize}
     \item Octane is a standard benchmark suite.
@@ -78,7 +78,7 @@ Second, to test whether our proxy-based version-aware references, inserted by th
 
 
 \paragraph{Results}
-All benchmarks in this suite run without errors and return the same results as when executed without any source transformations.
+All benchmarks in this suite run without errors and return the same results as if executed without any source transformations.
 That is, at least for these tests, our source transformations produce working source code and our proxy-based version-aware references forward correctly to object versions.\\
 During the development of our system, the \emph{DeltaBlue} benchmark revealed a problem when proxies are used as prototypes of objects.
 We reported the issue to the \emph{harmony-reflect} repository\footnote{\url{http://github.com/tvcutsem/harmony-reflect/issues/18}, accessed April 23, 2014}.
@@ -99,7 +99,7 @@ Moreover, we tested whether versions of its state can be preserved with our impl
 % what was done?
 We transformed the JavaScript modules of the Lively Kernel at load-time to test whether it loads and works correctly with our proxy-based version-aware references.\\
 Furthermore, we tested whether the system allows re-establishing versions of the Lively Kernel's state in practice.
-Here, we tried multiple example scenarios, including to undo changes to the state and behavior of basic morphs, morph compositions, and the state of more complicated graphical applications such as text editors and developer tools.\\
+Here, we tried multiple example scenarios, including the undo of changes to the state and behavior of basic morphs, morph compositions, and the state of more complicated graphical applications such as text editors and developer tools.\\
 % why / to test what?
 With this, we tested that the source transformations yield valid JavaScript code for the modules of the Lively Kernel, that the version-aware references delegate to the correct versions of objects, and that the version-aware references are used consistently.
 
@@ -361,7 +361,7 @@ It takes eight times more time to load a world with object versioning: instead o
 
 \subsection{Discussion of the Execution Overhead}
 
-The results of our evaluation show that the execution overhead is currently not practical.
+The results of our evaluation show that the execution overhead is currently impractical.
 The Octane benchmarks indicate that executing real JavaScript programs takes two to three orders of magnitude more time.
 Similarly, the Lively Kernel tools are significantly less responsive.\\
 Even though we expected a certain execution overhead with our approach, the current overhead is too high.
