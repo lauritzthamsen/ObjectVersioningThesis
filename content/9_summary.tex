@@ -4,17 +4,17 @@
 This work introduced an approach to preserving access to previous states of programming systems such as the Lively Kernel.
 The approach is based on version-aware references.
 These references manage different versions of objects transparently.
-They resolve to one of multiple versions of objects and to which ones can easily be changed.
+They resolve to one of multiple versions of objects; to which ones in particular can easily be changed.
 Thereby, different preserved states can be re-established.
 
 We presented a design for our approach that uses proxies for version-aware references.
 Instead of actually using alternative references, ordinary references refer to proxies and proxies forward all interactions transparently to the right versions.
-The design allows implementing version-aware references without any adaptions to existing execution engines---neither for alternative references nor for garbage collection of versions.\\
+The design allows implementing version-aware references without any adaptions to existing execution engines---neither for alternative references nor for the garbage collection of versions.\\
 For each new object that is created, a proxy is created and returned instead of the new object.
 Thus, references to proxies are passed around and all access goes through the proxies.
 Moreover, only the proxies refer to the versions of an object.
-So, all versions of an object are reclaimed together with their proxy by the ordinary garbage collector.\\
-Returning new proxies for new objects is achieved using source transformations.
+Consequentely, all versions of an object are reclaimed together with their proxy by the ordinary garbage collector.\\
+Returning proxies for new objects is achieved using source transformations.
 Program sources are transformed when loaded and do not have to be adapted manually.
 
 % Significance, Practical applications
