@@ -1,7 +1,7 @@
 ## Object Versioning for the Lively Kernel
 ### Preserving Access to Previous System States in an Object-oriented Programming System
 
-The Master's thesis I submitted at the Hasso-Plattner-Institute in May 2014.
+The Master's thesis I submitted at the Hasso-Plattner-Institute in May 2014. The version I submitted is available as [pdf](https://github.com/lauritzthamsen/ObjectVersioning-Thesis/releases/tag/v1.0).
 
 
 #### Abstract
